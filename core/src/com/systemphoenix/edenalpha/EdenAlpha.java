@@ -1,6 +1,7 @@
 package com.systemphoenix.edenalpha;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 
 public class EdenAlpha extends Game {
 
@@ -8,10 +9,8 @@ public class EdenAlpha extends Game {
 	
 	@Override
 	public void create () {
-		gameScreen = new GameScreen(this);
-	}
-
-	public GameScreen getGameScreen() {
-		return this.gameScreen;
+		this.gameScreen = new GameScreen(this);
+		this.setScreen(gameScreen);
+		Gdx.app.log("Verbose", "* * * A P P    S T A R T I N G . . . * * *");
 	}
 }
