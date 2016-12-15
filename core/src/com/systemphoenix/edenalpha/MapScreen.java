@@ -29,8 +29,10 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     public MapScreen(EdenAlpha game) {
         this.game = game;
 
+        this.game.getMainScreen().setLoadingMessage("Creating field...");
         this.fieldSelection = new FieldSelection(game.getSelectedMapIndex());
 
+        this.game.getMainScreen().setLoadingMessage("Setting up camera...");
         mapSprite = new Sprite(new Texture("[PH]map0.jpg"));
         mapSprite.setPosition(0, 0);
         mapSprite.setSize(worldWidth, worldHeight);
@@ -40,8 +42,11 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
         gameGraphics = this.game.getGameGraphics();
 
+        this.game.getMainScreen().setLoadingMessage("Creating input...");
         GestureDetector gd = new GestureDetector(this);
         Gdx.input.setInputProcessor(gd);
+
+        this.game.getMainScreen().setLoadingMessage("Tap to start!");
     }
 
     @Override
