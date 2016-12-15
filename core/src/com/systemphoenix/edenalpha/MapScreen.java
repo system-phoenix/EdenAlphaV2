@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 public class MapScreen implements Screen, GestureDetector.GestureListener {
     private EdenAlpha game;
@@ -17,7 +18,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     public static final float screenWidth = Gdx.graphics.getWidth(), screenHeight = Gdx.graphics.getHeight();
     public static final float worldWidth = 969, worldHeight = 1403;
 
-    private float size = 480f;
+    private float sizeWidth = 480f, sizeHeight = 360f;
     private OrthographicCamera cam;
     private Sprite mapSprite;
 
@@ -28,16 +29,16 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     public MapScreen(EdenAlpha game) {
         this.game = game;
 
-        this.fieldSelection = new FieldSelection();
+        this.fieldSelection = new FieldSelection(game.getSelectedMapIndex());
 
         mapSprite = new Sprite(new Texture("[PH]map0.jpg"));
         mapSprite.setPosition(0, 0);
         mapSprite.setSize(worldWidth, worldHeight);
-        cam = new OrthographicCamera(size, size * screenHeight / screenWidth);
+        cam = new OrthographicCamera(sizeWidth, sizeHeight);
         fieldSelection.setCameraPosition(cam);
         cam.update();
 
-        gameGraphics = new SpriteBatch();
+        gameGraphics = this.game.getGameGraphics();
 
         GestureDetector gd = new GestureDetector(this);
         Gdx.input.setInputProcessor(gd);
@@ -78,7 +79,12 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     @Override
     public boolean tap(float x, float y, int count, int button) {
-        return false;
+        Vector3 touchPos = new Vector3();
+        touchPos.set(x, y, 0);
+        cam.unproject(touchPos);
+
+        game.setSelectedMapIndex(fieldSelection.getIndex());
+        return true;
     }
 
     @Override
@@ -104,13 +110,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     @Override
     public boolean pan(float x, float y, float deltaX, float deltaY) {
-
-//        cam.translate(-deltaX, 0);
-//        cam.translate(0, deltaY);
-//
-//        cam.update();
-//        Gdx.app.log("Verbose", "(" + cam.position.x + ", " + cam.position.y + ")");
-        return true;
+        return false;
     }
 
     @Override
@@ -142,8 +142,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     @Override
     public void resize(int width, int height) {
-        cam.viewportWidth = size;
-        cam.viewportHeight = size * screenHeight / screenWidth;
+        cam.viewportWidth = sizeWidth;
+        cam.viewportHeight = sizeHeight;
         cam.update();
     }
 
@@ -165,6 +165,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     @Override
     public void dispose() {
         mapSprite.getTexture().dispose();
-        gameGraphics.dispose();
+        fieldSelection.dispose();
     }
 }

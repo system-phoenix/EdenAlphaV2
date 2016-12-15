@@ -1,5 +1,7 @@
 package com.systemphoenix.edenalpha;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -15,7 +17,8 @@ public class FieldSelection {
     private int index = 0, pastIndex = -1;
     private float velX, velY;
 
-    public FieldSelection() {
+    public FieldSelection(int index) {
+        this.index = index;
         phMaps = new Texture[17];
         mapSprites = new Sprite[17];
         regions = new Region[17];
@@ -88,6 +91,16 @@ public class FieldSelection {
             this.velX = (regions[index].getX() - regions[pastIndex].getX()) / 10;
             this.velY = (regions[index].getY() - regions[pastIndex].getY()) / 10;
             flinging = true;
+        }
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void dispose() {
+        for(int i = 0; i < phMaps.length; i++) {
+            phMaps[i].dispose();
         }
     }
 
