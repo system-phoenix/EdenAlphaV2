@@ -5,12 +5,12 @@ import com.badlogic.gdx.Gdx;
 
 public class EdenAlpha extends Game {
 
-	private GameScreen gameScreen;
+	private MapScreen mapScreen;
 	
 	@Override
 	public void create () {
-		this.gameScreen = new GameScreen(this);
-		this.setScreen(gameScreen);
+		this.mapScreen = new MapScreen(this);
+		this.setScreen(mapScreen);
 		Gdx.app.log("Verbose", "* * * A P P    S T A R T I N G . . . * * *");
 	}
 }

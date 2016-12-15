@@ -1,6 +1,5 @@
 package com.systemphoenix.edenalpha;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -12,7 +11,7 @@ public class FieldSelection {
     private Sprite[] mapSprites;
     private Region[] regions;
 
-    private boolean flinging = false, xAligned = false, yAligned = false;
+    private boolean flinging = false, xAligned = false, yAligned = false, firstCall = true;
     private int index = 0, pastIndex = -1;
     private float velX, velY;
 
@@ -45,14 +44,19 @@ public class FieldSelection {
     }
 
     public void render(SpriteBatch gameGraphics) {
-        mapSprites[index].draw(gameGraphics);
+        mapSprites[regions[index].getMapIndex()].draw(gameGraphics);
     }
 
     public void setCameraPosition(OrthographicCamera camera) {
         float x, y;
         x = camera.position.x;
         y = camera.position.y;
-        if(flinging) {
+
+        if(firstCall) {
+            x = regions[index].getX();
+            y = regions[index].getY();
+            firstCall = false;
+        } else if(flinging) {
             if(Math.round(x) != regions[index].getX()) {
                 x += velX;
             } else {
@@ -63,13 +67,12 @@ public class FieldSelection {
             } else {
                 yAligned = true;
             }
-            camera.position.set(x, y, 0);
             if(xAligned && yAligned) {
                 xAligned = yAligned = flinging = false;
                 velX = velY = 0;
             }
         }
-
+        camera.position.set(x, y, 0);
     }
 
     public void setIndex(int update) {

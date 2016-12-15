@@ -2,6 +2,7 @@ package com.systemphoenix.edenalpha;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -10,7 +11,7 @@ import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
-public class GameScreen implements Screen, GestureDetector.GestureListener {
+public class MapScreen implements Screen, GestureDetector.GestureListener {
     private EdenAlpha game;
 
     public static final float screenWidth = Gdx.graphics.getWidth(), screenHeight = Gdx.graphics.getHeight();
@@ -24,7 +25,7 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
 
     private FieldSelection fieldSelection;
 
-    public GameScreen(EdenAlpha game) {
+    public MapScreen(EdenAlpha game) {
         this.game = game;
 
         this.fieldSelection = new FieldSelection();
@@ -33,7 +34,7 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
         mapSprite.setPosition(0, 0);
         mapSprite.setSize(worldWidth, worldHeight);
         cam = new OrthographicCamera(size, size * screenHeight / screenWidth);
-        cam.position.set(465f, 1073.5f, 0);
+        fieldSelection.setCameraPosition(cam);
         cam.update();
 
         gameGraphics = new SpriteBatch();
@@ -51,6 +52,7 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
         gameGraphics.setProjectionMatrix(cam.combined);
 //        update stuff above
 
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         gameGraphics.begin();
 //        render stuff below
         fieldSelection.render(gameGraphics);
@@ -97,8 +99,6 @@ public class GameScreen implements Screen, GestureDetector.GestureListener {
             update = 1;
         }
         fieldSelection.setIndex(update);
-
-
         return true;
     }
 
