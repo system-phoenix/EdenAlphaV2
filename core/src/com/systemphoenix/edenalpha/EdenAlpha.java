@@ -31,8 +31,6 @@ public class EdenAlpha extends Game {
 		this.setScreen(mainScreen);
 
 		this.mapScreen = new MapScreen(this);
-//		this.setScreen(mapScreen);
-		Gdx.app.log("Verbose", "* * * A P P    S T A R T I N G . . . * * *");
 	}
 
 	public void render() {

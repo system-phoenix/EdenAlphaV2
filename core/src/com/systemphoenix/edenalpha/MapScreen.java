@@ -43,8 +43,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         gameGraphics = this.game.getGameGraphics();
 
         this.game.getMainScreen().setLoadingMessage("Creating input...");
-        GestureDetector gd = new GestureDetector(this);
-        Gdx.input.setInputProcessor(gd);
 
         this.game.getMainScreen().setLoadingMessage("Tap to start!");
         this.game.getMainScreen().setCanStart(true);
@@ -90,6 +88,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         cam.unproject(touchPos);
 
         game.setSelectedMapIndex(fieldSelection.getIndex());
+        game.setScreen(new GameScreen(game, fieldSelection.getRegionByIndex(game.getSelectedMapIndex())));
         return true;
     }
 
@@ -155,7 +154,8 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     @Override
     public void show() {
-
+        GestureDetector gd = new GestureDetector(this);
+        Gdx.input.setInputProcessor(gd);
     }
 
     @Override

@@ -1,8 +1,5 @@
 package com.systemphoenix.edenalpha;
 
-/**
- * Created by System Phoenix on 14/12/2016.
- */
 public class Region {
     private String name, code;
     private float x, y, forestLandPercentage;
