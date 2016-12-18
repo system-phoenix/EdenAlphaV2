@@ -17,17 +17,85 @@ public class FieldSelection {
     private Sprite[] mapSprites;
     private Region[] regions;
 
+    private String[] codes, names;
+    private float[] coordsX, coordsY, forestLandPercentages;
+    private int[] regionIndeces;
+
     private boolean flinging = false, xAligned = false, yAligned = false, firstCall = true;
     private int index = 0, pastIndex = -1, counter = 0, padding = 20, spaces = 15;
     private float velX, velY;
     private GlyphLayout glyphLayout;
     private BitmapFont font;
+    private Preferences levels;
 
     public FieldSelection(int index) {
         this.index = index;
         this.font = new BitmapFont();
         this.font.getData().setScale(1f);
         this.glyphLayout = new GlyphLayout();
+        this.levels = Gdx.app.getPreferences("All Levels");
+        this.codes = new String[17];    this.names = new String[17];
+        this.coordsX = new float[17];   this.coordsY = new float[17];
+        this.forestLandPercentages = new float[17];
+        this.regionIndeces = new int[17];
+        try{
+            for(int i = 0; i < codes.length; i++) {
+                codes[i] = levels.getString("code" + i);
+                names[i] = levels.getString("name" + i);
+                coordsX[i] = levels.getFloat("coordsX" + i);
+                coordsY[i] = levels.getFloat("coordsY" + i);
+                forestLandPercentages[i] = levels.getFloat("forestLandPercentage" + i);
+                regionIndeces[i] = levels.getInteger("regionIndex" + i);
+            }
+        } catch (Exception e) {
+            codes[0]    = "CAR";                    coordsX[0]  = 685f;         coordsY[0]  = 1075f;
+            codes[1]    = "Region I";               coordsX[1]  = 645f;         coordsY[1]  = 1045f;
+            codes[2]    = "Region II";              coordsX[2]  = 745f;         coordsY[2]  = 1095f;
+            codes[3]    = "Region III";             coordsX[3]  = 675f;         coordsY[3]  = 935f;
+            codes[4]    = "Region IVA";             coordsX[4]  = 745f;         coordsY[4]  = 805f;
+            codes[5]    = "Region IVB";             coordsX[5]  = 645f;         coordsY[5]  = 675f;
+            codes[6]    = "Region V";               coordsX[6]  = 875f;         coordsY[6]  = 725f;
+            codes[7]    = "Region VI";              coordsX[7]  = 825f;         coordsY[7]  = 535f;
+            codes[8]    = "Region VII";             coordsX[8]  = 885f;         coordsY[8]  = 465f;
+            codes[9]    = "Region VIII";            coordsX[9]  = 995f;         coordsY[9]  = 565f;
+            codes[10]   = "Region IX";              coordsX[10] = 835f;         coordsY[10] = 275f;
+            codes[11]   = "Region X";               coordsX[11] = 965f;         coordsY[11] = 325f;
+            codes[12]   = "Region XI";              coordsX[12] = 1065f;        coordsY[12] = 225f;
+            codes[13]   = "Region XII";             coordsX[13] = 985f;         coordsY[13] = 195f;
+            codes[14]   = "Region XIII";            coordsX[14] = 1045f;        coordsY[14] = 355f;
+            codes[15]   = "ARMM";                   coordsX[15] = 795f;         coordsY[15] = 195f;
+            codes[16]   = "NCR";                    coordsX[16] = 665f;         coordsY[16] = 835f;
+
+            names[0]      = "Cordillera Administrative Region";     forestLandPercentages[0]  = 81;    regionIndeces[0]  = 0;
+            names[1]      = "Ilocos Region";                        forestLandPercentages[1]  = 37;    regionIndeces[1]  = 1;
+            names[2]      = "Cagayan Valley";                       forestLandPercentages[2]  = 64;    regionIndeces[2]  = 2;
+            names[3]      = "Central Luzon";                        forestLandPercentages[3]  = 44;    regionIndeces[3]  = 3;
+            names[4]      = "CALABARZON";                           forestLandPercentages[4]  = 35;    regionIndeces[4]  = 4;
+            names[5]      = "MIMAROPA";                             forestLandPercentages[5]  = 64;    regionIndeces[5]  = 5;
+            names[6]      = "Bicol Region";                         forestLandPercentages[6]  = 31;    regionIndeces[6]  = 6;
+            names[7]      = "Western Visayas";                      forestLandPercentages[7]  = 30;    regionIndeces[7]  = 7;
+            names[8]      = "Central Visayas";                      forestLandPercentages[8]  = 35;    regionIndeces[8]  = 8;
+            names[9]      = "Eastern Visayas";                      forestLandPercentages[9]  = 52;    regionIndeces[9]  = 9;
+            names[10]     = "Zamboangan Peninsula";                 forestLandPercentages[10] = 54;    regionIndeces[10] = 10;
+            names[11]     = "Northern Mindanao";                    forestLandPercentages[11] = 52;    regionIndeces[11] = 11;
+            names[12]     = "Davao Region";                         forestLandPercentages[12] = 63;    regionIndeces[12] = 12;
+            names[13]     = "SOCCSKSARGEN";                         forestLandPercentages[13] = 61;    regionIndeces[13] = 13;
+            names[14]     = "Caraga";                               forestLandPercentages[14] = 71;    regionIndeces[14] = 14;
+            names[15]     = "Autonomous Region in Muslim Mindanao"; forestLandPercentages[15] = 51;    regionIndeces[15] = 15;
+            names[16]     = "National Capital Region";              forestLandPercentages[16] = 24;    regionIndeces[16] = 16;
+            
+            for(int i = 0; i < codes.length; i++) {
+                levels.putString("code" + i, codes[i]);
+                levels.putString("name" + i, names[i]);
+                levels.putFloat("coordsX" + i, coordsX[i]);
+                levels.putFloat("coordsY" + i, coordsY[i]);
+                levels.putFloat("forestLandPercentage" + i, forestLandPercentages[i]);
+                levels.putInteger("regionIndex" + i, regionIndeces[i]);
+            }
+        }
+
+        createRegions();
+
         phMaps = new Texture[17];
         mapSprites = new Sprite[17];
         regions = new Region[17];
@@ -35,24 +103,12 @@ public class FieldSelection {
             phMaps[i] = new Texture("[PH]map" + i + ".png");
             mapSprites[i] = new Sprite(phMaps[i]);
         }
+    }
 
-        regions[0]      = new Region("CAR", "Cordillera Administrative Region",      81,    685f,    1075f,    0);
-        regions[1]      = new Region("Region I", "Ilocos Region",                    37,    645f,    1045f,    1);
-        regions[2]      = new Region("Region II", "Cagayan Valley",                  64,    745f,    1095f,    2);
-        regions[3]      = new Region("Region III", "Central Luzon",                  44,    675f,    935f,     3);
-        regions[4]      = new Region("Region IVA", "CALABARZON",                     35,    745f,    805f,     4);
-        regions[5]      = new Region("Region IVB", "MIMAROPA",                       64,    645f,    675f,     5);
-        regions[6]      = new Region("Region V", "Bicol Region",                     31,    875f,    725f,     6);
-        regions[7]      = new Region("Region VI", "Western Visayas",                 30,    825f,    535f,     7);
-        regions[8]      = new Region("Region VII", "Central Visayas",                35,    885f,    465f,     8);
-        regions[9]      = new Region("Region VIII", "Eastern Visayas",               52,    995f,    565f,     9);
-        regions[10]     = new Region("Region IX", "Zamboangan Peninsula",            54,    835f,    275f,    10);
-        regions[11]     = new Region("Region X", "Northern Mindanao",                52,    965f,    325f,    11);
-        regions[12]     = new Region("Region XI", "Davao Region",                    63,    1065f,   225f,    12);
-        regions[13]     = new Region("Region XII", "SOCCSKSARGEN",                   61,    985f,    195f,    13);
-        regions[14]     = new Region("Region XIII", "Caraga",                        71,    1045f,   355f,    14);
-        regions[15]     = new Region("ARMM", "Autonomous Region in Muslim Mindanao", 51,    795f,    195f,    15);
-        regions[16]     = new Region("NCR", "National Capital Region",               24,    665f,    835f,    16);
+    private void createRegions() {
+        for(int i = 0; i < codes.length; i++) {
+            regions[i] = new Region(codes[i], names[i], forestLandPercentages[i], coordsX[i], coordsY[i], regionIndeces[i]);
+        }
     }
 
     public void render(SpriteBatch gameGraphics, OrthographicCamera cam) {
