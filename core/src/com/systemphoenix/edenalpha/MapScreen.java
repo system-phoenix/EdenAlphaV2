@@ -16,9 +16,9 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     private EdenAlpha game;
 
     public static final float screenWidth = Gdx.graphics.getWidth(), screenHeight = Gdx.graphics.getHeight();
-    public static final float worldWidth = 969, worldHeight = 1403;
+    public static final float worldWidth = 1403, worldHeight = 1403;
 
-    private float sizeWidth = 480f, sizeHeight = 360f;
+    private float sizeWidth = 480f, sizeHeight = 384f;
     private OrthographicCamera cam;
     private Sprite mapSprite;
 
@@ -33,7 +33,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         this.fieldSelection = new FieldSelection(game.getSelectedMapIndex());
 
         this.game.getMainScreen().setLoadingMessage("Setting up camera...");
-        mapSprite = new Sprite(new Texture("[PH]map0.jpg"));
+        mapSprite = new Sprite(new Texture("[PH]map0.png"));
         mapSprite.setPosition(0, 0);
         mapSprite.setSize(worldWidth, worldHeight);
         cam = new OrthographicCamera(sizeWidth, sizeHeight);
@@ -115,7 +115,19 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 
     @Override
     public boolean pan(float x, float y, float deltaX, float deltaY) {
-        return false;
+//        float limit = 5;
+//        if(Math.abs(deltaX) < limit) {
+//            deltaX = 0;
+//        }
+//
+//        if(Math.abs(deltaY) < limit) {
+//            deltaY = 0;
+//        }
+//
+//        cam.position.x -= deltaX;
+//        cam.position.y += deltaY;
+//        Gdx.app.log("Verbose", "(" + cam.position.x + ", " + cam.position.y + ")");
+        return true;
     }
 
     @Override
