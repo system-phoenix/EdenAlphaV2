@@ -62,7 +62,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         gameGraphics.begin();
 //        render stuff below
-        fieldSelection.render(gameGraphics);
+        fieldSelection.render(gameGraphics, cam);
 //        render stuff above
         gameGraphics.end();
     }
@@ -124,7 +124,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
 //        if(Math.abs(deltaY) < limit) {
 //            deltaY = 0;
 //        }
-//
+
 //        cam.position.x -= deltaX;
 //        cam.position.y += deltaY;
 //        Gdx.app.log("Verbose", "(" + cam.position.x + ", " + cam.position.y + ")");
