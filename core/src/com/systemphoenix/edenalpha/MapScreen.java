@@ -15,7 +15,6 @@ import com.badlogic.gdx.math.Vector3;
 public class MapScreen implements Screen, GestureDetector.GestureListener {
     private EdenAlpha game;
 
-    public static final float screenWidth = Gdx.graphics.getWidth(), screenHeight = Gdx.graphics.getHeight();
     public static final float worldWidth = 1403, worldHeight = 1403;
 
     private float sizeWidth = 480f, sizeHeight = 384f;
@@ -51,7 +50,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
     @Override
     public void render(float delta) {
 //        update stuff below
-        boundCamera();
+        game.boundCamera(cam, worldWidth, worldHeight);
         fieldSelection.setCameraPosition(cam);
         cam.update();
         gameGraphics.setProjectionMatrix(cam.combined);
@@ -63,16 +62,6 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         fieldSelection.render(gameGraphics, cam);
 //        render stuff above
         gameGraphics.end();
-    }
-
-    public void boundCamera() {
-        cam.zoom = MathUtils.clamp(cam.zoom, 0.1f, worldWidth/screenWidth);
-
-        float effectiveViewportWidth = cam.viewportWidth * cam.zoom;
-        float effectiveViewportHeight = cam.viewportHeight * cam.zoom;
-
-        cam.position.x = MathUtils.clamp(cam.position.x, effectiveViewportWidth / 2f, worldWidth - effectiveViewportWidth / 2f);
-        cam.position.y = MathUtils.clamp(cam.position.y, effectiveViewportHeight / 2f, worldHeight  - effectiveViewportHeight / 2f);
     }
 
 //    Gesture listener methods

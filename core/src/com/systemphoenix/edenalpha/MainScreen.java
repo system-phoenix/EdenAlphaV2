@@ -27,6 +27,8 @@ public class MainScreen implements Screen, GestureDetector.GestureListener {
 
     public MainScreen(EdenAlpha game) {
         this.game = game;
+        this.game.setScreenWidth(Gdx.graphics.getWidth());
+        this.game.setScreenHeight(Gdx.graphics.getHeight());
         this.gameGraphics = game.getGameGraphics();
         this.font = game.getFont();
         this.font.getData().setScale(1.5f);
@@ -57,15 +59,15 @@ public class MainScreen implements Screen, GestureDetector.GestureListener {
 
 
         glyphLayout.setText(font, loadingMessage);
-        float x = (MapScreen.screenWidth - glyphLayout.width) / 2;
+        float x = (game.getScreenWidth() - glyphLayout.width) / 2;
         gameGraphics.begin();
-        gameGraphics.draw(bg, 0, 0, MapScreen.screenWidth, MapScreen.screenHeight);
+        gameGraphics.draw(bg, 0, 0, game.getScreenWidth(), game.getScreenHeight());
         if(canStart) {
             if(blinking) {
-                font.draw(gameGraphics, loadingMessage, x, MapScreen.screenHeight / 4 - MapScreen.screenHeight / 16);
+                font.draw(gameGraphics, loadingMessage, x, game.getScreenHeight() / 4 - game.getScreenHeight() / 16);
             }
         } else {
-            font.draw(gameGraphics, loadingMessage, x, MapScreen.screenHeight / 4 - MapScreen.screenHeight / 16);
+            font.draw(gameGraphics, loadingMessage, x, game.getScreenHeight() / 4 - game.getScreenHeight() / 16);
         }
         gameGraphics.end();
     }
