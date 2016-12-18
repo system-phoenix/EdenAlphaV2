@@ -47,6 +47,7 @@ public class MapScreen implements Screen, GestureDetector.GestureListener {
         Gdx.input.setInputProcessor(gd);
 
         this.game.getMainScreen().setLoadingMessage("Tap to start!");
+        this.game.getMainScreen().setCanStart(true);
     }
 
     @Override

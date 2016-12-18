@@ -7,10 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.Map;
 import com.badlogic.gdx.utils.TimeUtils;
-
-import java.sql.Time;
 
 public class MainScreen implements Screen {
 
@@ -23,7 +20,7 @@ public class MainScreen implements Screen {
     private String loadingMessage = "Loading...";
     private GlyphLayout glyphLayout;
 
-    private boolean canStart = true, blinking = true;
+    private boolean canStart = false, blinking = true;
     private long blink;
 
     public MainScreen(EdenAlpha game) {
@@ -106,5 +103,9 @@ public class MainScreen implements Screen {
 
     public void setLoadingMessage(String loadingMessage) {
         this.loadingMessage = loadingMessage;
+    }
+
+    public void setCanStart(boolean canStart) {
+        this.canStart = canStart;
     }
 }
