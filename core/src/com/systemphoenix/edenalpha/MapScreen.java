@@ -17,7 +17,6 @@ public class MapScreen extends AbsoluteScreen {
 //    private float sizeHeight = sizeWidth * screenHeight / screenWidth;
     private float sizeHeight = 384f;
 
-    private OrthographicCamera cam;
     private Sprite mapSprite;
 
     private FieldSelection fieldSelection;
