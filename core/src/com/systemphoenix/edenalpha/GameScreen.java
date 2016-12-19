@@ -1,23 +1,15 @@
 package com.systemphoenix.edenalpha;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 
-public class GameScreen implements Screen, GestureDetector.GestureListener {
-    private EdenAlpha game;
+public class GameScreen extends AbsoluteScreen {
     private Region region;
 
-    private SpriteBatch gameGraphics;
-
     public GameScreen(EdenAlpha game, Region region) {
-        this.game = game;
+        super(game);
         this.region = region;
-
-        this.gameGraphics = game.getGameGraphics();
     }
 
     @Override
