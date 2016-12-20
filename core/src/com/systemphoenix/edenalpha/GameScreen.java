@@ -2,14 +2,22 @@ package com.systemphoenix.edenalpha;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
 public class GameScreen extends AbsoluteScreen {
     private Region region;
 
+    private Texture fieldTexture;
+
     public GameScreen(EdenAlpha game, Region region) {
         super(game);
         this.region = region;
+        initialize();
+    }
+
+    private void initialize() {
+
     }
 
     @Override

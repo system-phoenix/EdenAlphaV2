@@ -29,7 +29,12 @@ public class MapScreen extends AbsoluteScreen {
 
         this.game.getMainScreen().setLoadingMessage("Setting up camera...");
         worldHeight = worldWidth = 1403;
-        mapSprite = new Sprite(new Texture("[PH]map.gif"));
+        try {
+            mapSprite = new Sprite(new Texture(Gdx.files.internal("maps/[PH]map.gif")));
+            Gdx.app.log("Verbose", "Successfully loaded first map");
+        } catch(Exception e) {
+            Gdx.app.log("Verbose", "mapsprite " + e.getMessage());
+        }
         mapSprite.setPosition(0, 0);
         mapSprite.setSize(worldWidth, worldHeight);
         cam.setToOrtho(false, sizeWidth, sizeHeight);

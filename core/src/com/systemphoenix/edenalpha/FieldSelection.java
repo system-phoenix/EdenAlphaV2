@@ -1,5 +1,6 @@
 package com.systemphoenix.edenalpha;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -26,9 +27,14 @@ public class FieldSelection {
         phMaps = new Texture[17];
         mapSprites = new Sprite[17];
         regions = new Region[17];
-        for (int i = 0; i < phMaps.length; i++) {
-            phMaps[i] = new Texture("[PH]map" + i + ".png");
-            mapSprites[i] = new Sprite(phMaps[i]);
+        try {
+            for (int i = 0; i < phMaps.length; i++) {
+                phMaps[i] = new Texture(Gdx.files.internal("maps/[PH]map" + i + ".png"));
+                mapSprites[i] = new Sprite(phMaps[i]);
+            }
+            Gdx.app.log("Verbose", "Successfully loaded maps.");
+        } catch(Exception e) {
+            Gdx.app.log("Verbose", "maps " + e.getMessage());
         }
 
         createRegions();

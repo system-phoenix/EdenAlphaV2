@@ -24,7 +24,12 @@ public class MainScreen extends AbsoluteScreen {
         this.font.getData().setScale(1.5f);
         this.font.setColor(Color.BLACK);
         this.glyphLayout = new GlyphLayout();
-        this.bg = new Texture(Gdx.files.internal("bg.jpg"));
+        try {
+            this.bg = new Texture(Gdx.files.internal("main/bg.jpg"));
+            Gdx.app.log("Verbose", "Successfully loaded bg");
+        } catch(Exception e) {
+            Gdx.app.log("Verbose", "bg " + e.getMessage());
+        }
     }
 
     public void update() {
