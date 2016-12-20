@@ -43,6 +43,8 @@ public class MainScreen extends AbsoluteScreen {
 
     @Override
     public void render(float delta) {
+        cam.update();
+        gameGraphics.setProjectionMatrix(cam.combined);
         if(canStart) {
             update();
         }

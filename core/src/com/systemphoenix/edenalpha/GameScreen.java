@@ -14,6 +14,8 @@ public class GameScreen extends AbsoluteScreen {
 
     @Override
     public void render(float delta) {
+        cam.update();
+        gameGraphics.setProjectionMatrix(cam.combined);
         Gdx.gl.glClearColor(0.95f, 0.95f, 0.95f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
