@@ -13,24 +13,26 @@ public class EdenAlpha extends Game {
 	private BitmapFont font;
 	private Preferences levelPrefs;
 
+    private LoadingScreen loadingScreen;
 	private MapScreen mapScreen;
 	private MainScreen mainScreen;
 	private int selectedMapIndex = 0;
 	
 	@Override
 	public void create () {
+        this.gameGraphics = new SpriteBatch();
+        this.font = new BitmapFont();
+
 		this.levelPrefs = Gdx.app.getPreferences("Level");
 		try {
 			this.selectedMapIndex = this.levelPrefs.getInteger("SelectedMapIndex");
 		} catch(Exception e) {
 			this.selectedMapIndex = 0;
 		}
-		this.gameGraphics = new SpriteBatch();
-		this.font = new BitmapFont();
 
+        this.loadingScreen = new LoadingScreen(this);
+        this.setScreen(loadingScreen);
 		this.mainScreen = new MainScreen(this);
-		this.setScreen(mainScreen);
-
 		this.mapScreen = new MapScreen(this);
 	}
 
@@ -68,7 +70,11 @@ public class EdenAlpha extends Game {
 		levelPrefs.flush();
 	}
 
-	public void setScreenToMapScreen() {
-		this.setScreen(mapScreen);
+	public MapScreen getMapScreen() {
+		return this.mapScreen;
 	}
+
+    public LoadingScreen getLoadingScreen() {
+        return this.loadingScreen;
+    }
 }

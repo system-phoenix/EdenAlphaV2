@@ -68,7 +68,7 @@ public class MainScreen extends AbsoluteScreen {
 
     @Override
     public boolean tap(float x, float y, int count, int button) {
-        if(canStart) game.setScreenToMapScreen();
+        if(canStart) game.setScreen(game.getMapScreen());
         return true;
     }
 

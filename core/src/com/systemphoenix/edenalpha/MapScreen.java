@@ -14,8 +14,8 @@ import com.badlogic.gdx.math.Vector3;
 
 public class MapScreen extends AbsoluteScreen {
     private float sizeWidth = 480f;
-//    private float sizeHeight = sizeWidth * screenHeight / screenWidth;
-    private float sizeHeight = 384f;
+    private float sizeHeight = sizeWidth * screenHeight / screenWidth;
+//    private float sizeHeight = 384f;
 
     private Sprite mapSprite;
 
@@ -40,6 +40,7 @@ public class MapScreen extends AbsoluteScreen {
 
         this.game.getMainScreen().setLoadingMessage("Tap to start!");
         this.game.getMainScreen().setCanStart(true);
+        this.game.setScreen(game.getMainScreen());
     }
 
     @Override
@@ -67,7 +68,8 @@ public class MapScreen extends AbsoluteScreen {
         cam.unproject(touchPos);
 
         game.setSelectedMapIndex(fieldSelection.getIndex());
-        game.setScreen(new GameScreen(game, fieldSelection.getRegionByIndex(game.getSelectedMapIndex())));
+        game.setScreen(game.getLoadingScreen());
+//        game.setScreen(new GameScreen(game, fieldSelection.getRegionByIndex(game.getSelectedMapIndex())));
         return true;
     }
 

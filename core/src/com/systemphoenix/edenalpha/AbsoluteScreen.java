@@ -25,6 +25,7 @@ public class AbsoluteScreen implements Screen, GestureDetector.GestureListener {
         this.gameGraphics = game.getGameGraphics();
         this.font = game.getFont();
         this.cam = new OrthographicCamera(worldWidth, worldHeight);
+        this.cam.position.set(worldWidth / 2, worldHeight / 2, 0);
     }
 
     public void boundCamera() {
