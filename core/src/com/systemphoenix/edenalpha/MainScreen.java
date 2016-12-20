@@ -43,6 +43,7 @@ public class MainScreen extends AbsoluteScreen {
 
     @Override
     public void render(float delta) {
+        boundCamera();
         cam.update();
         gameGraphics.setProjectionMatrix(cam.combined);
         if(canStart) {
@@ -71,6 +72,11 @@ public class MainScreen extends AbsoluteScreen {
     @Override
     public boolean tap(float x, float y, int count, int button) {
         if(canStart) game.setScreen(game.getMapScreen());
+        return true;
+    }
+
+    @Override
+    public boolean pan(float x, float y, float deltaX, float deltaY) {
         return true;
     }
 

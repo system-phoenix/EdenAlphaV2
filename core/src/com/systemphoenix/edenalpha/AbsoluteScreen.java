@@ -71,6 +71,7 @@ public class AbsoluteScreen implements Screen, GestureDetector.GestureListener {
 
         cam.position.x -= deltaX;
         cam.position.y += deltaY;
+        boundCamera();
         Gdx.app.log("Verbose", "(" + cam.position.x + ", " + cam.position.y + ")");
         return false;
     }

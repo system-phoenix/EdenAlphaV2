@@ -14,8 +14,8 @@ import com.badlogic.gdx.math.Vector3;
 
 public class MapScreen extends AbsoluteScreen {
     private float sizeWidth = 480f;
-    private float sizeHeight = sizeWidth * screenHeight / screenWidth;
-//    private float sizeHeight = 384f;
+//    private float sizeHeight = sizeWidth * screenHeight / screenWidth;
+    private float sizeHeight = 384f;
 
     private Sprite mapSprite;
 
@@ -32,7 +32,7 @@ public class MapScreen extends AbsoluteScreen {
         mapSprite = new Sprite(new Texture("[PH]map.gif"));
         mapSprite.setPosition(0, 0);
         mapSprite.setSize(worldWidth, worldHeight);
-        cam = new OrthographicCamera(sizeWidth, sizeHeight);
+        cam.setToOrtho(false, sizeWidth, sizeHeight);
         fieldSelection.setCameraPosition(cam);
         cam.update();
 

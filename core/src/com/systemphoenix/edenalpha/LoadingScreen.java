@@ -19,7 +19,7 @@ public class LoadingScreen extends AbsoluteScreen {
     public LoadingScreen(EdenAlpha game) {
         super(game);
 
-        this.loadingSheet = new Texture(Gdx.files.internal("loadingV4.png"));
+        this.loadingSheet = new Texture(Gdx.files.internal("loadingV5.png"));
         TextureRegion[][] temp = TextureRegion.split(loadingSheet, 16, 16);
         this.frames = new TextureRegion[temp.length * temp[0].length];
         for(int i = 0; i < temp.length; i++) {
@@ -28,16 +28,17 @@ public class LoadingScreen extends AbsoluteScreen {
             }
         }
 
-        this.animation = new Animation(0.2f, frames);
+        this.animation = new Animation(0.05f, frames);
         this.stateTime = 0f;
     }
 
     @Override
     public void render(float delta) {
+        boundCamera();
         cam.update();
         gameGraphics.setProjectionMatrix(cam.combined);
 
-        Gdx.gl.glClearColor(0.95f, 0.95f, 0.95f, 1);
+        Gdx.gl.glClearColor(0.05f, 0.05f, 0.05f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         stateTime += Gdx.graphics.getDeltaTime();
