@@ -17,12 +17,9 @@ public class FieldSelection {
     private boolean flinging = false, xAligned = false, yAligned = false, firstCall = true;
     private int index = 0, counter = 0;
     private float velX, velY;
-    private BitmapFont font;
 
     public FieldSelection(int index) {
         this.index = index;
-        this.font = new BitmapFont();
-        this.font.getData().setScale(1f);
 
         phMaps = new Texture[17];
         mapSprites = new Sprite[17];
@@ -63,10 +60,10 @@ public class FieldSelection {
     public void render(SpriteBatch gameGraphics, OrthographicCamera cam) {
         int padding = 20, spaces = 15;
         mapSprites[regions[index].getMapIndex()].draw(gameGraphics);
-        font.draw(gameGraphics, regions[index].getCode(), cam.position.x - cam.viewportWidth / 2 + padding, cam.position.y + cam.viewportHeight / 2 - padding);
-        font.draw(gameGraphics, regions[index].getName(), cam.position.x - cam.viewportWidth / 2 + padding, cam.position.y + cam.viewportHeight / 2 - padding - spaces);
-//        font.getData().setScale(1.5f);
-        font.draw(gameGraphics, "Forest land percentage: " + (regions[index].getLifePercentage()), cam.position.x - cam.viewportWidth / 2 + padding, cam.position.y + cam.viewportHeight / 2 - padding - (spaces) * 2);
+//        font.draw(gameGraphics, regions[index].getCode(), cam.position.x - cam.viewportWidth / 2 + padding, cam.position.y + cam.viewportHeight / 2 - padding);
+//        font.draw(gameGraphics, regions[index].getName(), cam.position.x - cam.viewportWidth / 2 + padding, cam.position.y + cam.viewportHeight / 2 - padding - spaces);
+////        font.getData().setScale(1.5f);
+//        font.draw(gameGraphics, "Forest land percentage: " + (regions[index].getLifePercentage()), cam.position.x - cam.viewportWidth / 2 + padding, cam.position.y + cam.viewportHeight / 2 - padding - (spaces) * 2);
 //        font.getData().setScale(1f);
     }
 
@@ -124,6 +121,10 @@ public class FieldSelection {
 
     public Region getRegionByIndex(int i) {
         return regions[i];
+    }
+
+    public Region getRegion() {
+        return regions[index];
     }
 
     public void dispose() {

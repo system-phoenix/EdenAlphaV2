@@ -1,4 +1,4 @@
-package com.systemphoenix.edenalpha;
+package com.systemphoenix.edenalpha.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.systemphoenix.edenalpha.EdenAlpha;
 
 public class AbsoluteScreen implements Screen, GestureDetector.GestureListener {
     protected final float screenWidth = Gdx.graphics.getWidth(), screenHeight = Gdx.graphics.getHeight();

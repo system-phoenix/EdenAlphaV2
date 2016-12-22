@@ -3,25 +3,35 @@ package com.systemphoenix.edenalpha;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.systemphoenix.edenalpha.Screens.LoadingScreen;
+import com.systemphoenix.edenalpha.Screens.MapScreen;
 
 public class EdenAlpha extends Game {
 	private SpriteBatch gameGraphics;
-	private BitmapFont font;
+	private FreeTypeFontGenerator generator;
+    private BitmapFont font;
 	private Preferences levelPrefs;
 
-    private LoadingScreen loadingScreen;
-	private MapScreen mapScreen;
-	private MainScreen mainScreen;
+    private com.systemphoenix.edenalpha.Screens.LoadingScreen loadingScreen;
+	private com.systemphoenix.edenalpha.Screens.MapScreen mapScreen;
+	private com.systemphoenix.edenalpha.Screens.MainScreen mainScreen;
 	private int selectedMapIndex = 0;
 	
 	@Override
 	public void create () {
         this.gameGraphics = new SpriteBatch();
-        this.font = new BitmapFont();
+        try {
+            generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/neuropol.ttf"));
+            FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+//            parameter.size = 16;
+            this.font = generator.generateFont(parameter);
+        } catch(Exception e) {
+            Gdx.app.log("Verbose", "Failed to load custom font.");
+            this.font = new BitmapFont();
+        }
 
 		this.levelPrefs = Gdx.app.getPreferences("Level");
 		try {
@@ -30,10 +40,10 @@ public class EdenAlpha extends Game {
 			this.selectedMapIndex = 0;
 		}
 
-        this.loadingScreen = new LoadingScreen(this);
+        this.loadingScreen = new com.systemphoenix.edenalpha.Screens.LoadingScreen(this);
         this.setScreen(loadingScreen);
-		this.mainScreen = new MainScreen(this);
-		this.mapScreen = new MapScreen(this);
+		this.mainScreen = new com.systemphoenix.edenalpha.Screens.MainScreen(this);
+		this.mapScreen = new com.systemphoenix.edenalpha.Screens.MapScreen(this);
 	}
 
 	public void render() {
@@ -42,6 +52,12 @@ public class EdenAlpha extends Game {
 
 	public void dispose() {
 		gameGraphics.dispose();
+        font.dispose();
+        generator.dispose();
+
+        loadingScreen.dispose();
+        mapScreen.dispose();
+        mainScreen.dispose();
 	}
 
 	public SpriteBatch getGameGraphics() {
@@ -56,7 +72,7 @@ public class EdenAlpha extends Game {
 		return levelPrefs;
 	}
 
-	public MainScreen getMainScreen() {
+	public com.systemphoenix.edenalpha.Screens.MainScreen getMainScreen() {
 		return mainScreen;
 	}
 

@@ -1,16 +1,14 @@
-package com.systemphoenix.edenalpha;
+package com.systemphoenix.edenalpha.Screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.input.GestureDetector;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.systemphoenix.edenalpha.EdenAlpha;
+import com.systemphoenix.edenalpha.FieldSelection;
+import com.systemphoenix.edenalpha.Region;
+import com.systemphoenix.edenalpha.Scenes.RegionHud;
 
 public class MapScreen extends AbsoluteScreen {
     private float sizeWidth = 480f;
@@ -18,12 +16,14 @@ public class MapScreen extends AbsoluteScreen {
     private float sizeHeight = 384f;
 
     private Sprite mapSprite;
-
     private FieldSelection fieldSelection;
+
+    private RegionHud regionHud;
+    private Region currentRegion;
 
     public MapScreen(EdenAlpha game) {
         super(game);
-
+        this.regionHud = new RegionHud(game, sizeWidth, sizeHeight);
         this.game.getMainScreen().setLoadingMessage("Creating field...");
         this.fieldSelection = new FieldSelection(game.getSelectedMapIndex());
 
@@ -63,6 +63,13 @@ public class MapScreen extends AbsoluteScreen {
         fieldSelection.render(gameGraphics, cam);
 //        render stuff above
         gameGraphics.end();
+
+        this.currentRegion = fieldSelection.getRegion();
+        regionHud.setRegionCode(currentRegion.getCode());
+        regionHud.setRegionName(currentRegion.getName());
+        regionHud.setRegionForestPercentage("" + currentRegion.getLifePercentage());
+        gameGraphics.setProjectionMatrix(regionHud.getStage().getCamera().combined);
+        regionHud.getStage().draw();
     }
 
 //    Gesture listener methods
@@ -74,7 +81,8 @@ public class MapScreen extends AbsoluteScreen {
 
         game.setSelectedMapIndex(fieldSelection.getIndex());
         game.setScreen(game.getLoadingScreen());
-//        game.setScreen(new GameScreen(game, fieldSelection.getRegionByIndex(game.getSelectedMapIndex())));
+        GameScreen gameScreen = new GameScreen(game, fieldSelection.getRegionByIndex(game.getSelectedMapIndex()));
+        game.setScreen(gameScreen);
         return true;
     }
 
