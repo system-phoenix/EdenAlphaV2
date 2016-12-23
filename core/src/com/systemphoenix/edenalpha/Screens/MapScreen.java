@@ -14,6 +14,7 @@ public class MapScreen extends AbsoluteScreen {
     private float sizeWidth = 480f;
 //    private float sizeHeight = sizeWidth * screenHeight / screenWidth;
     private float sizeHeight = 384f;
+    private boolean flingDisabled = false;
 
     private Sprite mapSprite;
     private FieldSelection fieldSelection;
@@ -60,11 +61,21 @@ public class MapScreen extends AbsoluteScreen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         gameGraphics.begin();
 //        render stuff below
-        fieldSelection.render(gameGraphics, cam);
+        fieldSelection.render(gameGraphics);
 //        render stuff above
         gameGraphics.end();
 
         this.currentRegion = fieldSelection.getRegion();
+        if(fieldSelection.getIndex() - 1 >= 0) {
+            regionHud.setLeftRegionCode(fieldSelection.getRegionByIndex(fieldSelection.getIndex() - 1).getCode());
+        } else {
+            regionHud.setLeftRegionCode("            ");
+        }
+        if(fieldSelection.getIndex() + 1 < fieldSelection.getRegions().length) {
+            regionHud.setRightRegionCode(fieldSelection.getRegionByIndex(fieldSelection.getIndex() + 1).getCode());
+        } else {
+            regionHud.setRightRegionCode("            ");
+        }
         regionHud.setRegionCode(currentRegion.getCode());
         regionHud.setRegionName(currentRegion.getName());
         regionHud.setRegionForestPercentage("" + currentRegion.getLifePercentage());
@@ -75,6 +86,8 @@ public class MapScreen extends AbsoluteScreen {
 //    Gesture listener methods
     @Override
     public boolean tap(float x, float y, int count, int button) {
+//        if(flingDisabled) flingDisabled = false;
+//        else flingDisabled = true;
         Vector3 touchPos = new Vector3();
         touchPos.set(x, y, 0);
         cam.unproject(touchPos);
@@ -98,12 +111,13 @@ public class MapScreen extends AbsoluteScreen {
         } else if(deltaX < 0) {
             update = 1;
         }
-        fieldSelection.setIndex(update);
+        if(!flingDisabled) fieldSelection.setIndex(update);
         return true;
     }
 
     @Override
     public boolean pan(float x, float y, float deltaX, float deltaY) {
+        if(flingDisabled) super.pan(x, y, deltaX, deltaY);
         return true;
     }
 

@@ -38,33 +38,27 @@ public class FieldSelection {
     }
 
     private void createRegions() {
-        regions[0]  = new Region("CAR",         "Cordillera Administrative Region",     81, 685f,  1057f, 0);
-        regions[1]  = new Region("Region I",    "Ilocos",                               37, 645f,  1045f, 1);
-        regions[2]  = new Region("Region II",   "Cagayan Valley",                       64, 745f,  1095f, 2);
-        regions[3]  = new Region("Region III",  "Central Luzon",                        44, 675f,  935f,  3);
-        regions[4]  = new Region("Region IVA",  "CALABARZON",                           35, 745f,  805f,  4);
-        regions[5]  = new Region("Region IVB",  "MIMAROPA",                             64, 645f,  675f,  5);
-        regions[6]  = new Region("Region V",    "Bicol",                                31, 875f,  725f,  6);
-        regions[7]  = new Region("Region VI",   "Western Visayas",                      30, 825f,  535f,  7);
-        regions[8]  = new Region("Region VII",  "Central Visayas",                      35, 885f,  465f,  8);
-        regions[9]  = new Region("Region VIII", "Eastern Visayas",                      52, 995f,  565f,  9);
-        regions[10] = new Region("Region IX",   "Zamboanga Peninsula",                  54, 835f,  275f,  10);
-        regions[11] = new Region("Region X",    "Northern Mindanao",                    52, 965f,  325f,  11);
-        regions[12] = new Region("Region XI",   "Davao",                                63, 1065f, 225f,  12);
-        regions[13] = new Region("Region XII",  "SOCCSKSARGEN",                         61, 985f,  195f,  13);
-        regions[14] = new Region("Region XIII", "Caraga",                               71, 1045f, 355f,  14);
-        regions[15] = new Region("ARMM",        "Autonomous Region in Muslim Mindanao", 51, 795f,  195f,  15);
-        regions[16] = new Region("NCR",         "National Capital Region",              24, 665f,  835f,  16);
+        regions[0]  = new Region("CAR",         "  Cordillera Administrative Region  ", 81, 685f,  1055f, 0);
+        regions[1]  = new Region("Region I",    "                Ilocos              ", 37, 645f,  1095f, 1);
+        regions[2]  = new Region("Region II",   "            Cagayan Valley          ", 64, 725f,  1125f, 2);
+        regions[3]  = new Region("Region III",  "            Central  Luzon          ", 44, 685f,  905f,  3);
+        regions[4]  = new Region("Region IVA",  "              CALABARZON            ", 35, 745f,  795f,  4);
+        regions[5]  = new Region("Region IVB",  "               MIMAROPA             ", 64, 645f,  675f,  5);
+        regions[6]  = new Region("Region V",    "                Bicol               ", 31, 875f,  735f,  6);
+        regions[7]  = new Region("Region VI",   "           Western Visayas          ", 30, 795f,  525f,  7);
+        regions[8]  = new Region("Region VII",  "           Central Visayas          ", 35, 905f,  465f,  8);
+        regions[9]  = new Region("Region VIII", "           Eastern Visayas          ", 52, 995f,  565f,  9);
+        regions[10] = new Region("Region IX",   "         Zamboanga Peninsula        ", 54, 825f,  275f,  10);
+        regions[11] = new Region("Region X",    "          Northern Mindanao         ", 52, 965f,  325f,  11);
+        regions[12] = new Region("Region XI",   "                Davao               ", 63, 1065f, 225f,  12);
+        regions[13] = new Region("Region XII",  "             SOCCSKSARGEN           ", 61, 985f,  195f,  13);
+        regions[14] = new Region("Region XIII", "                Caraga              ", 71, 1075f, 405f,  14);
+        regions[15] = new Region("ARMM",        "Autonomous Region in Muslim Mindanao", 51, 765f,  195f,  15);
+        regions[16] = new Region("NCR",         "       National Capital Region      ", 24, 685f,  835f,  16);
     }
 
-    public void render(SpriteBatch gameGraphics, OrthographicCamera cam) {
-        int padding = 20, spaces = 15;
+    public void render(SpriteBatch gameGraphics) {
         mapSprites[regions[index].getMapIndex()].draw(gameGraphics);
-//        font.draw(gameGraphics, regions[index].getCode(), cam.position.x - cam.viewportWidth / 2 + padding, cam.position.y + cam.viewportHeight / 2 - padding);
-//        font.draw(gameGraphics, regions[index].getName(), cam.position.x - cam.viewportWidth / 2 + padding, cam.position.y + cam.viewportHeight / 2 - padding - spaces);
-////        font.getData().setScale(1.5f);
-//        font.draw(gameGraphics, "Forest land percentage: " + (regions[index].getLifePercentage()), cam.position.x - cam.viewportWidth / 2 + padding, cam.position.y + cam.viewportHeight / 2 - padding - (spaces) * 2);
-//        font.getData().setScale(1f);
     }
 
     public void setCameraPosition(OrthographicCamera cam) {
@@ -125,6 +119,10 @@ public class FieldSelection {
 
     public Region getRegion() {
         return regions[index];
+    }
+
+    public Region[] getRegions() {
+        return regions;
     }
 
     public void dispose() {

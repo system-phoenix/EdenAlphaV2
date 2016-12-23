@@ -11,6 +11,7 @@ import com.systemphoenix.edenalpha.EdenAlpha;
 public class RegionHud extends AbsoluteHud {
 
     private Label regionCode, regionName, regionForestPercentage;
+    private Label leftRegionCode, rightRegionCode;
     private int padding = 20;
 
     public RegionHud(EdenAlpha game) {
@@ -41,7 +42,6 @@ public class RegionHud extends AbsoluteHud {
         parameter.borderColor = border;
         parameter.borderWidth = 3;
         font = generator.generateFont(parameter);
-        generator.dispose();
 
         Table temp = new Table();
         temp.top();
@@ -51,16 +51,39 @@ public class RegionHud extends AbsoluteHud {
         regionName = new Label("Region Name", new Label.LabelStyle(font, fontColor));
         regionForestPercentage = new Label("Region Forest Percentage", new Label.LabelStyle(font, fontColor));
 
-        temp.add(regionCode).padTop(padding).padLeft(padding);
+        parameter.size = 16;
+        parameter.borderWidth = 0;
+        fontColor = Color.BLACK;
+        font = generator.generateFont(parameter);
+        leftRegionCode = new Label("Region Code", new Label.LabelStyle(font, fontColor));
+        rightRegionCode = new Label("Region Code", new Label.LabelStyle(font, fontColor));
+
+        Label emptyLabel = new Label("            ", new Label.LabelStyle(font, fontColor));
+
+        temp.add(leftRegionCode).expandX();
+        temp.add(regionCode).padTop(padding).expandX();
+        temp.add(rightRegionCode).expandX();
         temp.row();
-        temp.add(regionName).padLeft(padding);
+        temp.add(emptyLabel).expandX();
+        temp.add(regionName).expandX();
+        temp.add(emptyLabel).expandX();
         temp.row();
-        temp.add(regionForestPercentage).padLeft(padding);
+        temp.add(emptyLabel).expandX();
+        temp.add(regionForestPercentage).expandX();
+        temp.add(emptyLabel).expandX();
 
         stage.addActor(temp);
-//        stage.
 
+        generator.dispose();
         font = tempFont;
+    }
+
+    public void setLeftRegionCode(String regionCode) {
+        this.leftRegionCode.setText(regionCode);
+    }
+
+    public void setRightRegionCode(String regionCode) {
+        this.rightRegionCode.setText(regionCode);
     }
 
     public void setRegionCode(String regionCode) {
