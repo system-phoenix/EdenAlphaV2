@@ -22,6 +22,8 @@ public class MapScreen extends AbsoluteScreen {
     private RegionHud regionHud;
     private Region currentRegion;
 
+    private GameScreen gameScreen = null;
+
     public MapScreen(EdenAlpha game) {
         super(game);
         this.regionHud = new RegionHud(game, sizeWidth, sizeHeight);
@@ -94,7 +96,8 @@ public class MapScreen extends AbsoluteScreen {
 
         game.setSelectedMapIndex(fieldSelection.getIndex());
         game.setScreen(game.getLoadingScreen());
-        GameScreen gameScreen = new GameScreen(game, fieldSelection.getRegionByIndex(game.getSelectedMapIndex()));
+        if(gameScreen != null) gameScreen.dispose();
+        gameScreen = new GameScreen(game, fieldSelection.getRegionByIndex(game.getSelectedMapIndex()));
         game.setScreen(gameScreen);
         return true;
     }
@@ -126,5 +129,7 @@ public class MapScreen extends AbsoluteScreen {
     public void dispose() {
         mapSprite.getTexture().dispose();
         fieldSelection.dispose();
+        gameScreen.dispose();
+        regionHud.dispose();
     }
 }
