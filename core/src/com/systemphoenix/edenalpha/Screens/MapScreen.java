@@ -129,7 +129,7 @@ public class MapScreen extends AbsoluteScreen {
     public void dispose() {
         mapSprite.getTexture().dispose();
         fieldSelection.dispose();
-        gameScreen.dispose();
+        if(gameScreen != null) gameScreen.dispose();
         regionHud.dispose();
     }
 }

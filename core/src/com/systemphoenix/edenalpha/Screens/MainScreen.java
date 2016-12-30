@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.systemphoenix.edenalpha.EdenAlpha;
 
+import java.util.Random;
+
 public class MainScreen extends AbsoluteScreen {
 
     private Texture bg;
@@ -21,8 +23,9 @@ public class MainScreen extends AbsoluteScreen {
         this.font.getData().setScale(1.5f);
         this.font.setColor(Color.BLACK);
         this.glyphLayout = new GlyphLayout();
+        int rand = new Random().nextInt(3) + 1;
         try {
-            this.bg = new Texture(Gdx.files.internal("main/bg.jpg"));
+            this.bg = new Texture(Gdx.files.internal("main/[eden]bg" + rand + ".png"));
             Gdx.app.log("Verbose", "Successfully loaded bg");
         } catch(Exception e) {
             Gdx.app.log("Verbose", "bg " + e.getMessage());
