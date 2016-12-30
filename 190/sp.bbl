@@ -1,0 +1,96 @@
+\begin{thebibliography}{10}
+\providecommand{\url}[1]{#1}
+\csname url@rmstyle\endcsname
+\providecommand{\newblock}{\relax}
+\providecommand{\bibinfo}[2]{#2}
+\providecommand\BIBentrySTDinterwordspacing{\spaceskip=0pt\relax}
+\providecommand\BIBentryALTinterwordstretchfactor{4}
+\providecommand\BIBentryALTinterwordspacing{\spaceskip=\fontdimen2\font plus
+\BIBentryALTinterwordstretchfactor\fontdimen3\font minus
+  \fontdimen4\font\relax}
+\providecommand\BIBforeignlanguage[2]{{%
+\expandafter\ifx\csname l@#1\endcsname\relax
+\typeout{** WARNING: IEEEtran.bst: No hyphenation pattern has been}%
+\typeout{** loaded for the language `#1'. Using the pattern for}%
+\typeout{** the default language instead.}%
+\else
+\language=\csname l@#1\endcsname
+\fi
+#2}}
+
+\bibitem{degloria2014serious}
+A.~De~Gloria, F.~Bellotti, R.~Berta, and E.~Lavagnino, ``Serious games for
+  education and training,'' \emph{International Journal of Serious Games},
+  vol.~1, no.~1, pp. 1--15, 2014.
+
+\bibitem{djaouti2011origins}
+D.~Djaouti, J.~Alvarez, J.-P. Jessel, and O.~Rampnoux, ``Origins of serious
+  games,'' in \emph{Serious games and edutainment applications}.\hskip 1em plus
+  0.5em minus 0.4em\relax Springer, 2011, pp. 25--43.
+
+\bibitem{burak2005peacemaker}
+A.~Burak, E.~Keylor, and T.~Sweeney, ``Peacemaker: A video game to teach
+  peace,'' in \emph{International Conference on Intelligent Technologies for
+  Interactive Entertainment}.\hskip 1em plus 0.5em minus 0.4em\relax Springer,
+  2005, pp. 307--310.
+
+\bibitem{adolph2011trends}
+M.~Adolph, ``Trends in video games and gaming. itu-t technology watch report,''
+  \emph{International Telecommunication Union. September}, 2011.
+
+\bibitem{entertainment2014essential}
+E.~S. Association \emph{et~al.}, ``Essential facts about the computer and video
+  game industry,'' 2014.
+
+\bibitem{camus2015smartphone}
+\BIBentryALTinterwordspacing
+M.~Camus. (2015, Dec.) Smartphone use in ph seen rising to 70% by ‘18.
+  Inquirer.net. [Online]. Available:
+  \url{http://business.inquirer.net/204077/smartphone-use-in-ph-seen-rising-to-70-by-18}
+\BIBentrySTDinterwordspacing
+
+\bibitem{medenilla2016fastest}
+\BIBentryALTinterwordspacing
+K.~Medenilla. (2016, June) Philippines: ‘fastest-growing’ smartphone nation
+  in southeast asia. Asian Journal. [Online]. Available:
+  \url{http://asianjournal.com/news/philippines-fastest-growing-smartphone-nation-in-southeast-asia/}
+\BIBentrySTDinterwordspacing
+
+\bibitem{vserv2016unveils}
+\BIBentryALTinterwordspacing
+(2016, Jan.) Vserv unveils the first smartphone user persona report (supr) in
+  philippines. Vserv. [Online]. Available:
+  \url{https://www.vserv.com/vserv-unveils-first-smartphone-user-persona-report-supr-philippines/}
+\BIBentrySTDinterwordspacing
+
+\bibitem{granic2014benefits}
+I.~Granic, A.~Lobel, and R.~C. Engels, ``The benefits of playing video games.''
+  \emph{American Psychologist}, vol.~69, no.~1, p.~66, 2014.
+
+\bibitem{all2014measuring}
+A.~All, E.~P. Nunez~Castellar, and J.~Van~Looy, ``Measuring effectiveness in
+  digital game-based learning: A methodological review,'' \emph{International
+  Journal of Serious Games}, vol.~2, no.~1, pp. 3--20, 2014.
+
+\bibitem{soekarjo2015measuring}
+M.~Soekarjo and H.~van Oostendorp, ``Measuring effectiveness of persuasive
+  games using an informative control condition,'' \emph{International Journal
+  of Serious Games}, vol.~2, no.~2, pp. 37--56, 2015.
+
+\bibitem{hildmann2008raising}
+H.~Hildmann and B.~Hirsch, ``Raising awareness for environmental issues through
+  mobile device based serious games,'' \emph{4th Microsoft Academic Days,
+  Berlin, Germany}, 2008.
+
+\bibitem{pope2015wuzzit}
+H.~Pope and C.~Mangram, ``Wuzzit trouble: The influence of a digital math game
+  on student number sense,'' \emph{Internationa Journal of Serious Games},
+  vol.~2, no.~4, 2015.
+
+\bibitem{google2016developers}
+\BIBentryALTinterwordspacing
+Google. (2016, Nov.) Developers dashboard. Google. [Online]. Available:
+  \url{https://developer.android.com/about/dashboards/index.html}
+\BIBentrySTDinterwordspacing
+
+\end{thebibliography}
