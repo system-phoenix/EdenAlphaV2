@@ -2,9 +2,7 @@ package com.systemphoenix.edenalpha.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -20,11 +18,14 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.systemphoenix.edenalpha.EdenAlpha;
 import com.systemphoenix.edenalpha.Region;
 import com.systemphoenix.edenalpha.Scenes.TopHud;
+
+import java.util.LinkedList;
 
 public class GameScreen extends AbsoluteScreen {
     private Region region;
@@ -41,11 +42,15 @@ public class GameScreen extends AbsoluteScreen {
     private World world;
     private Box2DDebugRenderer debugRenderer;
 
-    private float pastZoomDistance;
+    private float pastZoomDistance, plantSquareWidth = -1, plantSquareHeight = -1;
 
     public GameScreen(EdenAlpha game, Region region) {
         super(game);
         this.region = region;
+
+        worldHeight = 720;
+        worldWidth = 1280;
+
         this.viewport = new FitViewport(screenWidth, screenHeight, cam);
         this.topHud = new TopHud(game);
         initialize();
@@ -55,7 +60,7 @@ public class GameScreen extends AbsoluteScreen {
 
         try {
             mapLoader = new TmxMapLoader();
-            map = mapLoader.load("levels/test.tmx");
+            map = mapLoader.load("levels/CAR.tmx");
             renderer = new OrthogonalTiledMapRenderer(map);
             Gdx.app.log("Verbose", "Successfully loaded level: " + worldWidth + " x " + worldHeight);
             world = new World(new Vector2(0, 0), true);
@@ -66,8 +71,12 @@ public class GameScreen extends AbsoluteScreen {
             FixtureDef fixtureDef = new FixtureDef();
             Body body;
 
-            for(MapObject object : map.getLayers().get(8).getObjects().getByType(RectangleMapObject.class)) {
+            for(MapObject object : map.getLayers().get("grid").getObjects().getByType(RectangleMapObject.class)) {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
+                if(plantSquareHeight < 0 && plantSquareWidth < 0) {
+                    plantSquareHeight = rect.getHeight();
+                    plantSquareWidth = rect.getWidth();
+                }
 
                 bodyDef.type = BodyDef.BodyType.StaticBody;
                 bodyDef.position.set(rect.getX() + rect.getWidth() / 2, rect.getY() + rect.getHeight() / 2 );
@@ -92,6 +101,8 @@ public class GameScreen extends AbsoluteScreen {
 
     public void update(float delta) {
         cam.update();
+
+        world.step(1/60f, 6, 2);
 //        gameGraphics.setProjectionMatrix(cam.combined);
         renderer.setView(cam);
     }
@@ -126,6 +137,20 @@ public class GameScreen extends AbsoluteScreen {
         touchPos.x = touchPos.x - (int)touchPos.x  > 0.5 ? (int) touchPos.x + 1 : (int) touchPos.x;
         touchPos.y = touchPos.y - (int)touchPos.y  > 0.5 ? (int) touchPos.y + 1 : (int) touchPos.y;
         topHud.setTouchStatsMessage("Touch | Projected (x, y): (" + x + ", " + y + ") Un-projected (x, y): (" + touchPos.x + ", " + touchPos.y + ")");
+
+        Rectangle touchRegion = new Rectangle(touchPos.x, touchPos.y, 1, 1);
+
+        Array<Body> bodies = new Array<Body>();
+        world.getBodies(bodies);
+
+        for(int i = 0; i < bodies.size; i++) {
+            Body body = bodies.get(i);
+
+            Rectangle temp = new Rectangle(body.getPosition().x - plantSquareWidth / 2, body.getPosition().y - plantSquareHeight / 2, plantSquareWidth, plantSquareHeight);
+            if (temp.overlaps(touchRegion)) {
+                world.destroyBody(body);
+            }
+        }
         return true;
     }
 
@@ -141,15 +166,6 @@ public class GameScreen extends AbsoluteScreen {
 
     @Override
     public boolean pan(float x, float y, float deltaX, float deltaY) {
-//        float limit = 5;
-//        if(Math.abs(deltaX) < limit) {
-//            deltaX = 0;
-//        }
-//
-//        if(Math.abs(deltaY) < limit) {
-//            deltaY = 0;
-//        }
-
         Vector3 touchPos = new Vector3();
         touchPos.set(x, y, 0);
         cam.unproject(touchPos);
