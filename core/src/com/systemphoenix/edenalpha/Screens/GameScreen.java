@@ -2,7 +2,6 @@ package com.systemphoenix.edenalpha.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -15,17 +14,19 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.systemphoenix.edenalpha.Actors.Enemy;
+import com.systemphoenix.edenalpha.CollisionBit;
 import com.systemphoenix.edenalpha.EdenAlpha;
 import com.systemphoenix.edenalpha.Region;
 import com.systemphoenix.edenalpha.Scenes.TopHud;
-
-import java.util.LinkedList;
+import com.systemphoenix.edenalpha.WorldContactListener;
 
 public class GameScreen extends AbsoluteScreen {
     private Region region;
@@ -42,7 +43,13 @@ public class GameScreen extends AbsoluteScreen {
     private World world;
     private Box2DDebugRenderer debugRenderer;
 
-    private float pastZoomDistance, plantSquareWidth = -1, plantSquareHeight = -1;
+    private Array<Body> plantSquares, spawnPoints, endPoints, pathBounds;
+    private Array<Enemy> enemies;
+    private Enemy enemy;
+    private Body pastBody;
+    private float pastZoomDistance, plantSquareWidth = -1, plantSquareHeight = -1, pastBodyX = -1, pastBodyY = -1;
+    private long timer, sixtyMinuteMark = 10;
+    private boolean preSixty = true;
 
     public GameScreen(EdenAlpha game, Region region) {
         super(game);
@@ -54,6 +61,7 @@ public class GameScreen extends AbsoluteScreen {
         this.viewport = new FitViewport(screenWidth, screenHeight, cam);
         this.topHud = new TopHud(game);
         initialize();
+        timer = System.currentTimeMillis();
     }
 
     private void initialize() {
@@ -63,30 +71,8 @@ public class GameScreen extends AbsoluteScreen {
             map = mapLoader.load("levels/CAR.tmx");
             renderer = new OrthogonalTiledMapRenderer(map);
             Gdx.app.log("Verbose", "Successfully loaded level: " + worldWidth + " x " + worldHeight);
-            world = new World(new Vector2(0, 0), true);
-            debugRenderer = new Box2DDebugRenderer();
 
-            BodyDef bodyDef = new BodyDef();
-            PolygonShape shape = new PolygonShape();
-            FixtureDef fixtureDef = new FixtureDef();
-            Body body;
-
-            for(MapObject object : map.getLayers().get("grid").getObjects().getByType(RectangleMapObject.class)) {
-                Rectangle rect = ((RectangleMapObject) object).getRectangle();
-                if(plantSquareHeight < 0 && plantSquareWidth < 0) {
-                    plantSquareHeight = rect.getHeight();
-                    plantSquareWidth = rect.getWidth();
-                }
-
-                bodyDef.type = BodyDef.BodyType.StaticBody;
-                bodyDef.position.set(rect.getX() + rect.getWidth() / 2, rect.getY() + rect.getHeight() / 2 );
-
-                body = world.createBody(bodyDef);
-
-                shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
-                fixtureDef.shape = shape;
-                body.createFixture(fixtureDef);
-            }
+            createWorld();
         } catch(Exception e) {
             Gdx.app.log("Verbose", "level " + e.getMessage());
         }
@@ -99,11 +85,109 @@ public class GameScreen extends AbsoluteScreen {
 
     }
 
+    private void createWorld() {
+        world = new World(new Vector2(0, 0), true);
+        world.setContactListener(new WorldContactListener());
+        debugRenderer = new Box2DDebugRenderer();
+
+        plantSquares = new Array<Body>();
+        spawnPoints = new Array<Body>();
+        endPoints = new Array<Body>();
+        pathBounds = new Array<Body>();
+
+        enemies = new Array<Enemy>();
+
+        BodyDef bodyDef = new BodyDef();
+        PolygonShape shape = new PolygonShape();
+        FixtureDef fixtureDef = new FixtureDef();
+        Body body;
+        for(MapObject object : map.getLayers().get("plantSquares").getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            if(plantSquareHeight < 0 && plantSquareWidth < 0) {
+                plantSquareHeight = rect.getHeight();
+                plantSquareWidth = rect.getWidth();
+            }
+
+            bodyDef.type = BodyDef.BodyType.StaticBody;
+            bodyDef.position.set(rect.getX() + rect.getWidth() / 2, rect.getY() + rect.getHeight() / 2 );
+
+            body = world.createBody(bodyDef);
+
+            shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
+            fixtureDef.shape = shape;
+            fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
+            fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
+            body.createFixture(fixtureDef);
+
+            plantSquares.add(body);
+        }
+
+        createBodies(spawnPoints, "spawnPoints", CollisionBit.SPAWNPOINT, CollisionBit.SPAWNPOINT | CollisionBit.ENDPOINT | CollisionBit.PATHBOUND);
+        createBodies(endPoints, "endPoints", CollisionBit.ENDPOINT, CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PATHBOUND);
+        createBodies(pathBounds, "pathBounds", CollisionBit.PATHBOUND, CollisionBit.ENEMY | CollisionBit.SPAWNPOINT | CollisionBit.ENDPOINT);
+
+//        createEnemies();
+    }
+
+    public void createBodies(Array<Body> bodies, String layer, short categoryBit, int maskBit) {
+        BodyDef bodyDef = new BodyDef();
+        PolygonShape shape = new PolygonShape();
+        FixtureDef fixtureDef = new FixtureDef();
+        Body body;
+        for(MapObject object : map.getLayers().get(layer).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+
+            bodyDef.type = BodyDef.BodyType.StaticBody;
+            bodyDef.position.set(rect.getX() + rect.getWidth() / 2, rect.getY() + rect.getHeight() / 2 );
+
+            body = world.createBody(bodyDef);
+
+            shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
+            fixtureDef.shape = shape;
+            fixtureDef.filter.categoryBits = categoryBit;
+            fixtureDef.filter.maskBits = (short)maskBit;
+            body.createFixture(fixtureDef);
+
+            bodies.add(body);
+        }
+    }
+
+    public void spawnEnemy(int index) {
+        enemy = new Enemy(this, spawnPoints.get(index).getPosition().x - 16, spawnPoints.get(index).getPosition().y - 16, 32);
+
+        enemies.add(enemy);
+
+    }
+
     public void update(float delta) {
         cam.update();
+        long currentSec = (System.currentTimeMillis() - timer) / 1000;
+        long currentSecTens = currentSec / 10, currentSecOnes = currentSec % 10;
+        long currentMin = currentSecTens / 6;
+        currentSecTens = currentSecTens % 6;
+        long currentMinTens = currentMin / 10, currentMinOnes = currentMin % 10;
 
+        if(preSixty) {
+            currentSec = sixtyMinuteMark - (System.currentTimeMillis() - timer) / 1000;
+            currentSecTens = currentSec / 10;
+            currentSecOnes = currentSec % 10;
+            currentMin = currentSecTens / 6;
+            currentSecTens = currentSecTens % 6;
+            currentMinTens = currentMin / 10;
+            currentMinOnes = currentMin % 10;
+            if(currentMin == 0 && currentSec == 0) {
+                preSixty = false;
+                timer = System.currentTimeMillis();
+                spawnEnemy(0);
+            }
+        } else {
+            for(int i = 0; i < enemies.size; i++) {
+                enemies.get(i).update(delta);
+            }
+        }
+
+        topHud.setTimeStats(currentMinTens + "" + currentMinOnes + ":" + currentSecTens + "" + currentSecOnes);
         world.step(1/60f, 6, 2);
-//        gameGraphics.setProjectionMatrix(cam.combined);
         renderer.setView(cam);
     }
 
@@ -116,7 +200,11 @@ public class GameScreen extends AbsoluteScreen {
         renderer.render();
         debugRenderer.render(world, cam.combined);
 
+        gameGraphics.setProjectionMatrix(cam.combined);
         gameGraphics.begin();
+            for (int i = 0; i < enemies.size; i++) {
+                enemies.get(i).draw(gameGraphics);
+            }
         gameGraphics.end();
 
         gameGraphics.setProjectionMatrix(topHud.getStage().getCamera().combined);
@@ -140,15 +228,36 @@ public class GameScreen extends AbsoluteScreen {
 
         Rectangle touchRegion = new Rectangle(touchPos.x, touchPos.y, 1, 1);
 
-        Array<Body> bodies = new Array<Body>();
-        world.getBodies(bodies);
-
-        for(int i = 0; i < bodies.size; i++) {
-            Body body = bodies.get(i);
+        for(int i = 0; i < plantSquares.size; i++) {
+            Body body = plantSquares.get(i);
 
             Rectangle temp = new Rectangle(body.getPosition().x - plantSquareWidth / 2, body.getPosition().y - plantSquareHeight / 2, plantSquareWidth, plantSquareHeight);
             if (temp.overlaps(touchRegion)) {
-                world.destroyBody(body);
+                FixtureDef fixtureDef = new FixtureDef();
+                CircleShape shape = new CircleShape();
+                shape.setRadius(plantSquareWidth / 2);
+                fixtureDef.shape = shape;
+                fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
+                fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
+                for(int j = 0; j < body.getFixtureList().size; j++) {
+                    body.getFixtureList().removeIndex(j);
+                }
+                body.createFixture(fixtureDef);
+                if((pastBodyX >= 0 && pastBodyY >= 0) && (pastBodyX != body.getPosition().x || pastBodyY != body.getPosition().y)) {
+                    for(int j = 0; j < pastBody.getFixtureList().size; j++) {
+                        pastBody.getFixtureList().removeIndex(j);
+                    }
+                    PolygonShape rect = new PolygonShape();
+                    rect.setAsBox(plantSquareWidth / 2, plantSquareHeight / 2);
+                    fixtureDef.shape = rect;
+                    fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
+                    fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
+                    pastBody.createFixture(fixtureDef);
+                }
+
+                pastBodyY = body.getPosition().y;
+                pastBodyX = body.getPosition().x;
+                pastBody = body;
             }
         }
         return true;
@@ -242,5 +351,12 @@ public class GameScreen extends AbsoluteScreen {
         map.dispose();
         world.dispose();
         debugRenderer.dispose();
+        for(int i = 0; i < enemies.size; i++) {
+            enemies.get(i).dispose();
+        }
+    }
+
+    public World getWorld() {
+        return this.world;
     }
 }

@@ -3,6 +3,7 @@ package com.systemphoenix.edenalpha;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -26,8 +27,11 @@ public class EdenAlpha extends Game {
         try {
             generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/neuropol.ttf"));
             FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-//            parameter.size = 16;
+            parameter.size = 20;
+            parameter.color = Color.WHITE;
             this.font = generator.generateFont(parameter);
+
+            font.setColor(Color.WHITE);
         } catch(Exception e) {
             Gdx.app.log("Verbose", "Failed to load custom font.");
             this.font = new BitmapFont();
