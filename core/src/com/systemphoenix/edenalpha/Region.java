@@ -1,17 +1,22 @@
 package com.systemphoenix.edenalpha;
 
+import com.systemphoenix.edenalpha.Codex.RegionCodex;
+
 public class Region {
-    private String name, code;
-    private float x, y, forestLandPercentage;
+    private String name, code, mapFile;
+    private float x, y, forestLandPercentage, worldWidth, worldHeight;
     private int mapIndex;
 
-    public Region(String code, String name, float forestLandPercentage, float x, float y, int mapIndex) {
-        this.code = code;
-        this.name = name;
-        this.forestLandPercentage = forestLandPercentage;
-        this.x = x;
-        this.y = y;
-        this.mapIndex = mapIndex;
+    public Region(int codexIndex) {
+        this.code                   = RegionCodex.codes[codexIndex];
+        this.name                   = RegionCodex.names[codexIndex];
+        this.forestLandPercentage   = RegionCodex.forestPercentage[codexIndex];
+        this.x                      = RegionCodex.camX[codexIndex];
+        this.y                      = RegionCodex.camY[codexIndex];
+        this.mapIndex               = RegionCodex.mapIndeces[codexIndex];
+        this.worldWidth             = RegionCodex.worldSize[codexIndex].x;
+        this.worldHeight            = RegionCodex.worldSize[codexIndex].y;
+        this.mapFile                = RegionCodex.mapFiles[codexIndex];
     }
 
     public String getCode() {
@@ -20,6 +25,10 @@ public class Region {
 
     public String getName(){
         return name;
+    }
+
+    public String getMapFile() {
+        return mapFile;
     }
 
     public float getLifePercentage() {
@@ -32,6 +41,14 @@ public class Region {
 
     public float getY() {
         return y;
+    }
+
+    public float getWorldWidth() {
+        return worldWidth;
+    }
+
+    public float getWorldHeight() {
+        return worldHeight;
     }
 
     public int getMapIndex() {

@@ -55,8 +55,8 @@ public class GameScreen extends AbsoluteScreen {
         super(game);
         this.region = region;
 
-        worldHeight = 720;
-        worldWidth = 1280;
+        worldHeight = region.getWorldHeight();
+        worldWidth = region.getWorldWidth();
 
         this.viewport = new FitViewport(screenWidth, screenHeight, cam);
         this.topHud = new TopHud(game);

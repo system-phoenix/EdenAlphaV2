@@ -15,7 +15,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.CollisionBit;
-import com.systemphoenix.edenalpha.EnemyCodex;
+import com.systemphoenix.edenalpha.Codex.EnemyCodex;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class Enemy extends Sprite implements Disposable {
