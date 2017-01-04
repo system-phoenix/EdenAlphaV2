@@ -43,7 +43,8 @@ public class GameScreen extends AbsoluteScreen {
     private World world;
     private Box2DDebugRenderer debugRenderer;
 
-    private Array<Body> plantSquares, spawnPoints, endPoints, pathBounds;
+    private Array<Body> spawnPoints, endPoints, pathBounds;
+    private Body[][] plantSquares;
     private Array<Enemy> enemies;
     private Enemy enemy;
     private Body pastBody;
@@ -90,7 +91,13 @@ public class GameScreen extends AbsoluteScreen {
         world.setContactListener(new WorldContactListener());
         debugRenderer = new Box2DDebugRenderer();
 
-        plantSquares = new Array<Body>();
+        plantSquares = new Body[region.getArraySizeY()][region.getArraySizeX()];
+        for(int i = 0; i < plantSquares.length; i++) {
+            for(int j = 0; j < plantSquares[i].length; j++) {
+                plantSquares[i][j] = null;
+            }
+        }
+
         spawnPoints = new Array<Body>();
         endPoints = new Array<Body>();
         pathBounds = new Array<Body>();
@@ -119,7 +126,7 @@ public class GameScreen extends AbsoluteScreen {
             fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
             body.createFixture(fixtureDef);
 
-            plantSquares.add(body);
+            plantSquares[(int)rect.getY() / (int)plantSquareHeight][(int)rect.getX() / (int) plantSquareWidth] = body;
         }
 
         createBodies(spawnPoints, "spawnPoints", CollisionBit.SPAWNPOINT, CollisionBit.SPAWNPOINT | CollisionBit.ENDPOINT | CollisionBit.PATHBOUND);
@@ -226,40 +233,35 @@ public class GameScreen extends AbsoluteScreen {
         touchPos.y = touchPos.y - (int)touchPos.y  > 0.5 ? (int) touchPos.y + 1 : (int) touchPos.y;
         topHud.setTouchStatsMessage("Touch | Projected (x, y): (" + x + ", " + y + ") Un-projected (x, y): (" + touchPos.x + ", " + touchPos.y + ")");
 
-        Rectangle touchRegion = new Rectangle(touchPos.x, touchPos.y, 1, 1);
-
-        for(int i = 0; i < plantSquares.size; i++) {
-            Body body = plantSquares.get(i);
-
-            Rectangle temp = new Rectangle(body.getPosition().x - plantSquareWidth / 2, body.getPosition().y - plantSquareHeight / 2, plantSquareWidth, plantSquareHeight);
-            if (temp.overlaps(touchRegion)) {
-                FixtureDef fixtureDef = new FixtureDef();
-                CircleShape shape = new CircleShape();
-                shape.setRadius(plantSquareWidth / 2);
-                fixtureDef.shape = shape;
+        if(plantSquares[(int)touchPos.y / (int)plantSquareHeight][(int)touchPos.x / (int)plantSquareWidth] != null) {
+            Body body = plantSquares[(int)touchPos.y / (int)plantSquareHeight][(int)touchPos.x / (int)plantSquareWidth];
+            FixtureDef fixtureDef = new FixtureDef();
+            CircleShape shape = new CircleShape();
+            shape.setRadius(plantSquareWidth / 2);
+            fixtureDef.shape = shape;
+            fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
+            fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
+            for(int j = 0; j < body.getFixtureList().size; j++) {
+                body.getFixtureList().removeIndex(j);
+            }
+            body.createFixture(fixtureDef);
+            if((pastBodyX >= 0 && pastBodyY >= 0) && (pastBodyX != body.getPosition().x || pastBodyY != body.getPosition().y)) {
+                for(int j = 0; j < pastBody.getFixtureList().size; j++) {
+                    pastBody.getFixtureList().removeIndex(j);
+                }
+                PolygonShape rect = new PolygonShape();
+                rect.setAsBox(plantSquareWidth / 2, plantSquareHeight / 2);
+                fixtureDef.shape = rect;
                 fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
                 fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
-                for(int j = 0; j < body.getFixtureList().size; j++) {
-                    body.getFixtureList().removeIndex(j);
-                }
-                body.createFixture(fixtureDef);
-                if((pastBodyX >= 0 && pastBodyY >= 0) && (pastBodyX != body.getPosition().x || pastBodyY != body.getPosition().y)) {
-                    for(int j = 0; j < pastBody.getFixtureList().size; j++) {
-                        pastBody.getFixtureList().removeIndex(j);
-                    }
-                    PolygonShape rect = new PolygonShape();
-                    rect.setAsBox(plantSquareWidth / 2, plantSquareHeight / 2);
-                    fixtureDef.shape = rect;
-                    fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
-                    fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
-                    pastBody.createFixture(fixtureDef);
-                }
-
-                pastBodyY = body.getPosition().y;
-                pastBodyX = body.getPosition().x;
-                pastBody = body;
+                pastBody.createFixture(fixtureDef);
             }
+
+            pastBodyY = body.getPosition().y;
+            pastBodyX = body.getPosition().x;
+            pastBody = body;
         }
+
         return true;
     }
 

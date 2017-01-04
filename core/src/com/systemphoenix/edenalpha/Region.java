@@ -5,7 +5,7 @@ import com.systemphoenix.edenalpha.Codex.RegionCodex;
 public class Region {
     private String name, code, mapFile;
     private float x, y, forestLandPercentage, worldWidth, worldHeight;
-    private int mapIndex;
+    private int mapIndex, arraySizeX, arraySizeY;
 
     public Region(int codexIndex) {
         this.code                   = RegionCodex.codes[codexIndex];
@@ -17,6 +17,8 @@ public class Region {
         this.worldWidth             = RegionCodex.worldSize[codexIndex].x;
         this.worldHeight            = RegionCodex.worldSize[codexIndex].y;
         this.mapFile                = RegionCodex.mapFiles[codexIndex];
+        this.arraySizeX             = (int)RegionCodex.arraySize[codexIndex].x;
+        this.arraySizeY             = (int)RegionCodex.arraySize[codexIndex].y;
     }
 
     public String getCode() {
@@ -53,5 +55,13 @@ public class Region {
 
     public int getMapIndex() {
         return mapIndex;
+    }
+
+    public int getArraySizeX() {
+        return arraySizeX;
+    }
+
+    public int getArraySizeY() {
+        return arraySizeY;
     }
 }

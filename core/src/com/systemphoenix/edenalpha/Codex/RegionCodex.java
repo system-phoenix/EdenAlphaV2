@@ -96,5 +96,23 @@ public class RegionCodex {
             new Vector2(1280, 720),
             new Vector2(1280, 720),
             new Vector2(1280, 1280)
+        }, arraySize = {
+            new Vector2(40, 23),
+            new Vector2(40, 23),
+            new Vector2(40, 23),
+            new Vector2(40, 23),
+            new Vector2(40, 23),
+            new Vector2(40, 23),
+            new Vector2(40, 23),
+            new Vector2(40, 23),
+            new Vector2(40, 23),
+            new Vector2(40, 23),
+            new Vector2(40, 23),
+            new Vector2(40, 23),
+            new Vector2(40, 23),
+            new Vector2(40, 23),
+            new Vector2(40, 23),
+            new Vector2(40, 23),
+            new Vector2(40, 40),
         };
 }
