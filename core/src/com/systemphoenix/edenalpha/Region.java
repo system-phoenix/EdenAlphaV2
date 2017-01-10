@@ -17,8 +17,8 @@ public class Region {
         this.worldWidth             = RegionCodex.worldSize[codexIndex].x;
         this.worldHeight            = RegionCodex.worldSize[codexIndex].y;
         this.mapFile                = RegionCodex.mapFiles[codexIndex];
-        this.arraySizeX             = (int)RegionCodex.arraySize[codexIndex].x;
-        this.arraySizeY             = (int)RegionCodex.arraySize[codexIndex].y;
+        this.arraySizeX             = 40;
+        this.arraySizeY             = this.worldHeight == 1280 ? 40 : 23;
     }
 
     public String getCode() {
@@ -63,5 +63,9 @@ public class Region {
 
     public int getArraySizeY() {
         return arraySizeY;
+    }
+
+    public void damageForest(float damage) {
+        this.forestLandPercentage -= damage;
     }
 }

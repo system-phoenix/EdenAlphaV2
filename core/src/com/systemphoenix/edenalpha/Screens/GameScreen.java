@@ -49,8 +49,9 @@ public class GameScreen extends AbsoluteScreen {
     private Enemy enemy;
     private Body pastBody;
     private float pastZoomDistance, plantSquareWidth = -1, plantSquareHeight = -1, pastBodyX = -1, pastBodyY = -1;
-    private long timer, sixtyMinuteMark = 10;
-    private boolean preSixty = true;
+    private int enemyCount = 0, enemyLimit = 15;
+    private long timer, sixtyMinuteMark = 1, createInterval, toNewWave;
+    private boolean preSixty = true, directionSquares[][], newWave = false, preNewWave = false;
 
     public GameScreen(EdenAlpha game, Region region) {
         super(game);
@@ -92,9 +93,11 @@ public class GameScreen extends AbsoluteScreen {
         debugRenderer = new Box2DDebugRenderer();
 
         plantSquares = new Body[region.getArraySizeY()][region.getArraySizeX()];
-        for(int i = 0; i < plantSquares.length; i++) {
-            for(int j = 0; j < plantSquares[i].length; j++) {
+        directionSquares = new boolean[region.getArraySizeY()][region.getArraySizeX()];
+        for(int i = 0; i < region.getArraySizeY(); i++) {
+            for(int j = 0; j < region.getArraySizeX(); j++) {
                 plantSquares[i][j] = null;
+                directionSquares[i][j] = false;
             }
         }
 
@@ -129,11 +132,18 @@ public class GameScreen extends AbsoluteScreen {
             plantSquares[(int)rect.getY() / (int)plantSquareHeight][(int)rect.getX() / (int) plantSquareWidth] = body;
         }
 
+        for(MapObject object : map.getLayers().get("directionSquares").getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            directionSquares[(int)rect.getY() / (int)plantSquareHeight][(int)rect.getX() / (int) plantSquareWidth] = true;
+        }
+
+
         createBodies(spawnPoints, "spawnPoints", CollisionBit.SPAWNPOINT, CollisionBit.SPAWNPOINT | CollisionBit.ENDPOINT | CollisionBit.PATHBOUND);
-        createBodies(endPoints, "endPoints", CollisionBit.ENDPOINT, CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PATHBOUND);
+        createBodies(endPoints, "endPoints", CollisionBit.ENDPOINT, CollisionBit.ENEMY | CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PATHBOUND);
         createBodies(pathBounds, "pathBounds", CollisionBit.PATHBOUND, CollisionBit.ENEMY | CollisionBit.SPAWNPOINT | CollisionBit.ENDPOINT);
 
 //        createEnemies();
+        createInterval = System.currentTimeMillis();
     }
 
     public void createBodies(Array<Body> bodies, String layer, short categoryBit, int maskBit) {
@@ -159,8 +169,22 @@ public class GameScreen extends AbsoluteScreen {
         }
     }
 
+    public void createEnemies() {
+        if(enemyCount < enemyLimit) {
+            if(System.currentTimeMillis() - createInterval > 2000) {
+                createInterval = System.currentTimeMillis();
+                for (int i = 0; i < spawnPoints.size; i++) {
+                    spawnEnemy(i);
+                }
+                enemyCount++;
+            }
+        } else {
+            newWave = false;
+        }
+    }
+
     public void spawnEnemy(int index) {
-        enemy = new Enemy(this, spawnPoints.get(index).getPosition().x - 16, spawnPoints.get(index).getPosition().y - 16, 32);
+        enemy = new Enemy(this, 0, spawnPoints.get(index).getPosition().x - 16, spawnPoints.get(index).getPosition().y - 16, 32);
 
         enemies.add(enemy);
 
@@ -168,6 +192,7 @@ public class GameScreen extends AbsoluteScreen {
 
     public void update(float delta) {
         cam.update();
+        world.step(1/45f, 0, 0);
         long currentSec = (System.currentTimeMillis() - timer) / 1000;
         long currentSecTens = currentSec / 10, currentSecOnes = currentSec % 10;
         long currentMin = currentSecTens / 6;
@@ -185,16 +210,36 @@ public class GameScreen extends AbsoluteScreen {
             if(currentMin == 0 && currentSec == 0) {
                 preSixty = false;
                 timer = System.currentTimeMillis();
-                spawnEnemy(0);
-            }
-        } else {
-            for(int i = 0; i < enemies.size; i++) {
-                enemies.get(i).update(delta);
+                newWave = true;
             }
         }
 
+        if(preNewWave) {
+            if(System.currentTimeMillis() - toNewWave >= 5000) {
+                preNewWave = false;
+                newWave = true;
+            }
+        }
+
+        if(newWave) {
+            createEnemies();
+        }
+
+        for(int i = 0; i < enemies.size; i++) {
+            enemies.get(i).update(delta);
+        }
+
+        for(int i = 0; i < enemies.size; i++) {
+            Enemy enemy = enemies.get(i);
+            if(enemy.canDispose()) {
+                enemy.dispose();
+                decrementEnemyCount();
+                enemies.removeIndex(i);
+            }
+        }
+
+        topHud.setMessage("Forest Land Percentage: " + region.getLifePercentage());
         topHud.setTimeStats(currentMinTens + "" + currentMinOnes + ":" + currentSecTens + "" + currentSecOnes);
-        world.step(1/60f, 6, 2);
         renderer.setView(cam);
     }
 
@@ -349,16 +394,36 @@ public class GameScreen extends AbsoluteScreen {
 
     @Override
     public void dispose() {
-        topHud.dispose();
-        map.dispose();
-        world.dispose();
-        debugRenderer.dispose();
+
         for(int i = 0; i < enemies.size; i++) {
             enemies.get(i).dispose();
         }
+
+        topHud.dispose();
+        map.dispose();
+
+        world.dispose();
+        debugRenderer.dispose();
     }
 
     public World getWorld() {
         return this.world;
+    }
+
+    public Region getRegion() {
+        return region;
+    }
+
+    public boolean[][] getDirectionSquares() {
+        return directionSquares;
+    }
+
+    public void decrementEnemyCount() {
+        this.enemyCount--;
+        Gdx.app.log("Verbose", "EnemyCount: " + enemyCount);
+        if(this.enemyCount <= 0) {
+            preNewWave = true;
+            toNewWave = System.currentTimeMillis();
+        }
     }
 }

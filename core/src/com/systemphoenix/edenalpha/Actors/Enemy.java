@@ -11,35 +11,38 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.systemphoenix.edenalpha.CollisionBit;
 import com.systemphoenix.edenalpha.Codex.EnemyCodex;
+import com.systemphoenix.edenalpha.CollisionBit;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class Enemy extends Sprite implements Disposable {
-    protected float size, velX, velY;
-    protected float stateTime, speed = 40;
+    protected float size, velX, velY, damage;
+    protected float stateTime, speed = 50;
     protected int level = 0;
-    protected boolean moving = true, canDraw = false;
+    protected long lastDirectionChange;
+    protected boolean moving = true, canDraw = false, canDispose = false;
     protected enum Direction {NORTH, SOUTH, EAST, WEST}
     protected Direction direction = Direction.SOUTH, opDirection = Direction.NORTH;
 
     protected Texture spriteSheet;
     protected Animation<TextureRegion> northAnimation, southAnimation, eastAnimation, westAnimation;
 
-    protected World world;
+    protected GameScreen gameScreen;
+
     protected Body body;
 
-    public Enemy(GameScreen screen, float x, float y, float size) {
+    public Enemy(GameScreen screen, int level, float x, float y, float size) {
+        this.gameScreen = screen;
         this.size = size;
         this.velX = 0;
         this.velY = 0;
-
-        this.world = screen.getWorld();
+        this.level = level;
+        this.damage = EnemyCodex.damage[level];
 
         initialize(x, y);
+        lastDirectionChange = System.currentTimeMillis();
     }
 
     private void initialize(float x, float y) {
@@ -49,19 +52,19 @@ public class Enemy extends Sprite implements Disposable {
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set(x + size / 2, y + size / 2);
 
-        body = world.createBody(bodyDef);
+        body = gameScreen.getWorld().createBody(bodyDef);
 
 
         CircleShape shape = new CircleShape();
-        shape.setRadius(size / 2 - 1);
+        shape.setRadius(size / 2);
         fixtureDef.shape = shape;
         fixtureDef.filter.categoryBits = CollisionBit.ENEMY;
-        fixtureDef.filter.maskBits = CollisionBit.PATHBOUND | CollisionBit.PLANTSQUARE;
+        fixtureDef.filter.maskBits = CollisionBit.PATHBOUND | CollisionBit.ENDPOINT;
 
         body.createFixture(fixtureDef).setUserData(this);
 
         try {
-            spriteSheet = new Texture(Gdx.files.internal("enemies/baddies" + level + ".png"));
+            spriteSheet = new Texture(Gdx.files.internal("enemies/baddies" + (level / 8) + ".png"));
             TextureRegion[][] temp = TextureRegion.split(spriteSheet, 32, 32);
             Array<TextureRegion> textureRegionsNorth = new Array<TextureRegion>();
             Array<TextureRegion> textureRegionsSouth = new Array<TextureRegion>();
@@ -151,14 +154,45 @@ public class Enemy extends Sprite implements Disposable {
         batch.draw(getFrame(), this.getX(), this.getY());
     }
 
+    public void damageForest() {
+        gameScreen.getRegion().damageForest(this.damage);
+        canDispose = true;
+    }
+
     public void setDirection() {
-        Direction temp = direction;
-        direction = opDirection;
-        opDirection = temp;
+        if(System.currentTimeMillis() - lastDirectionChange >= 1500) {
+            boolean directionSquares[][] = gameScreen.getDirectionSquares();
+            this.opDirection = direction;
+
+            for (int i = -1; i <= 1; i++) {
+                for (int j = -1; j <= 1; j++) {
+                    if (i == j || i + j == 0);
+                    else {
+                        if (directionSquares[(int) body.getPosition().y / 32 + i][(int) body.getPosition().x / 32 + j]) {
+                            if (i == -1 && j == 0 && opDirection != Direction.NORTH) {
+                                this.direction = Direction.SOUTH;
+                            } else if (i == 0 && j == 1 && opDirection != Direction.WEST) {
+                                this.direction = Direction.EAST;
+                            } else if (i == 1 && j == 0 && opDirection != Direction.SOUTH) {
+                                this.direction = Direction.NORTH;
+                            } else if (i == 0 && j == -1 && opDirection != Direction.EAST) {
+                                this.direction = Direction.WEST;
+                            }
+                        }
+                    }
+                }
+            }
+            lastDirectionChange = System.currentTimeMillis();
+        }
     }
 
     @Override
     public void dispose() {
         spriteSheet.dispose();
+        gameScreen.getWorld().destroyBody(body);
+    }
+
+    public boolean canDispose() {
+        return canDispose;
     }
 }

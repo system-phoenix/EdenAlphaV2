@@ -6,4 +6,5 @@ public class CollisionBit {
     public static final short ENEMY = 4;
     public static final short SPAWNPOINT = 8;
     public static final short ENDPOINT = 16;
+    public static final short DIRECTION = 32;
 }

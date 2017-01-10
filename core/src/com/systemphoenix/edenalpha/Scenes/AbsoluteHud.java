@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Disposable;
@@ -29,12 +30,19 @@ public class AbsoluteHud implements Disposable {
     public AbsoluteHud(EdenAlpha game) {
         this.game = game;
         this.gameGraphics = game.getGameGraphics();
-        this.font = game.getFont();
+        Color border = Color.BLACK, fontColor = Color.WHITE;
+        BitmapFont tempFont = font;
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/neuropol.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 16;
+        parameter.borderColor = border;
+        parameter.borderWidth = 3;
+        font = generator.generateFont(parameter);
 
         viewport = new FitViewport(worldWidth, worldHeight, new OrthographicCamera());
         stage = new Stage(viewport, gameGraphics);
 
-        message = new Label("No touch event yet!", new Label.LabelStyle(font, Color.BLACK));
+        message = new Label("No touch event yet!", new Label.LabelStyle(font, fontColor));
     }
 
     public void setMessage(String message) {

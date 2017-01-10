@@ -21,6 +21,17 @@ public class WorldContactListener implements ContactListener {
                 } else {
                     ((Enemy) b.getUserData()).setDirection();
                 }
+                break;
+            case CollisionBit.ENDPOINT | CollisionBit.ENEMY:
+                if(a.getFilterData().categoryBits == CollisionBit.ENEMY) {
+                    ((Enemy) a.getUserData()).damageForest();
+                } else {
+                    ((Enemy) b.getUserData()).damageForest();
+                }
+                break;
+
+            default:
+                break;
         }
     }
 

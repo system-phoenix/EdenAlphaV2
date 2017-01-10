@@ -15,14 +15,7 @@ public class TopHud extends AbsoluteHud {
     public TopHud(EdenAlpha game) {
         super(game);
 
-        Color border = Color.BLACK, fontColor = Color.WHITE;
-        BitmapFont tempFont = font;
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/neuropol.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 16;
-        parameter.borderColor = border;
-        parameter.borderWidth = 3;
-        font = generator.generateFont(parameter);
+        Color fontColor = Color.WHITE;
 
         Table temp = new Table();
         temp.top();
@@ -47,7 +40,6 @@ public class TopHud extends AbsoluteHud {
         temp.add(touchStats).padBottom(20);
         stage.addActor(temp);
 
-        font = tempFont;
     }
 
     public void setTimeStats(String timeStats) {
