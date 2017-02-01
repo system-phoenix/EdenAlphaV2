@@ -982,11 +982,11 @@
   <object id="1391" x="192" y="576" width="32" height="32"/>
   <object id="1392" x="1088" y="544" width="32" height="32"/>
  </objectgroup>
- <objectgroup name="spawnPoints">
+ <objectgroup name="spawnPoints" visible="0">
   <object id="1384" x="192" y="544" width="32" height="32"/>
   <object id="1385" x="160" y="512" width="32" height="32"/>
  </objectgroup>
- <objectgroup name="endPoints">
+ <objectgroup name="endPoints" visible="0">
   <object id="1388" x="1056" y="224" width="32" height="32"/>
  </objectgroup>
  <objectgroup name="directionSquares">
