@@ -21,22 +21,22 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.systemphoenix.edenalpha.Actors.Enemy;
 import com.systemphoenix.edenalpha.CollisionBit;
 import com.systemphoenix.edenalpha.EdenAlpha;
+import com.systemphoenix.edenalpha.EnemyUtils.Wave;
+import com.systemphoenix.edenalpha.PlantSquares.PlantSquare;
+import com.systemphoenix.edenalpha.PlantSquares.SquareType;
 import com.systemphoenix.edenalpha.Region;
 import com.systemphoenix.edenalpha.Scenes.TopHud;
 import com.systemphoenix.edenalpha.WorldContactListener;
 
 public class GameScreen extends AbsoluteScreen {
+    public static final float FPSCAP = 1 / 60f;
     private Region region;
-
-    private String message;
 
     private Viewport viewport;
     private TopHud topHud;
 
-    private TmxMapLoader mapLoader;
     private TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
 
@@ -44,14 +44,14 @@ public class GameScreen extends AbsoluteScreen {
     private Box2DDebugRenderer debugRenderer;
 
     private Array<Body> spawnPoints, endPoints, pathBounds;
-    private Body[][] plantSquares;
-    private Array<Enemy> enemies;
-    private Enemy enemy;
+    private Array<Wave> waves;
+
+    private PlantSquare[][] plantSquares;
     private Body pastBody;
-    private float pastZoomDistance, plantSquareWidth = -1, plantSquareHeight = -1, pastBodyX = -1, pastBodyY = -1;
-    private int enemyCount = 0, enemyLimit = 15;
-    private long timer, sixtyMinuteMark = 1, createInterval, toNewWave;
-    private boolean preSixty = true, directionSquares[][], newWave = false, preNewWave = false;
+    private float pastZoomDistance, plantSquareSize, pastBodyX = -1, pastBodyY = -1, accumulator;
+    private int enemyLimit = 10, waveIndex = -1, waveLimit = 10;
+    private long timer, createInterval, newWaveCountdown, timeGap;
+    private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, win = false, lose = false;
 
     public GameScreen(EdenAlpha game, Region region) {
         super(game);
@@ -64,27 +64,48 @@ public class GameScreen extends AbsoluteScreen {
         this.topHud = new TopHud(game);
         initialize();
         timer = System.currentTimeMillis();
+        ready = true;
     }
 
     private void initialize() {
-
+        TmxMapLoader mapLoader;
         try {
             mapLoader = new TmxMapLoader();
-            map = mapLoader.load("levels/CAR.tmx");
+            map = mapLoader.load("levels/" + region.getMapIndex() + ".tmx");
             renderer = new OrthogonalTiledMapRenderer(map);
             Gdx.app.log("Verbose", "Successfully loaded level: " + worldWidth + " x " + worldHeight);
 
             createWorld();
+            createEnemyWaves();
         } catch(Exception e) {
             Gdx.app.log("Verbose", "level " + e.getMessage());
         }
 
         cam.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
-
-        message = "Camera | X: -- ,     Y: -- ,     Zoom: -- ";
-        topHud.setCamStatMessage(message);
+        boundCamera();
         topHud.setMessage(region.getCode() + ": " + region.getName());
 
+    }
+
+    private void createEnemyWaves() {
+        Array<Vector2> spawnPoints = new Array<Vector2>();
+        waves = new Array<Wave>();
+
+        for(MapObject object : map.getLayers().get("spawnPoints").getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            spawnPoints.add(new Vector2(rect.getX(), rect.getY()));
+        }
+
+        int limit;
+
+        for(int i = 0; i < waveLimit; i++) {
+            if(i + 1 % 5 == 0) {
+                limit = enemyLimit * 2;
+            } else {
+                limit = enemyLimit;
+            }
+            waves.add(new Wave(this, spawnPoints, limit, 0));
+        }
     }
 
     private void createWorld() {
@@ -92,7 +113,7 @@ public class GameScreen extends AbsoluteScreen {
         world.setContactListener(new WorldContactListener());
         debugRenderer = new Box2DDebugRenderer();
 
-        plantSquares = new Body[region.getArraySizeY()][region.getArraySizeX()];
+        plantSquares = new PlantSquare[region.getArraySizeY()][region.getArraySizeX()];
         directionSquares = new boolean[region.getArraySizeY()][region.getArraySizeX()];
         for(int i = 0; i < region.getArraySizeY(); i++) {
             for(int j = 0; j < region.getArraySizeX(); j++) {
@@ -104,37 +125,36 @@ public class GameScreen extends AbsoluteScreen {
         spawnPoints = new Array<Body>();
         endPoints = new Array<Body>();
         pathBounds = new Array<Body>();
-
-        enemies = new Array<Enemy>();
-
-        BodyDef bodyDef = new BodyDef();
-        PolygonShape shape = new PolygonShape();
-        FixtureDef fixtureDef = new FixtureDef();
-        Body body;
+        plantSquareSize = 32;
         for(MapObject object : map.getLayers().get("plantSquares").getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            if(plantSquareHeight < 0 && plantSquareWidth < 0) {
-                plantSquareHeight = rect.getHeight();
-                plantSquareWidth = rect.getWidth();
+
+            plantSquares[(int)rect.getY() / (int)plantSquareSize][(int)rect.getX() / (int) plantSquareSize] = new PlantSquare(this, rect.getX() + plantSquareSize / 2, rect.getY() + plantSquareSize / 2, plantSquareSize, SquareType.LAND);
+        }
+
+        try {
+            for(MapObject object : map.getLayers().get("waterPlantSquares").getObjects().getByType(RectangleMapObject.class)) {
+                Rectangle rect = ((RectangleMapObject) object).getRectangle();
+
+                plantSquares[(int)rect.getY() / (int)plantSquareSize][(int)rect.getX() / (int) plantSquareSize] = new PlantSquare(this, rect.getX() + plantSquareSize / 2, rect.getY() + plantSquareSize / 2, plantSquareSize, SquareType.WATER);
             }
+        } catch(Exception e) {
+            Gdx.app.log("Verbose", "No waterPlantSquares layer");
+        }
 
-            bodyDef.type = BodyDef.BodyType.StaticBody;
-            bodyDef.position.set(rect.getX() + rect.getWidth() / 2, rect.getY() + rect.getHeight() / 2 );
+        try {
+            for(MapObject object : map.getLayers().get("saltwaterPlantSquares").getObjects().getByType(RectangleMapObject.class)) {
+                Rectangle rect = ((RectangleMapObject) object).getRectangle();
 
-            body = world.createBody(bodyDef);
-
-            shape.setAsBox(rect.getWidth() / 2, rect.getHeight() / 2);
-            fixtureDef.shape = shape;
-            fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
-            fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
-            body.createFixture(fixtureDef);
-
-            plantSquares[(int)rect.getY() / (int)plantSquareHeight][(int)rect.getX() / (int) plantSquareWidth] = body;
+                plantSquares[(int)rect.getY() / (int)plantSquareSize][(int)rect.getX() / (int) plantSquareSize] = new PlantSquare(this, rect.getX() + plantSquareSize / 2, rect.getY() + plantSquareSize / 2, plantSquareSize, SquareType.SALT_WATER);
+            }
+        } catch(Exception e) {
+            Gdx.app.log("Verbose", "No saltwaterPlantSquares layer");
         }
 
         for(MapObject object : map.getLayers().get("directionSquares").getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            directionSquares[(int)rect.getY() / (int)plantSquareHeight][(int)rect.getX() / (int) plantSquareWidth] = true;
+            directionSquares[(int)rect.getY() / (int)plantSquareSize][(int)rect.getX() / (int) plantSquareSize] = true;
         }
 
 
@@ -143,7 +163,7 @@ public class GameScreen extends AbsoluteScreen {
         createBodies(pathBounds, "pathBounds", CollisionBit.PATHBOUND, CollisionBit.ENEMY | CollisionBit.SPAWNPOINT | CollisionBit.ENDPOINT);
 
 //        createEnemies();
-        createInterval = System.currentTimeMillis();
+//        createInterval = System.currentTimeMillis();
     }
 
     public void createBodies(Array<Body> bodies, String layer, short categoryBit, int maskBit) {
@@ -169,77 +189,65 @@ public class GameScreen extends AbsoluteScreen {
         }
     }
 
-    public void createEnemies() {
-        if(enemyCount < enemyLimit) {
-            if(System.currentTimeMillis() - createInterval > 2000) {
-                createInterval = System.currentTimeMillis();
-                for (int i = 0; i < spawnPoints.size; i++) {
-                    spawnEnemy(i);
-                }
-                enemyCount++;
-            }
-        } else {
-            newWave = false;
-        }
-    }
-
-    public void spawnEnemy(int index) {
-        enemy = new Enemy(this, 0, spawnPoints.get(index).getPosition().x - 16, spawnPoints.get(index).getPosition().y - 16, 32);
-
-        enemies.add(enemy);
-
+    public void start() {
+        createInterval = System.currentTimeMillis();
     }
 
     public void update(float delta) {
+        long sixtyMinuteMark = 1;
         cam.update();
-        world.step(1/45f, 0, 0);
-        long currentSec = (System.currentTimeMillis() - timer) / 1000;
-        long currentSecTens = currentSec / 10, currentSecOnes = currentSec % 10;
-        long currentMin = currentSecTens / 6;
-        currentSecTens = currentSecTens % 6;
-        long currentMinTens = currentMin / 10, currentMinOnes = currentMin % 10;
-
-        if(preSixty) {
-            currentSec = sixtyMinuteMark - (System.currentTimeMillis() - timer) / 1000;
-            currentSecTens = currentSec / 10;
-            currentSecOnes = currentSec % 10;
-            currentMin = currentSecTens / 6;
+        if(region.getLifePercentage() > 0) {
+            accumulator+=delta;
+            while(accumulator>FPSCAP){
+                world.step(FPSCAP, 6, 2);
+                accumulator-=FPSCAP;
+            }
+            long currentSec = (System.currentTimeMillis() - timer) / 1000;
+            long currentSecTens = currentSec / 10, currentSecOnes = currentSec % 10;
+            long currentMin = currentSecTens / 6;
             currentSecTens = currentSecTens % 6;
-            currentMinTens = currentMin / 10;
-            currentMinOnes = currentMin % 10;
-            if(currentMin == 0 && currentSec == 0) {
-                preSixty = false;
-                timer = System.currentTimeMillis();
-                newWave = true;
+            long currentMinTens = currentMin / 10, currentMinOnes = currentMin % 10;
+
+            if(preSixty) {
+                currentSec = sixtyMinuteMark - (System.currentTimeMillis() - timer) / 1000;
+                currentSecTens = currentSec / 10;
+                currentSecOnes = currentSec % 10;
+                currentMin = currentSecTens / 6;
+                currentSecTens = currentSecTens % 6;
+                currentMinTens = currentMin / 10;
+                currentMinOnes = currentMin % 10;
+                if(currentMin == 0 && currentSec == 0) {
+                    preSixty = false;
+                    timer = System.currentTimeMillis();
+                    newWave = true;
+                    newWaveCountdown = 0;
+                }
             }
-        }
 
-        if(preNewWave) {
-            if(System.currentTimeMillis() - toNewWave >= 5000) {
-                preNewWave = false;
-                newWave = true;
+            if(newWave) {
+                if(System.currentTimeMillis() - newWaveCountdown >= 5000) {
+                    newWave = false;
+                    waveIndex++;
+                    if(waveIndex >= waveLimit) {
+                        win = true;
+                    }
+                }
+
+                topHud.setWaveStatMessage("Wave " + (waveIndex + 1));
             }
-        }
 
-        if(newWave) {
-            createEnemies();
-        }
-
-        for(int i = 0; i < enemies.size; i++) {
-            enemies.get(i).update(delta);
-        }
-
-        for(int i = 0; i < enemies.size; i++) {
-            Enemy enemy = enemies.get(i);
-            if(enemy.canDispose()) {
-                enemy.dispose();
-                decrementEnemyCount();
-                enemies.removeIndex(i);
+            if(waveIndex >= 0 && !newWave) {
+                Wave wave = waves.get(waveIndex);
+                wave.update(delta);
+                if(wave.isCleared()) {
+                    newWave = true;
+                    newWaveCountdown = System.currentTimeMillis();
+                }
             }
-        }
 
+            topHud.setTimeStats(currentMinTens + "" + currentMinOnes + ":" + currentSecTens + "" + currentSecOnes);
+        }
         topHud.setMessage("Forest Land Percentage: " + region.getLifePercentage());
-        topHud.setTimeStats(currentMinTens + "" + currentMinOnes + ":" + currentSecTens + "" + currentSecOnes);
         renderer.setView(cam);
     }
 
@@ -254,13 +262,17 @@ public class GameScreen extends AbsoluteScreen {
 
         gameGraphics.setProjectionMatrix(cam.combined);
         gameGraphics.begin();
-            for (int i = 0; i < enemies.size; i++) {
-                enemies.get(i).draw(gameGraphics);
-            }
+        if(waveIndex >= 0 && !newWave) {
+            waves.get(waveIndex).render(gameGraphics);
+        }
         gameGraphics.end();
 
         gameGraphics.setProjectionMatrix(topHud.getStage().getCamera().combined);
         topHud.getStage().draw();
+
+        if(paused || win || lose) {
+            Gdx.gl.glClearColor(0.95f, 0.95f, 0.95f, 0.5f);
+        }
     }
 
 //  Touch methods
@@ -271,40 +283,69 @@ public class GameScreen extends AbsoluteScreen {
 
     @Override
     public boolean tap(float x, float y, int count, int button) {
-        Vector3 touchPos = new Vector3();
-        touchPos.set(x, y, 0);
-        cam.unproject(touchPos);
-        touchPos.x = touchPos.x - (int)touchPos.x  > 0.5 ? (int) touchPos.x + 1 : (int) touchPos.x;
-        touchPos.y = touchPos.y - (int)touchPos.y  > 0.5 ? (int) touchPos.y + 1 : (int) touchPos.y;
-        topHud.setTouchStatsMessage("Touch | Projected (x, y): (" + x + ", " + y + ") Un-projected (x, y): (" + touchPos.x + ", " + touchPos.y + ")");
+        if(!paused) {
+            Vector3 touchPos = new Vector3();
+            touchPos.set(x, y, 0);
+            cam.unproject(touchPos);
+            touchPos.x = touchPos.x - (int)touchPos.x  > 0.5 ? (int) touchPos.x + 1 : (int) touchPos.x;
+            touchPos.y = touchPos.y - (int)touchPos.y  > 0.5 ? (int) touchPos.y + 1 : (int) touchPos.y;
 
-        if(plantSquares[(int)touchPos.y / (int)plantSquareHeight][(int)touchPos.x / (int)plantSquareWidth] != null) {
-            Body body = plantSquares[(int)touchPos.y / (int)plantSquareHeight][(int)touchPos.x / (int)plantSquareWidth];
-            FixtureDef fixtureDef = new FixtureDef();
-            CircleShape shape = new CircleShape();
-            shape.setRadius(plantSquareWidth / 2);
-            fixtureDef.shape = shape;
-            fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
-            fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
-            for(int j = 0; j < body.getFixtureList().size; j++) {
-                body.getFixtureList().removeIndex(j);
-            }
-            body.createFixture(fixtureDef);
-            if((pastBodyX >= 0 && pastBodyY >= 0) && (pastBodyX != body.getPosition().x || pastBodyY != body.getPosition().y)) {
-                for(int j = 0; j < pastBody.getFixtureList().size; j++) {
-                    pastBody.getFixtureList().removeIndex(j);
+            if(plantSquares[(int)touchPos.y / (int)plantSquareSize][(int)touchPos.x / (int)plantSquareSize] != null) {
+                PlantSquare plantSquare = plantSquares[(int)touchPos.y / (int)plantSquareSize][(int)touchPos.x / (int)plantSquareSize];
+                Body body = plantSquare.getBody();
+                for(int j = 0; j < body.getFixtureList().size; j++) {
+                    body.getFixtureList().removeIndex(j);
                 }
-                PolygonShape rect = new PolygonShape();
-                rect.setAsBox(plantSquareWidth / 2, plantSquareHeight / 2);
-                fixtureDef.shape = rect;
+                FixtureDef fixtureDef = new FixtureDef();
+                CircleShape shape = new CircleShape();
+                shape.setRadius(plantSquareSize / 2);
+                fixtureDef.shape = shape;
                 fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
                 fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
-                pastBody.createFixture(fixtureDef);
-            }
+                body.createFixture(fixtureDef);
 
-            pastBodyY = body.getPosition().y;
-            pastBodyX = body.getPosition().x;
-            pastBody = body;
+                shape = new CircleShape();
+                switch(plantSquare.getType()) {
+                    case SquareType.LAND:
+                        shape.setRadius(plantSquareSize * 2 + plantSquareSize);
+                        break;
+                    case SquareType.SALT_WATER:
+                        shape.setRadius(plantSquareSize * 2 + plantSquareSize / 8);
+                        break;
+                    case SquareType.WATER:
+                        shape.setRadius(plantSquareSize * 2 + plantSquareSize / 4);
+                        break;
+                }
+                fixtureDef.shape = shape;
+                fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
+                fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
+                body.createFixture(fixtureDef);
+                if((pastBodyX >= 0 && pastBodyY >= 0) && (pastBodyX != body.getPosition().x || pastBodyY != body.getPosition().y)) {
+                    world.destroyBody(pastBody);
+
+                    BodyDef bodyDef = new BodyDef();
+
+                    bodyDef.type = BodyDef.BodyType.StaticBody;
+                    bodyDef.position.set(pastBodyX, pastBodyY);
+
+                    pastBody = world.createBody(bodyDef);
+
+                    PolygonShape rect = new PolygonShape();
+                    rect.setAsBox(plantSquareSize / 2, plantSquareSize / 2);
+                    fixtureDef.shape = rect;
+                    fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
+                    fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
+                    pastBody.createFixture(fixtureDef);
+
+                    plantSquares[(int)pastBodyY / (int)plantSquareSize][(int)pastBodyX / (int) plantSquareSize].setBody(pastBody);
+                }
+
+                pastBodyY = body.getPosition().y;
+                pastBodyX = body.getPosition().x;
+                pastBody = body;
+            }
+        } else {
+            paused = false;
         }
 
         return true;
@@ -329,9 +370,6 @@ public class GameScreen extends AbsoluteScreen {
         cam.position.x -= deltaX;
         cam.position.y += deltaY;
         boundCamera();
-        message = "Camera | (x, y): (" + cam.position.x + ", " + cam.position.y + ")\t\t\tZoom: " + cam.zoom;
-        topHud.setCamStatMessage(message);
-        topHud.setTouchStatsMessage("Touch | (x, y): (" + touchPos.x + ", " + touchPos.y + ")");
         return true;
     }
 
@@ -350,9 +388,6 @@ public class GameScreen extends AbsoluteScreen {
         pastZoomDistance = distance;
         cam.zoom = MathUtils.clamp(cam.zoom, 0.3f, worldWidth/screenWidth);
         boundCamera();
-
-        message = "Camera | (x, y): (" + cam.position.x + ", " + cam.position.y + ")\t\t\tZoom: " + cam.zoom;
-        topHud.setCamStatMessage(message);
         return true;
     }
 
@@ -374,17 +409,18 @@ public class GameScreen extends AbsoluteScreen {
 
     @Override
     public void resize(int width, int height) {
-
+        viewport.update(width, height);
     }
 
     @Override
     public void pause() {
-
+        paused = true;
+        timeGap = System.currentTimeMillis() - timer;
     }
 
     @Override
     public void resume() {
-
+        timer = System.currentTimeMillis() - timeGap;
     }
 
     @Override
@@ -395,8 +431,8 @@ public class GameScreen extends AbsoluteScreen {
     @Override
     public void dispose() {
 
-        for(int i = 0; i < enemies.size; i++) {
-            enemies.get(i).dispose();
+        for(int i = 0; i < waves.size; i++) {
+            waves.get(i).dispose();
         }
 
         topHud.dispose();
@@ -418,12 +454,7 @@ public class GameScreen extends AbsoluteScreen {
         return directionSquares;
     }
 
-    public void decrementEnemyCount() {
-        this.enemyCount--;
-        Gdx.app.log("Verbose", "EnemyCount: " + enemyCount);
-        if(this.enemyCount <= 0) {
-            preNewWave = true;
-            toNewWave = System.currentTimeMillis();
-        }
+    public boolean isReady() {
+        return ready;
     }
 }

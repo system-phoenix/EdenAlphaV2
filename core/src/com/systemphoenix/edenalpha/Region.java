@@ -3,7 +3,7 @@ package com.systemphoenix.edenalpha;
 import com.systemphoenix.edenalpha.Codex.RegionCodex;
 
 public class Region {
-    private String name, code, mapFile;
+    private String name, code;
     private float x, y, forestLandPercentage, worldWidth, worldHeight;
     private int mapIndex, arraySizeX, arraySizeY;
 
@@ -14,9 +14,8 @@ public class Region {
         this.x                      = RegionCodex.camX[codexIndex];
         this.y                      = RegionCodex.camY[codexIndex];
         this.mapIndex               = RegionCodex.mapIndeces[codexIndex];
-        this.worldWidth             = RegionCodex.worldSize[codexIndex].x;
-        this.worldHeight            = RegionCodex.worldSize[codexIndex].y;
-        this.mapFile                = RegionCodex.mapFiles[codexIndex];
+        this.worldWidth             = 1280;
+        this.worldHeight            = 720;
         this.arraySizeX             = 40;
         this.arraySizeY             = this.worldHeight == 1280 ? 40 : 23;
     }
@@ -27,10 +26,6 @@ public class Region {
 
     public String getName(){
         return name;
-    }
-
-    public String getMapFile() {
-        return mapFile;
     }
 
     public float getLifePercentage() {

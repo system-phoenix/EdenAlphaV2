@@ -7,8 +7,11 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.systemphoenix.edenalpha.EdenAlpha;
+import com.systemphoenix.edenalpha.Region;
 
 public class LoadingScreen extends AbsoluteScreen {
+
+    private GameScreen gameScreen;
 
     private Texture loadingSheet;
     private TextureRegion[] frames;
@@ -50,8 +53,16 @@ public class LoadingScreen extends AbsoluteScreen {
 
         gameGraphics.begin();
         gameGraphics.draw(currentFrame, screenWidth / 2 - 50, screenHeight / 2 - 50, 100, 100);
-//        gameGraphics.draw(loadingSheet, 0, 0, screenWidth, screenHeight);
         gameGraphics.end();
+
+        if(gameScreen.isReady()) {
+            game.setScreen(gameScreen);
+        }
+    }
+
+    public void createGameScreen(EdenAlpha game, Region region) {
+        if(gameScreen != null) gameScreen.dispose();
+        gameScreen = new GameScreen(game, region);
     }
 
     @Override

@@ -41,24 +41,6 @@ public class RegionCodex {
             "                Caraga              ",
             "Autonomous Region in Muslim Mindanao",
             "       National Capital Region      "
-        }, mapFiles = {
-            "CAR.tmx",
-            "RegionI.tmx",
-            "RegionII.tmx",
-            "RegionIII.tmx",
-            "RegionIVA.tmx",
-            "RegionIVB.tmx",
-            "RegionV.tmx",
-            "RegionVI.tmx",
-            "RegionVII.tmx",
-            "RegionVIII.tmx",
-            "RegionIX.tmx",
-            "RegionX.tmx",
-            "RegionXI.tmx",
-            "RegionXII.tmx",
-            "RegionXIII.tmx",
-            "ARMM.tmx",
-            "NCR.tmx"
         };
 
 
@@ -77,24 +59,4 @@ public class RegionCodex {
             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
         };
 
-    public static final Vector2[]
-        worldSize = {
-            new Vector2(1280, 720),
-            new Vector2(1280, 720),
-            new Vector2(1280, 1280),
-            new Vector2(1280, 1280),
-            new Vector2(1280, 720),
-            new Vector2(1280, 1280),
-            new Vector2(1280, 720),
-            new Vector2(1280, 1280),
-            new Vector2(1280, 720),
-            new Vector2(1280, 1280),
-            new Vector2(1280, 720),
-            new Vector2(1280, 720),
-            new Vector2(1280, 1280),
-            new Vector2(1280, 1280),
-            new Vector2(1280, 1280),
-            new Vector2(1280, 720),
-            new Vector2(1280, 1280)
-        };
 }

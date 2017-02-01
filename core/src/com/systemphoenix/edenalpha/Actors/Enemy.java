@@ -20,9 +20,9 @@ import com.systemphoenix.edenalpha.Screens.GameScreen;
 public class Enemy extends Sprite implements Disposable {
     protected float size, velX, velY, damage;
     protected float stateTime, speed = 50;
-    protected int level = 0;
+    protected int level = 0, id;
     protected long lastDirectionChange;
-    protected boolean moving = true, canDraw = false, canDispose = false;
+    protected boolean spawned = false, moving = true, canDraw = false, canDispose = false, directionSquares[][];
     protected enum Direction {NORTH, SOUTH, EAST, WEST}
     protected Direction direction = Direction.SOUTH, opDirection = Direction.NORTH;
 
@@ -33,16 +33,24 @@ public class Enemy extends Sprite implements Disposable {
 
     protected Body body;
 
-    public Enemy(GameScreen screen, int level, float x, float y, float size) {
+    public Enemy(GameScreen screen, int level, float x, float y, float size, int id) {
         this.gameScreen = screen;
+        this.id = id;
         this.size = size;
         this.velX = 0;
         this.velY = 0;
         this.level = level;
         this.damage = EnemyCodex.damage[level];
+        this.directionSquares = new boolean[screen.getDirectionSquares().length][screen.getDirectionSquares()[0].length];
+
+        for(int i = 0; i < directionSquares.length; i++) {
+            for(int j = 0; j < directionSquares[i].length; j++) {
+                this.directionSquares[i][j] = screen.getDirectionSquares()[i][j];
+            }
+        }
 
         initialize(x, y);
-        lastDirectionChange = System.currentTimeMillis();
+        lastDirectionChange = 0;
     }
 
     private void initialize(float x, float y) {
@@ -151,7 +159,9 @@ public class Enemy extends Sprite implements Disposable {
     @Override
     public void draw(Batch batch) {
 //        super.draw(batch);
-        batch.draw(getFrame(), this.getX(), this.getY());
+        if(spawned) {
+            batch.draw(getFrame(), this.getX(), this.getY());
+        }
     }
 
     public void damageForest() {
@@ -160,30 +170,40 @@ public class Enemy extends Sprite implements Disposable {
     }
 
     public void setDirection() {
-        if(System.currentTimeMillis() - lastDirectionChange >= 1500) {
-            boolean directionSquares[][] = gameScreen.getDirectionSquares();
+        if(System.currentTimeMillis() - lastDirectionChange >= 250) {
             this.opDirection = direction;
-
-            for (int i = -1; i <= 1; i++) {
-                for (int j = -1; j <= 1; j++) {
+            boolean loopBreak = false;
+            for (int i = -1; i <= 1 && !loopBreak; i++) {
+                for (int j = -1; j <= 1 && !loopBreak; j++) {
                     if (i == j || i + j == 0);
                     else {
                         if (directionSquares[(int) body.getPosition().y / 32 + i][(int) body.getPosition().x / 32 + j]) {
-                            if (i == -1 && j == 0 && opDirection != Direction.NORTH) {
+                            if (i == -1 && j == 0) {
                                 this.direction = Direction.SOUTH;
-                            } else if (i == 0 && j == 1 && opDirection != Direction.WEST) {
+                            } else if (i == 0 && j == 1) {
                                 this.direction = Direction.EAST;
-                            } else if (i == 1 && j == 0 && opDirection != Direction.SOUTH) {
+                            } else if (i == 1 && j == 0) {
                                 this.direction = Direction.NORTH;
-                            } else if (i == 0 && j == -1 && opDirection != Direction.EAST) {
+                            } else if (i == 0 && j == -1) {
                                 this.direction = Direction.WEST;
+                            }
+                            directionSquares[(int) body.getPosition().y / 32 + i][(int) body.getPosition().x / 32 + j] = false;
+                            if(direction != opDirection) {
+                                loopBreak = true;
                             }
                         }
                     }
                 }
             }
+            Gdx.app.log("Verbose", "Changed direction -- op: " + opDirection + ", current: " + direction );
             lastDirectionChange = System.currentTimeMillis();
         }
+    }
+
+    public void spawn() {
+        this.moving = true;
+        this.spawned = true;
+        Gdx.app.log("Verbose", "Spawned enemy [" + id + "]: velocity = " + this.body.getLinearVelocity());
     }
 
     @Override
@@ -194,5 +214,17 @@ public class Enemy extends Sprite implements Disposable {
 
     public boolean canDispose() {
         return canDispose;
+    }
+
+    public boolean isSpawned() {
+        return spawned;
+    }
+
+    public boolean isMoving() {
+        return moving;
+    }
+
+    public void setMoving(boolean moving) {
+        this.moving = moving;
     }
 }
