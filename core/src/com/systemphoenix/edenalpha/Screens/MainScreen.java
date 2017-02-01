@@ -5,6 +5,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.systemphoenix.edenalpha.EdenAlpha;
 
 import java.util.Random;
@@ -14,6 +17,7 @@ public class MainScreen extends AbsoluteScreen {
     private Texture bg;
     private String loadingMessage = "Loading...";
     private GlyphLayout glyphLayout;
+    private Viewport viewport;
 
     private boolean canStart = false, blinking = true;
     private long blink;
@@ -24,6 +28,8 @@ public class MainScreen extends AbsoluteScreen {
         this.font.setColor(Color.BLACK);
         this.glyphLayout = new GlyphLayout();
         int rand = new Random().nextInt(3) + 1;
+
+        this.viewport = new StretchViewport(worldWidth, worldHeight, cam);
         try {
             this.bg = new Texture(Gdx.files.internal("main/[eden]bg" + rand + ".png"));
             Gdx.app.log("Verbose", "Successfully loaded bg");
@@ -83,6 +89,11 @@ public class MainScreen extends AbsoluteScreen {
     @Override
     public boolean pan(float x, float y, float deltaX, float deltaY) {
         return true;
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        viewport.update(width, height);
     }
 
     public void setLoadingMessage(String loadingMessage) {

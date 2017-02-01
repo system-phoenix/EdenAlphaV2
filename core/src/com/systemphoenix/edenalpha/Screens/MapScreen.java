@@ -5,6 +5,9 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.systemphoenix.edenalpha.EdenAlpha;
 import com.systemphoenix.edenalpha.FieldSelection;
 import com.systemphoenix.edenalpha.Region;
@@ -23,6 +26,7 @@ public class MapScreen extends AbsoluteScreen {
     private Region currentRegion;
 
     private GameScreen gameScreen = null;
+    private Viewport viewport;
 
     public MapScreen(EdenAlpha game) {
         super(game);
@@ -41,6 +45,9 @@ public class MapScreen extends AbsoluteScreen {
         mapSprite.setPosition(0, 0);
         mapSprite.setSize(worldWidth, worldHeight);
         cam.setToOrtho(false, sizeWidth, sizeHeight);
+
+        this.viewport = new StretchViewport(sizeWidth, sizeHeight, cam);
+
         fieldSelection.setCameraPosition(cam);
         cam.update();
 
@@ -96,9 +103,7 @@ public class MapScreen extends AbsoluteScreen {
 
         game.setSelectedMapIndex(fieldSelection.getIndex());
         game.setScreen(game.getLoadingScreen());
-        if(gameScreen != null) gameScreen.dispose();
-        gameScreen = new GameScreen(game, fieldSelection.getRegionByIndex(game.getSelectedMapIndex()));
-        game.setScreen(gameScreen);
+        game.getLoadingScreen().createGameScreen(game, fieldSelection.getRegionByIndex(game.getSelectedMapIndex()));
         return true;
     }
 
@@ -131,5 +136,10 @@ public class MapScreen extends AbsoluteScreen {
         fieldSelection.dispose();
         if(gameScreen != null) gameScreen.dispose();
         regionHud.dispose();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        viewport.update(width, height);
     }
 }
