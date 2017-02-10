@@ -195,7 +195,6 @@ public class Enemy extends Sprite implements Disposable {
                     }
                 }
             }
-            Gdx.app.log("Verbose", "Changed direction -- op: " + opDirection + ", current: " + direction );
             lastDirectionChange = System.currentTimeMillis();
         }
     }
@@ -203,7 +202,6 @@ public class Enemy extends Sprite implements Disposable {
     public void spawn() {
         this.moving = true;
         this.spawned = true;
-        Gdx.app.log("Verbose", "Spawned enemy [" + id + "]: velocity = " + this.body.getLinearVelocity());
     }
 
     @Override

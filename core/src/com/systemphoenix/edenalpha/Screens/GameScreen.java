@@ -49,9 +49,9 @@ public class GameScreen extends AbsoluteScreen {
     private PlantSquare[][] plantSquares;
     private Body pastBody;
     private float pastZoomDistance, plantSquareSize, pastBodyX = -1, pastBodyY = -1, accumulator;
-    private int enemyLimit = 10, waveIndex = -1, waveLimit = 10;
+    private int enemyLimit = 10, waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1;
     private long timer, createInterval, newWaveCountdown, timeGap;
-    private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, win = false, lose = false;
+    private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, win = false, lose = false, running = false, showAll = false;
 
     public GameScreen(EdenAlpha game, Region region) {
         super(game);
@@ -84,7 +84,8 @@ public class GameScreen extends AbsoluteScreen {
         cam.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
         boundCamera();
         topHud.setMessage(region.getCode() + ": " + region.getName());
-
+        running = true;
+        Gdx.app.log("Verbose", "PlantSquares.length: " + plantSquares.length);
     }
 
     private void createEnemyWaves() {
@@ -230,6 +231,7 @@ public class GameScreen extends AbsoluteScreen {
                     waveIndex++;
                     if(waveIndex >= waveLimit) {
                         win = true;
+                        running = false;
                     }
                 }
 
@@ -253,17 +255,30 @@ public class GameScreen extends AbsoluteScreen {
 
     @Override
     public void render(float delta) {
-        update(delta);
+        if(running) update(delta);
         Gdx.gl.glClearColor(0.95f, 0.95f, 0.95f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         renderer.render();
-        debugRenderer.render(world, cam.combined);
+//        debugRenderer.render(world, cam.combined);
 
         gameGraphics.setProjectionMatrix(cam.combined);
         gameGraphics.begin();
-        if(waveIndex >= 0 && !newWave) {
-            waves.get(waveIndex).render(gameGraphics);
+        if(running) {
+            if(showAll) {
+                for(int i = 0; i < plantSquares.length; i++) {
+                    for(int j = 0; j < plantSquares[i].length; j++) {
+                        if(plantSquares[i][j] != null) {
+                            plantSquares[i][j].draw(gameGraphics);
+                        }
+                    }
+                }
+            } else if(selectedX != -1 && selectedY != -1) {
+                plantSquares[selectedY][selectedX].draw(gameGraphics);
+            }
+            if(waveIndex >= 0 && !newWave) {
+                waves.get(waveIndex).render(gameGraphics);
+            }
         }
         gameGraphics.end();
 
@@ -290,59 +305,23 @@ public class GameScreen extends AbsoluteScreen {
             touchPos.x = touchPos.x - (int)touchPos.x  > 0.5 ? (int) touchPos.x + 1 : (int) touchPos.x;
             touchPos.y = touchPos.y - (int)touchPos.y  > 0.5 ? (int) touchPos.y + 1 : (int) touchPos.y;
 
-            if(plantSquares[(int)touchPos.y / (int)plantSquareSize][(int)touchPos.x / (int)plantSquareSize] != null) {
-                PlantSquare plantSquare = plantSquares[(int)touchPos.y / (int)plantSquareSize][(int)touchPos.x / (int)plantSquareSize];
-                Body body = plantSquare.getBody();
-                for(int j = 0; j < body.getFixtureList().size; j++) {
-                    body.getFixtureList().removeIndex(j);
+            try {
+                if(selectedX == (int)touchPos.x / (int)plantSquareSize && selectedY == (int)touchPos.y / (int)plantSquareSize) {
+                    showAll = false;
+                    selectedY = selectedX = -1;
+                } else if(plantSquares[(int)touchPos.y / (int)plantSquareSize][(int)touchPos.x / (int)plantSquareSize] != null) {
+                    selectedX = (int) touchPos.x / (int)plantSquareSize;
+                    selectedY = (int) touchPos.y / (int)plantSquareSize;
+
+                    showAll = false;
+
+                    Gdx.app.log("Verbose", "(" + selectedX + ", " + selectedY +") Status: " + plantSquares[selectedY][selectedX]);
+                } else {
+                    selectedX = selectedY = -1;
+                    showAll = !showAll;
                 }
-                FixtureDef fixtureDef = new FixtureDef();
-                CircleShape shape = new CircleShape();
-                shape.setRadius(plantSquareSize / 2);
-                fixtureDef.shape = shape;
-                fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
-                fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
-                body.createFixture(fixtureDef);
-
-                shape = new CircleShape();
-                switch(plantSquare.getType()) {
-                    case SquareType.LAND:
-                        shape.setRadius(plantSquareSize * 2 + plantSquareSize);
-                        break;
-                    case SquareType.SALT_WATER:
-                        shape.setRadius(plantSquareSize * 2 + plantSquareSize / 8);
-                        break;
-                    case SquareType.WATER:
-                        shape.setRadius(plantSquareSize * 2 + plantSquareSize / 4);
-                        break;
-                }
-                fixtureDef.shape = shape;
-                fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
-                fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
-                body.createFixture(fixtureDef);
-                if((pastBodyX >= 0 && pastBodyY >= 0) && (pastBodyX != body.getPosition().x || pastBodyY != body.getPosition().y)) {
-                    world.destroyBody(pastBody);
-
-                    BodyDef bodyDef = new BodyDef();
-
-                    bodyDef.type = BodyDef.BodyType.StaticBody;
-                    bodyDef.position.set(pastBodyX, pastBodyY);
-
-                    pastBody = world.createBody(bodyDef);
-
-                    PolygonShape rect = new PolygonShape();
-                    rect.setAsBox(plantSquareSize / 2, plantSquareSize / 2);
-                    fixtureDef.shape = rect;
-                    fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
-                    fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
-                    pastBody.createFixture(fixtureDef);
-
-                    plantSquares[(int)pastBodyY / (int)plantSquareSize][(int)pastBodyX / (int) plantSquareSize].setBody(pastBody);
-                }
-
-                pastBodyY = body.getPosition().y;
-                pastBodyX = body.getPosition().x;
-                pastBody = body;
+            } catch (Exception e) {
+                Gdx.app.log("Verbose", "Error: " + e.getMessage());
             }
         } else {
             paused = false;
@@ -458,3 +437,57 @@ public class GameScreen extends AbsoluteScreen {
         return ready;
     }
 }
+
+
+//                PlantSquare plantSquare = plantSquares[(int)touchPos.y / (int)plantSquareSize][(int)touchPos.x / (int)plantSquareSize];
+//                Body body = plantSquare.getBody();
+//                for(int j = 0; j < body.getFixtureList().size; j++) {
+//                    body.getFixtureList().removeIndex(j);
+//                }
+//                FixtureDef fixtureDef = new FixtureDef();
+//                CircleShape shape = new CircleShape();
+//                shape.setRadius(plantSquareSize / 2);
+//                fixtureDef.shape = shape;
+//                fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
+//                fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
+//                body.createFixture(fixtureDef);
+//
+//                shape = new CircleShape();
+//                switch(plantSquare.getType()) {
+//                    case SquareType.LAND:
+//                        shape.setRadius(plantSquareSize * 2 + plantSquareSize);
+//                        break;
+//                    case SquareType.SALT_WATER:
+//                        shape.setRadius(plantSquareSize * 2 + plantSquareSize / 8);
+//                        break;
+//                    case SquareType.WATER:
+//                        shape.setRadius(plantSquareSize * 2 + plantSquareSize / 4);
+//                        break;
+//                }
+//                fixtureDef.shape = shape;
+//                fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
+//                fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
+//                body.createFixture(fixtureDef);
+//                if((pastBodyX >= 0 && pastBodyY >= 0) && (pastBodyX != body.getPosition().x || pastBodyY != body.getPosition().y)) {
+//                    world.destroyBody(pastBody);
+//
+//                    BodyDef bodyDef = new BodyDef();
+//
+//                    bodyDef.type = BodyDef.BodyType.StaticBody;
+//                    bodyDef.position.set(pastBodyX, pastBodyY);
+//
+//                    pastBody = world.createBody(bodyDef);
+//
+//                    PolygonShape rect = new PolygonShape();
+//                    rect.setAsBox(plantSquareSize / 2, plantSquareSize / 2);
+//                    fixtureDef.shape = rect;
+//                    fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
+//                    fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
+//                    pastBody.createFixture(fixtureDef);
+//
+//                    plantSquares[(int)pastBodyY / (int)plantSquareSize][(int)pastBodyX / (int) plantSquareSize].setBody(pastBody);
+//                }
+//
+//                pastBodyY = body.getPosition().y;
+//                pastBodyX = body.getPosition().x;
+//                pastBody = body;

@@ -17,7 +17,7 @@ public class Region {
         this.worldWidth             = 1280;
         this.worldHeight            = 720;
         this.arraySizeX             = 40;
-        this.arraySizeY             = this.worldHeight == 1280 ? 40 : 23;
+        this.arraySizeY             = 23;
     }
 
     public String getCode() {

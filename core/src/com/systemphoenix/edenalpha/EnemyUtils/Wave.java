@@ -23,6 +23,7 @@ public class Wave implements Disposable {
         this.levels = levels;
 
         createSpawnPoints(spawnPoints);
+        createEnemy();
     }
 
     private void createSpawnPoints(Array<Vector2> points) {
@@ -32,11 +33,19 @@ public class Wave implements Disposable {
         }
     }
 
+    public void createEnemy() {
+        for(int counter = 0; counter < enemyLimit; counter++) {
+            for(int i = 0; i < spawnPoints.size; i++) {
+                spawnPoints.get(i).addEnemy(new Enemy(gameScreen, levels[0], spawnPoints.get(i).getVector().x, spawnPoints.get(i).getVector().y, 32, counter));
+    //            spawnPoints.get(i).spawnEnemy(i);
+            }
+        }
+    }
+
     public void update(float delta) {
         if(System.currentTimeMillis() - nextSpawn >= 1500 && spawnCounter < enemyLimit) {
-            Gdx.app.log("Verbose", "spawning enemies [" + spawnCounter + "]");
             for(int i = 0; i < spawnPoints.size; i++) {
-                spawnPoints.get(i).addEnemy(new Enemy(gameScreen, levels[0], spawnPoints.get(i).getVector().x, spawnPoints.get(i).getVector().y, 32, spawnCounter));
+//                spawnPoints.get(i).addEnemy(new Enemy(gameScreen, levels[0], spawnPoints.get(i).getVector().x, spawnPoints.get(i).getVector().y, 32, spawnCounter));
                 spawnPoints.get(i).spawnEnemy(spawnCounter);
             }
             spawnCounter++;

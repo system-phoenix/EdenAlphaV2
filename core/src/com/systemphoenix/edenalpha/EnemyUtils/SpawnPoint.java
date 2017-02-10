@@ -7,12 +7,13 @@ import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Actors.Enemy;
 
 public class SpawnPoint implements Disposable {
-    private Array<Enemy> enemies;
+    private Array<Enemy> enemies, sleepingEnemies;
     private Vector2 vector;
 
     public SpawnPoint(Vector2 vector) {
         this.vector = vector;
         enemies = new Array<Enemy>();
+        sleepingEnemies = new Array<Enemy>();
     }
 
     public void update(float delta) {
@@ -43,11 +44,12 @@ public class SpawnPoint implements Disposable {
     }
 
     public void spawnEnemy(int index) {
+        enemies.add(sleepingEnemies.get(index));
         enemies.get(index).spawn();
     }
 
     public void addEnemy(Enemy enemy) {
-        enemies.add(enemy);
+        sleepingEnemies.add(enemy);
     }
 
     public Enemy getEnemy(int index) {

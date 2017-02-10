@@ -1,5 +1,9 @@
 package com.systemphoenix.edenalpha.PlantSquares;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -7,10 +11,11 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.systemphoenix.edenalpha.CollisionBit;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
-public class PlantSquare {
+public class PlantSquare extends Sprite {
     protected float x, y;
     protected int gridX, gridY, type;
     protected Body body;
+    protected Texture square;
 
 
     public PlantSquare(GameScreen screen, float x, float y, float size, int type) {
@@ -34,11 +39,24 @@ public class PlantSquare {
         body.createFixture(fixtureDef);
 
         this.type = type;
-
+        try {
+            this.square = new Texture(Gdx.files.internal("misc/" + this.type + "_PlantSquare.png"));
+        } catch(Exception e) {
+            Gdx.app.log("Verbose", "Plant square: " + e.getMessage());
+        }
     }
 
     public void collision() {
 
+    }
+
+    @Override
+    public void draw(Batch batch) {
+        try {
+            batch.draw(this.square, x - 16, y - 16);
+        } catch(Exception e) {
+            Gdx.app.log("Verbose", "Error in rendering plantSquare: " + e.getMessage());
+        }
     }
 
     public Body getBody() {
