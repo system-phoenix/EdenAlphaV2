@@ -53,7 +53,7 @@ public class Enemy extends Sprite implements Disposable {
         lastDirectionChange = 0;
     }
 
-    private void initialize(float x, float y) {
+    protected void initialize(float x, float y) {
         BodyDef bodyDef = new BodyDef();
         FixtureDef fixtureDef = new FixtureDef();
 
@@ -79,7 +79,7 @@ public class Enemy extends Sprite implements Disposable {
             Array<TextureRegion> textureRegionsEast = new Array<TextureRegion>();
             Array<TextureRegion> textureRegionsWest = new Array<TextureRegion>();
 
-            Vector2[] points = EnemyCodex.getSpriteLocation(0);
+            Vector2[] points = EnemyCodex.getSpriteLocation(level);
             for (int i = (int) points[0].y; i <= (int) points[1].y; i++) {
                 for (int j = (int) points[0].x; j <= (int) points[1].x; j++) {
                     if (i - (int) points[0].y == 0) {
@@ -136,7 +136,7 @@ public class Enemy extends Sprite implements Disposable {
         }
     }
 
-    private TextureRegion getFrame() {
+    protected TextureRegion getFrame() {
         TextureRegion temp = southAnimation.getKeyFrame(stateTime, true);
         switch (direction) {
             case NORTH:

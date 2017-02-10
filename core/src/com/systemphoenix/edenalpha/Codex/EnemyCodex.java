@@ -9,11 +9,11 @@ public class EnemyCodex {
     }
 
     public static float damage[] = {
-            2
+            0, 0, 0, 0, 0, 0, 0, 0
     };
 
     public static Vector2[] getSpriteLocation(int index) {
-        Vector2[] temp = {new Vector2(index % 4, index / 4), new Vector2(index % 4 + 3, index / 4 + 3)};
+        Vector2[] temp = {new Vector2(((index % 4) + (index * 3)), index / 4), new Vector2(((index % 4 + 3) + (index * 3)), index / 4 + 3)};
         return temp;
     }
 }

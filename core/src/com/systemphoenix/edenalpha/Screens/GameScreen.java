@@ -14,13 +14,13 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.systemphoenix.edenalpha.Actors.GhostEnemy;
 import com.systemphoenix.edenalpha.CollisionBit;
 import com.systemphoenix.edenalpha.EdenAlpha;
 import com.systemphoenix.edenalpha.EnemyUtils.Wave;
@@ -45,13 +45,13 @@ public class GameScreen extends AbsoluteScreen {
 
     private Array<Body> spawnPoints, endPoints, pathBounds;
     private Array<Wave> waves;
+    private Array<GhostEnemy> ghostEnemies;
 
     private PlantSquare[][] plantSquares;
-    private Body pastBody;
-    private float pastZoomDistance, plantSquareSize, pastBodyX = -1, pastBodyY = -1, accumulator;
+    private float pastZoomDistance, plantSquareSize, accumulator;
     private int enemyLimit = 10, waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1;
     private long timer, createInterval, newWaveCountdown, timeGap;
-    private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, win = false, lose = false, running = false, showAll = false;
+    private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, win = false, lose = false, running = false, showAll = false, hasGhostEnemy = false;
 
     public GameScreen(EdenAlpha game, Region region) {
         super(game);
@@ -100,12 +100,12 @@ public class GameScreen extends AbsoluteScreen {
         int limit;
 
         for(int i = 0; i < waveLimit; i++) {
-            if(i + 1 % 5 == 0) {
+            if((i + 1) % 5 == 0) {
                 limit = enemyLimit * 2;
             } else {
                 limit = enemyLimit;
             }
-            waves.add(new Wave(this, spawnPoints, limit, 0));
+            waves.add(new Wave(this, spawnPoints, limit, 2));
         }
     }
 
@@ -190,12 +190,21 @@ public class GameScreen extends AbsoluteScreen {
         }
     }
 
+    public void createGhostEnemy() {
+        ghostEnemies = new Array<GhostEnemy>();
+        for(int i = 0; i < spawnPoints.size; i++) {
+            ghostEnemies.add(new GhostEnemy(this, 0, spawnPoints.get(i).getPosition().x, spawnPoints.get(i).getPosition().y, plantSquareSize, i));
+            ghostEnemies.get(i).spawn();
+        }
+        hasGhostEnemy = true;
+    }
+
     public void start() {
         createInterval = System.currentTimeMillis();
     }
 
     public void update(float delta) {
-        long sixtyMinuteMark = 1;
+        long sixtyMinuteMark = 2;
         cam.update();
         if(region.getLifePercentage() > 0) {
             accumulator+=delta;
@@ -222,28 +231,36 @@ public class GameScreen extends AbsoluteScreen {
                     timer = System.currentTimeMillis();
                     newWave = true;
                     newWaveCountdown = 0;
+                } else if(currentMin == 1 && currentSec == 0) {
+                    createGhostEnemy();
                 }
             }
+            if(preSixty && hasGhostEnemy) {
+                for(int i = 0; i < ghostEnemies.size; i++) {
+                    ghostEnemies.get(i).update(delta);
+                }
+            } else {
 
-            if(newWave) {
-                if(System.currentTimeMillis() - newWaveCountdown >= 5000) {
-                    newWave = false;
-                    waveIndex++;
-                    if(waveIndex >= waveLimit) {
-                        win = true;
-                        running = false;
+                if(newWave) {
+                    if(System.currentTimeMillis() - newWaveCountdown >= 5000) {
+                        newWave = false;
+                        waveIndex++;
+                        if(waveIndex >= waveLimit) {
+                            win = true;
+                            running = false;
+                        }
                     }
+
+                    topHud.setWaveStatMessage("Wave " + (waveIndex + 1));
                 }
 
-                topHud.setWaveStatMessage("Wave " + (waveIndex + 1));
-            }
-
-            if(waveIndex >= 0 && !newWave) {
-                Wave wave = waves.get(waveIndex);
-                wave.update(delta);
-                if(wave.isCleared()) {
-                    newWave = true;
-                    newWaveCountdown = System.currentTimeMillis();
+                if(waveIndex >= 0 && !newWave) {
+                    Wave wave = waves.get(waveIndex);
+                    wave.update(delta);
+                    if(wave.isCleared()) {
+                        newWave = true;
+                        newWaveCountdown = System.currentTimeMillis();
+                    }
                 }
             }
 
@@ -265,19 +282,25 @@ public class GameScreen extends AbsoluteScreen {
         gameGraphics.setProjectionMatrix(cam.combined);
         gameGraphics.begin();
         if(running) {
-            if(showAll) {
-                for(int i = 0; i < plantSquares.length; i++) {
-                    for(int j = 0; j < plantSquares[i].length; j++) {
-                        if(plantSquares[i][j] != null) {
-                            plantSquares[i][j].draw(gameGraphics);
+            if(preSixty && hasGhostEnemy) {
+                for(int i = 0; i < ghostEnemies.size; i++) {
+                    ghostEnemies.get(i).draw(gameGraphics);
+                }
+            } else {
+                if(showAll) {
+                    for(int i = 0; i < plantSquares.length; i++) {
+                        for(int j = 0; j < plantSquares[i].length; j++) {
+                            if(plantSquares[i][j] != null) {
+                                plantSquares[i][j].draw(gameGraphics);
+                            }
                         }
                     }
+                } else if(selectedX != -1 && selectedY != -1) {
+                    plantSquares[selectedY][selectedX].draw(gameGraphics);
                 }
-            } else if(selectedX != -1 && selectedY != -1) {
-                plantSquares[selectedY][selectedX].draw(gameGraphics);
-            }
-            if(waveIndex >= 0 && !newWave) {
-                waves.get(waveIndex).render(gameGraphics);
+                if(waveIndex >= 0 && !newWave) {
+                    waves.get(waveIndex).render(gameGraphics);
+                }
             }
         }
         gameGraphics.end();
@@ -429,6 +452,10 @@ public class GameScreen extends AbsoluteScreen {
         return region;
     }
 
+    public PlantSquare[][] getPlantSquares() {
+        return this.plantSquares;
+    }
+
     public boolean[][] getDirectionSquares() {
         return directionSquares;
     }
@@ -437,57 +464,3 @@ public class GameScreen extends AbsoluteScreen {
         return ready;
     }
 }
-
-
-//                PlantSquare plantSquare = plantSquares[(int)touchPos.y / (int)plantSquareSize][(int)touchPos.x / (int)plantSquareSize];
-//                Body body = plantSquare.getBody();
-//                for(int j = 0; j < body.getFixtureList().size; j++) {
-//                    body.getFixtureList().removeIndex(j);
-//                }
-//                FixtureDef fixtureDef = new FixtureDef();
-//                CircleShape shape = new CircleShape();
-//                shape.setRadius(plantSquareSize / 2);
-//                fixtureDef.shape = shape;
-//                fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
-//                fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
-//                body.createFixture(fixtureDef);
-//
-//                shape = new CircleShape();
-//                switch(plantSquare.getType()) {
-//                    case SquareType.LAND:
-//                        shape.setRadius(plantSquareSize * 2 + plantSquareSize);
-//                        break;
-//                    case SquareType.SALT_WATER:
-//                        shape.setRadius(plantSquareSize * 2 + plantSquareSize / 8);
-//                        break;
-//                    case SquareType.WATER:
-//                        shape.setRadius(plantSquareSize * 2 + plantSquareSize / 4);
-//                        break;
-//                }
-//                fixtureDef.shape = shape;
-//                fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
-//                fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
-//                body.createFixture(fixtureDef);
-//                if((pastBodyX >= 0 && pastBodyY >= 0) && (pastBodyX != body.getPosition().x || pastBodyY != body.getPosition().y)) {
-//                    world.destroyBody(pastBody);
-//
-//                    BodyDef bodyDef = new BodyDef();
-//
-//                    bodyDef.type = BodyDef.BodyType.StaticBody;
-//                    bodyDef.position.set(pastBodyX, pastBodyY);
-//
-//                    pastBody = world.createBody(bodyDef);
-//
-//                    PolygonShape rect = new PolygonShape();
-//                    rect.setAsBox(plantSquareSize / 2, plantSquareSize / 2);
-//                    fixtureDef.shape = rect;
-//                    fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
-//                    fixtureDef.filter.maskBits = CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PLANTSQUARE;
-//                    pastBody.createFixture(fixtureDef);
-//
-//                    plantSquares[(int)pastBodyY / (int)plantSquareSize][(int)pastBodyX / (int) plantSquareSize].setBody(pastBody);
-//                }
-//
-//                pastBodyY = body.getPosition().y;
-//                pastBodyX = body.getPosition().x;
-//                pastBody = body;
