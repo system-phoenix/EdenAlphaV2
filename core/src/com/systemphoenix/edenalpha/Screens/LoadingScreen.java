@@ -62,7 +62,7 @@ public class LoadingScreen extends AbsoluteScreen {
 
     public void createGameScreen(EdenAlpha game, Region region) {
         if(gameScreen != null) gameScreen.dispose();
-        gameScreen = new GameScreen(game, region);
+//        gameScreen = new GameScreen(game, region);
     }
 
     @Override

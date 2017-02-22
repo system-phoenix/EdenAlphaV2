@@ -1069,7 +1069,7 @@
  <objectgroup name="endPoints" visible="0">
   <object id="1211" x="608" y="352" width="64" height="64"/>
  </objectgroup>
- <objectgroup name="directionSquares" visible="0">
+ <objectgroup name="directionSquares">
   <object id="1215" x="192" y="608" width="32" height="32"/>
   <object id="1216" x="1056" y="128" width="32" height="32"/>
   <object id="1217" x="1120" y="544" width="32" height="32"/>

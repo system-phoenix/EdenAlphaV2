@@ -28,6 +28,8 @@ public class MapScreen extends AbsoluteScreen {
     private GameScreen gameScreen = null;
     private Viewport viewport;
 
+    private boolean readyToSet = false, loading = false;
+
     public MapScreen(EdenAlpha game) {
         super(game);
         this.regionHud = new RegionHud(game, sizeWidth, sizeHeight);
@@ -88,6 +90,7 @@ public class MapScreen extends AbsoluteScreen {
         regionHud.setRegionCode(currentRegion.getCode());
         regionHud.setRegionName(currentRegion.getName());
         regionHud.setRegionForestPercentage("" + currentRegion.getLifePercentage());
+
         gameGraphics.setProjectionMatrix(regionHud.getStage().getCamera().combined);
         regionHud.getStage().draw();
     }
@@ -102,8 +105,8 @@ public class MapScreen extends AbsoluteScreen {
         cam.unproject(touchPos);
 
         game.setSelectedMapIndex(fieldSelection.getIndex());
-        game.setScreen(game.getLoadingScreen());
-        game.getLoadingScreen().createGameScreen(game, fieldSelection.getRegionByIndex(game.getSelectedMapIndex()));
+        game.setScreen(new GameScreen(game, this, fieldSelection.getRegionByIndex(game.getSelectedMapIndex())));
+//        game.getLoadingScreen().createGameScreen(game, fieldSelection.getRegionByIndex(game.getSelectedMapIndex()));
         return true;
     }
 

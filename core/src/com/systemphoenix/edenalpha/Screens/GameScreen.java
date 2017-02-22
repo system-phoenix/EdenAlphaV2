@@ -1,6 +1,7 @@
 package com.systemphoenix.edenalpha.Screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
@@ -20,13 +21,13 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.systemphoenix.edenalpha.Actors.GhostEnemy;
 import com.systemphoenix.edenalpha.CollisionBit;
 import com.systemphoenix.edenalpha.EdenAlpha;
 import com.systemphoenix.edenalpha.EnemyUtils.Wave;
 import com.systemphoenix.edenalpha.PlantSquares.PlantSquare;
 import com.systemphoenix.edenalpha.PlantSquares.SquareType;
 import com.systemphoenix.edenalpha.Region;
+import com.systemphoenix.edenalpha.Scenes.GameHud;
 import com.systemphoenix.edenalpha.Scenes.TopHud;
 import com.systemphoenix.edenalpha.WorldContactListener;
 
@@ -34,8 +35,11 @@ public class GameScreen extends AbsoluteScreen {
     public static final float FPSCAP = 1 / 60f;
     private Region region;
 
+    private MapScreen mapScreen;
+
     private Viewport viewport;
     private TopHud topHud;
+    private GameHud gameHud;
 
     private TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
@@ -45,24 +49,25 @@ public class GameScreen extends AbsoluteScreen {
 
     private Array<Body> spawnPoints, endPoints, pathBounds;
     private Array<Wave> waves;
-    private Array<GhostEnemy> ghostEnemies;
 
     private PlantSquare[][] plantSquares;
     private float pastZoomDistance, plantSquareSize, accumulator;
-    private int enemyLimit = 10, waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1;
-    private long timer, createInterval, newWaveCountdown, timeGap;
-    private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, win = false, lose = false, running = false, showAll = false, hasGhostEnemy = false;
+    private int enemyLimit = 10, waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1, displaySquare = -3;
+    private long timer = 0, newWaveCountdown, timeGap, displaySquareTimer;
+    private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, win = false, lose = false, running = false, canDisplaySquare, showAll, canPlant = false, firstCall = true;
 
-    public GameScreen(EdenAlpha game, Region region) {
+    public GameScreen(EdenAlpha game, MapScreen mapScreen, Region region) {
         super(game);
         this.region = region;
+        this.mapScreen = mapScreen;
 
         worldHeight = region.getWorldHeight();
         worldWidth = region.getWorldWidth();
 
         this.viewport = new FitViewport(screenWidth, screenHeight, cam);
-        this.topHud = new TopHud(game);
-        initialize();
+        this.topHud = new TopHud(game, this);
+        this.gameHud = new GameHud(game);
+        Gdx.input.setCatchBackKey(true);
         timer = System.currentTimeMillis();
         ready = true;
     }
@@ -70,12 +75,15 @@ public class GameScreen extends AbsoluteScreen {
     private void initialize() {
         TmxMapLoader mapLoader;
         try {
+            topHud.setLoadingMessage("Loading level...");
             mapLoader = new TmxMapLoader();
             map = mapLoader.load("levels/" + region.getMapIndex() + ".tmx");
             renderer = new OrthogonalTiledMapRenderer(map);
             Gdx.app.log("Verbose", "Successfully loaded level: " + worldWidth + " x " + worldHeight);
 
+            topHud.setLoadingMessage("Loading world...");
             createWorld();
+            topHud.setLoadingMessage("Loading enemies...");
             createEnemyWaves();
         } catch(Exception e) {
             Gdx.app.log("Verbose", "level " + e.getMessage());
@@ -85,7 +93,8 @@ public class GameScreen extends AbsoluteScreen {
         boundCamera();
         topHud.setMessage(region.getCode() + ": " + region.getName());
         running = true;
-        Gdx.app.log("Verbose", "PlantSquares.length: " + plantSquares.length);
+        timer = System.currentTimeMillis();
+        topHud.setLoadingMessage("");
     }
 
     private void createEnemyWaves() {
@@ -190,21 +199,12 @@ public class GameScreen extends AbsoluteScreen {
         }
     }
 
-    public void createGhostEnemy() {
-        ghostEnemies = new Array<GhostEnemy>();
-        for(int i = 0; i < spawnPoints.size; i++) {
-            ghostEnemies.add(new GhostEnemy(this, 0, spawnPoints.get(i).getPosition().x, spawnPoints.get(i).getPosition().y, plantSquareSize, i));
-            ghostEnemies.get(i).spawn();
-        }
-        hasGhostEnemy = true;
-    }
-
     public void start() {
-        createInterval = System.currentTimeMillis();
+
     }
 
     public void update(float delta) {
-        long sixtyMinuteMark = 2;
+        long sixtyMinuteMark = region.getTimeStart();
         cam.update();
         if(region.getLifePercentage() > 0) {
             accumulator+=delta;
@@ -231,36 +231,30 @@ public class GameScreen extends AbsoluteScreen {
                     timer = System.currentTimeMillis();
                     newWave = true;
                     newWaveCountdown = 0;
-                } else if(currentMin == 1 && currentSec == 0) {
-                    createGhostEnemy();
+                } else if(currentSec == 63) {
+                    displaySquareTimer = System.currentTimeMillis();
+                    canDisplaySquare = true;
                 }
             }
-            if(preSixty && hasGhostEnemy) {
-                for(int i = 0; i < ghostEnemies.size; i++) {
-                    ghostEnemies.get(i).update(delta);
-                }
-            } else {
-
-                if(newWave) {
-                    if(System.currentTimeMillis() - newWaveCountdown >= 5000) {
-                        newWave = false;
-                        waveIndex++;
-                        if(waveIndex >= waveLimit) {
-                            win = true;
-                            running = false;
-                        }
+            if(newWave) {
+                if(System.currentTimeMillis() - newWaveCountdown >= 5000) {
+                    newWave = false;
+                    waveIndex++;
+                    if(waveIndex >= waveLimit) {
+                        win = true;
+                        running = false;
                     }
-
-                    topHud.setWaveStatMessage("Wave " + (waveIndex + 1));
                 }
 
-                if(waveIndex >= 0 && !newWave) {
-                    Wave wave = waves.get(waveIndex);
-                    wave.update(delta);
-                    if(wave.isCleared()) {
-                        newWave = true;
-                        newWaveCountdown = System.currentTimeMillis();
-                    }
+                topHud.setWaveStatMessage("Wave " + (waveIndex + 1));
+            }
+
+            if(waveIndex >= 0 && !newWave) {
+                Wave wave = waves.get(waveIndex);
+                wave.update(delta);
+                if(wave.isCleared()) {
+                    newWave = true;
+                    newWaveCountdown = System.currentTimeMillis();
                 }
             }
 
@@ -272,32 +266,67 @@ public class GameScreen extends AbsoluteScreen {
 
     @Override
     public void render(float delta) {
-        if(running) update(delta);
-        Gdx.gl.glClearColor(0.95f, 0.95f, 0.95f, 1);
+        Gdx.gl.glClearColor(0.05f, 0.05f, 0.05f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        renderer.render();
+        if(running) {
+            update(delta);
+            renderer.render();
+            if(Gdx.input.isKeyJustPressed(Input.Keys.BACK)) {
+                game.setScreen(mapScreen);
+                this.dispose();
+            }
 //        debugRenderer.render(world, cam.combined);
+        }
+        else if(firstCall){
+//            try {
+                if(System.currentTimeMillis() - timer >= 1000) {
+                    firstCall = false;
+                    initialize();
+                    timer = System.currentTimeMillis();
+                }
+//            } catch(Exception e) {
+//                Gdx.app.log("Verbose", "Call on \"initialize()\": " + e.getMessage());
+//            }
+        }
 
         gameGraphics.setProjectionMatrix(cam.combined);
         gameGraphics.begin();
         if(running) {
-            if(preSixty && hasGhostEnemy) {
-                for(int i = 0; i < ghostEnemies.size; i++) {
-                    ghostEnemies.get(i).draw(gameGraphics);
+            if(canPlant) {
+                if(selectedX != -1 && selectedY != -1) {
+                    plantSquares[selectedY][selectedX].draw(gameGraphics);
                 }
-            } else {
-                if(showAll) {
-                    for(int i = 0; i < plantSquares.length; i++) {
-                        for(int j = 0; j < plantSquares[i].length; j++) {
+            }
+            if(canDisplaySquare) {
+                if(System.currentTimeMillis() - displaySquareTimer >= 25) {
+                    displaySquare++;
+                    displaySquareTimer = System.currentTimeMillis();
+                }
+                if(displaySquare >= 0 && displaySquare < region.getArraySizeX()) {
+                    for(int i = 0; i < region.getArraySizeY(); i++) {
+                        for(int j = displaySquare - 3; j <= displaySquare + 3; j++) {
+                            if(j < region.getArraySizeX() && j >= 0 && plantSquares[i][j] != null)
+                                plantSquares[i][j].draw(gameGraphics);
+                        }
+                    }
+                    topHud.setReadyPlantMessage("Ready?");
+                } else if(displaySquare >= region.getArraySizeX() + 10) {
+                    for(int i = 0; i < region.getArraySizeY(); i++) {
+                        for(int j = 0; j < region.getArraySizeX(); j++) {
                             if(plantSquares[i][j] != null) {
                                 plantSquares[i][j].draw(gameGraphics);
                             }
                         }
                     }
-                } else if(selectedX != -1 && selectedY != -1) {
-                    plantSquares[selectedY][selectedX].draw(gameGraphics);
+                    topHud.setReadyPlantMessage("PLANT!");
                 }
+                if(displaySquare > region.getArraySizeX() + 20) {
+                    canDisplaySquare = false;
+                    canPlant = true;
+                    topHud.setReadyPlantMessage("");
+                }
+            } else {
                 if(waveIndex >= 0 && !newWave) {
                     waves.get(waveIndex).render(gameGraphics);
                 }
@@ -305,8 +334,18 @@ public class GameScreen extends AbsoluteScreen {
         }
         gameGraphics.end();
 
-        gameGraphics.setProjectionMatrix(topHud.getStage().getCamera().combined);
-        topHud.getStage().draw();
+        try {
+            gameGraphics.setProjectionMatrix(topHud.getStage().getCamera().combined);
+            topHud.getStage().draw();
+        } catch(Exception e) {
+            Gdx.app.log("Verbose", "Error rendering top hud: " + e.getMessage());
+        }
+        try {
+            gameGraphics.setProjectionMatrix(gameHud.getStage().getCamera().combined);
+            gameHud.getStage().draw();
+        } catch (Exception e) {
+            Gdx.app.log("Verbose", "Error rendering game hud: " + e.getMessage());
+        }
 
         if(paused || win || lose) {
             Gdx.gl.glClearColor(0.95f, 0.95f, 0.95f, 0.5f);
@@ -327,24 +366,26 @@ public class GameScreen extends AbsoluteScreen {
             cam.unproject(touchPos);
             touchPos.x = touchPos.x - (int)touchPos.x  > 0.5 ? (int) touchPos.x + 1 : (int) touchPos.x;
             touchPos.y = touchPos.y - (int)touchPos.y  > 0.5 ? (int) touchPos.y + 1 : (int) touchPos.y;
+            if(canPlant) {
+                try {
+                    if(selectedX == (int)touchPos.x / (int)plantSquareSize && selectedY == (int)touchPos.y / (int)plantSquareSize) {
+                        selectedY = selectedX = -1;
+                        gameHud.setMessage("");
+                        gameHud.setCanDraw(false);
+                    } else if(plantSquares[(int)touchPos.y / (int)plantSquareSize][(int)touchPos.x / (int)plantSquareSize] != null) {
+                        selectedX = (int) touchPos.x / (int)plantSquareSize;
+                        selectedY = (int) touchPos.y / (int)plantSquareSize;
 
-            try {
-                if(selectedX == (int)touchPos.x / (int)plantSquareSize && selectedY == (int)touchPos.y / (int)plantSquareSize) {
-                    showAll = false;
-                    selectedY = selectedX = -1;
-                } else if(plantSquares[(int)touchPos.y / (int)plantSquareSize][(int)touchPos.x / (int)plantSquareSize] != null) {
-                    selectedX = (int) touchPos.x / (int)plantSquareSize;
-                    selectedY = (int) touchPos.y / (int)plantSquareSize;
-
-                    showAll = false;
-
-                    Gdx.app.log("Verbose", "(" + selectedX + ", " + selectedY +") Status: " + plantSquares[selectedY][selectedX]);
-                } else {
-                    selectedX = selectedY = -1;
-                    showAll = !showAll;
+                        gameHud.setMessage("(" + selectedX + ", " + selectedY +")");
+                        gameHud.setCanDraw(true);
+                    } else {
+                        selectedX = selectedY = -1;
+                        gameHud.setMessage("");
+                        gameHud.setCanDraw(false);
+                    }
+                } catch (Exception e) {
+                    Gdx.app.log("Verbose", "Error: " + e.getMessage());
                 }
-            } catch (Exception e) {
-                Gdx.app.log("Verbose", "Error: " + e.getMessage());
             }
         } else {
             paused = false;
@@ -462,5 +503,17 @@ public class GameScreen extends AbsoluteScreen {
 
     public boolean isReady() {
         return ready;
+    }
+
+    public Vector2 getSelectedXY() {
+        return new Vector2(selectedX, selectedY);
+    }
+
+    public float getWorldHeight() {
+        return this.worldHeight;
+    }
+
+    public float getWorldWidth() {
+        return this.worldWidth;
     }
 }
