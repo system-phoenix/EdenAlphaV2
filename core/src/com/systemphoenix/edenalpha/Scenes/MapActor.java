@@ -5,7 +5,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Screens.MapScreen;
@@ -13,12 +13,18 @@ import com.systemphoenix.edenalpha.Screens.MapScreen;
 public class MapActor extends Actor implements InputProcessor, Disposable {
 
     private MapScreen mapScreen;
+    private MapSelect mapSelect;
+
+    private Vector2 coord;
 
     private Sprite sprite;
     private boolean canDraw, left;
+    private int pastScreenX = -1, pastScreenY = -1;
+    private float flingLimit;
 
-    public MapActor(MapScreen mapScreen, float worldWidth, float worldHeight, boolean left) {
+    public MapActor(MapScreen mapScreen, MapSelect mapSelect, float worldWidth, float worldHeight, boolean left) {
         this.mapScreen = mapScreen;
+        this.mapSelect = mapSelect;
         this.left = left;
         try {
             if(left) {
@@ -41,6 +47,9 @@ public class MapActor extends Actor implements InputProcessor, Disposable {
     public void draw(Batch batch, float alpha){
         if(canDraw) {
             batch.draw(sprite, this.getX(), this.getY());
+            if(flingLimit != 0) {
+                mapScreen.fling(flingLimit, 0, 0);
+            }
         }
     }
 
@@ -66,23 +75,29 @@ public class MapActor extends Actor implements InputProcessor, Disposable {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        Rectangle touchRect = new Rectangle((float)screenX, (float)screenY, 1f, 1f);
-        Rectangle rect = new Rectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-        if(touchRect.overlaps(rect) && canDraw) {
-            if(left) mapScreen.fling(8, 0, 0);
-            else mapScreen.fling(-8, 0, 0);
+        if((pastScreenX == -1 && pastScreenY == -1) || !(pastScreenX == screenX && pastScreenY == screenY)) {
+            coord = mapSelect.getStage().screenToStageCoordinates(new Vector2((float)screenX, (float)screenY));
+            pastScreenX = screenX;
+            pastScreenY = screenY;
+        }
+        Actor hitActor = mapSelect.getStage().hit(coord.x, coord.y, true);
+
+        if(hitActor == this) {
+            flingLimit = left ? 8 : -8;
+            return true;
         }
         return false;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        flingLimit = 0;
         return false;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return false;
+        return true;
     }
 
     @Override

@@ -11,8 +11,8 @@ public class MapSelect extends AbsoluteHud implements Disposable {
 
     public MapSelect(EdenAlpha game, MapScreen mapScreen, float worldWidth, float worldHeight) {
         super(game);
-        left = new MapActor(mapScreen, worldWidth, worldHeight, true);
-        right = new MapActor(mapScreen, worldWidth, worldHeight, false);
+        left = new MapActor(mapScreen, this, worldWidth, worldHeight, true);
+        right = new MapActor(mapScreen, this, worldWidth, worldHeight, false);
 
         stage.addActor(left);
         stage.addActor(right);
