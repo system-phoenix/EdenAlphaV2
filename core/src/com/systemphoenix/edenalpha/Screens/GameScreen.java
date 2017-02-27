@@ -323,7 +323,7 @@ public class GameScreen extends AbsoluteScreen {
                     for(int i = 0; i < region.getArraySizeY(); i++) {
                         for(int j = displaySquare - 3; j <= displaySquare + 3; j++) {
                             if(j < region.getArraySizeX() && j >= 0 && plantSquares[i][j] != null)
-                                plantSquares[i][j].draw(gameGraphics);
+                                plantSquares[i][j].preDraw(gameGraphics);
                         }
                     }
                     topHud.setReadyPlantMessage("Ready?");
@@ -331,7 +331,7 @@ public class GameScreen extends AbsoluteScreen {
                     for(int i = 0; i < region.getArraySizeY(); i++) {
                         for(int j = 0; j < region.getArraySizeX(); j++) {
                             if(plantSquares[i][j] != null) {
-                                plantSquares[i][j].draw(gameGraphics);
+                                plantSquares[i][j].preDraw(gameGraphics);
                             }
                         }
                     }

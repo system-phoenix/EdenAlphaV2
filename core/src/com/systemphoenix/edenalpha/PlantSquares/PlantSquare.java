@@ -53,6 +53,14 @@ public class PlantSquare extends Sprite {
     @Override
     public void draw(Batch batch) {
         try {
+            batch.draw(this.square, x - 16, y - 16, 64f, 64f);
+        } catch(Exception e) {
+            Gdx.app.log("Verbose", "Error in rendering plantSquare: " + e.getMessage());
+        }
+    }
+
+    public void preDraw(Batch batch) {
+        try {
             batch.draw(this.square, x - 16, y - 16);
         } catch(Exception e) {
             Gdx.app.log("Verbose", "Error in rendering plantSquare: " + e.getMessage());

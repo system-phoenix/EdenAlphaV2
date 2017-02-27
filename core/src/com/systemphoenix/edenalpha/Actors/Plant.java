@@ -38,6 +38,7 @@ public class Plant extends Actor implements InputProcessor, Disposable {
     private Vector2 damage;
     private long attackSpeed;
     private int plantIndex;
+    private float size = 32f;
 
     public Plant(GameScreen gameScreen, Stage gameStage, TextureRegion sprite, int plantIndex, float x, float y) {
         this.plantIndex = plantIndex;
@@ -45,9 +46,10 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         this.gameStage = gameStage;
         this.sprite = new Sprite(sprite);
 
-        this.setBounds(x, y, 32f, 32f);
+        this.setBounds(x, y, size * 2, size * 2);
 
         initialize();
+        this.targets = new Array<Enemy>();
 
         gameStage.addActor(this);
     }
@@ -56,14 +58,14 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         BodyDef bodyDef = new BodyDef();
         FixtureDef fixtureDef = new FixtureDef();
 
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set(this.getX() + 16f, this.getY() + 16f);
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.position.set(this.getX() + size, this.getY() + size);
 
         body = gameScreen.getWorld().createBody(bodyDef);
 
         CircleShape circleShape = new CircleShape();
         float actualRange = PlantCodex.range[plantIndex];
-        float computedRange = 16 + 32f * actualRange;
+        float computedRange = size + 32f * actualRange;
         float effectiveRange = PlantCodex.effectiveRange[plantIndex];
         circleShape.setRadius(computedRange);
 
@@ -71,12 +73,13 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         effectiveRangeSprite = new Sprite(new Texture(Gdx.files.internal("plantRange/effectiveRangeSprite.png")));
 
         sprite.setBounds(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-        rangeSprite.setBounds(this.getX() - (32f * actualRange), this.getY() - (32f * actualRange), (32f * actualRange * 2) + 32f, (32f * actualRange * 2) + 32f);
-        effectiveRangeSprite.setBounds(this.getX() - (32f * (effectiveRange)), this.getY() - (32f * (effectiveRange)), (32f * (effectiveRange) * 2) + 32f, (32f * (effectiveRange) * 2) + 32f);
+        rangeSprite.setBounds(this.getX() - (32f * actualRange), this.getY() - (32f * actualRange), (32f * actualRange * 2) + this.getWidth(), (32f * actualRange * 2) + this.getHeight());
+        effectiveRangeSprite.setBounds(this.getX() - (32f * (effectiveRange)), this.getY() - (32f * (effectiveRange)), (32f * (effectiveRange) * 2) + this.getWidth(), (32f * (effectiveRange) * 2) + this.getHeight());
 
         fixtureDef.shape = circleShape;
         fixtureDef.filter.categoryBits = CollisionBit.ENEMYRANGE;
         fixtureDef.filter.maskBits = CollisionBit.ENEMY;
+        fixtureDef.isSensor = true;
 
         body.createFixture(fixtureDef).setUserData(this);
 
@@ -166,7 +169,7 @@ public class Plant extends Actor implements InputProcessor, Disposable {
 
     @Override
     public void dispose() {
-        sprite.getTexture().dispose();
+//        sprite.getTexture().dispose();
         rangeSprite.getTexture().dispose();
         effectiveRangeSprite.getTexture().dispose();
     }

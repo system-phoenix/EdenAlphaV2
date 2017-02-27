@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.systemphoenix.edenalpha.Actors.Enemy;
+import com.systemphoenix.edenalpha.Actors.Plant;
 
 public class WorldContactListener implements ContactListener {
     @Override
@@ -29,7 +30,12 @@ public class WorldContactListener implements ContactListener {
                     ((Enemy) b.getUserData()).damageForest();
                 }
                 break;
-
+            case CollisionBit.ENEMYRANGE | CollisionBit.ENEMY:
+                if(a.getFilterData().categoryBits == CollisionBit.ENEMYRANGE) {
+                    ((Plant) a.getUserData()).acquireTarget((Enemy) b.getUserData());
+                } else {
+                    ((Plant) b.getUserData()).acquireTarget((Enemy) a.getUserData());
+                }
             default:
                 break;
         }
@@ -37,7 +43,19 @@ public class WorldContactListener implements ContactListener {
 
     @Override
     public void endContact(Contact contact) {
+        Fixture a = contact.getFixtureA(), b = contact.getFixtureB();
 
+        int collision = a.getFilterData().categoryBits | b.getFilterData().categoryBits;
+        switch (collision) {
+            case CollisionBit.ENEMYRANGE | CollisionBit.ENEMY:
+                if(a.getFilterData().categoryBits == CollisionBit.ENEMYRANGE) {
+                    ((Plant) a.getUserData()).removeTarget((Enemy) b.getUserData());
+                } else {
+                    ((Plant) b.getUserData()).removeTarget((Enemy) a.getUserData());
+                }
+            default:
+                break;
+        }
     }
 
     @Override
