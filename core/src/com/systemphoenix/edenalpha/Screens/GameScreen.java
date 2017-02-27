@@ -2,7 +2,12 @@ package com.systemphoenix.edenalpha.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -18,9 +23,11 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.systemphoenix.edenalpha.Actors.Plant;
 import com.systemphoenix.edenalpha.CollisionBit;
 import com.systemphoenix.edenalpha.EdenAlpha;
 import com.systemphoenix.edenalpha.EnemyUtils.Wave;
@@ -28,6 +35,7 @@ import com.systemphoenix.edenalpha.PlantSquares.PlantSquare;
 import com.systemphoenix.edenalpha.PlantSquares.SquareType;
 import com.systemphoenix.edenalpha.Region;
 import com.systemphoenix.edenalpha.Scenes.GameHud;
+import com.systemphoenix.edenalpha.Scenes.PlantActor;
 import com.systemphoenix.edenalpha.Scenes.TopHud;
 import com.systemphoenix.edenalpha.WorldContactListener;
 
@@ -41,6 +49,8 @@ public class GameScreen extends AbsoluteScreen {
     private TopHud topHud;
     private GameHud gameHud;
 
+    private Stage gameStage;
+
     private TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
 
@@ -49,6 +59,8 @@ public class GameScreen extends AbsoluteScreen {
 
     private Array<Body> spawnPoints, endPoints, pathBounds;
     private Array<Wave> waves;
+    private Array<Plant> plants;
+    private Array<InputProcessor> inputProcessors;
 
     private PlantSquare[][] plantSquares;
     private float pastZoomDistance, plantSquareSize, accumulator;
@@ -65,9 +77,13 @@ public class GameScreen extends AbsoluteScreen {
         worldWidth = region.getWorldWidth();
 
         this.viewport = new FitViewport(screenWidth, screenHeight, cam);
+        this.gameStage = new Stage(viewport, game.getGameGraphics());
+
         this.topHud = new TopHud(game, this);
-        this.gameHud = new GameHud(game);
+        this.gameHud = new GameHud(game, this);
         Gdx.input.setCatchBackKey(true);
+        plants = new Array<Plant>();
+        inputProcessors = null;
         timer = System.currentTimeMillis();
         ready = true;
     }
@@ -335,6 +351,13 @@ public class GameScreen extends AbsoluteScreen {
         gameGraphics.end();
 
         try {
+            gameGraphics.setProjectionMatrix(gameStage.getCamera().combined);
+            gameStage.draw();
+            gameStage.act(delta);
+        } catch(Exception e) {
+            Gdx.app.log("Verbose", "Error rendering gameStage: " + e.getMessage());
+        }
+        try {
             gameGraphics.setProjectionMatrix(topHud.getStage().getCamera().combined);
             topHud.getStage().draw();
         } catch(Exception e) {
@@ -350,6 +373,28 @@ public class GameScreen extends AbsoluteScreen {
         if(paused || win || lose) {
             Gdx.gl.glClearColor(0.95f, 0.95f, 0.95f, 0.5f);
         }
+    }
+
+    public void bindInput() {
+        InputMultiplexer inputMultiplexer = new InputMultiplexer();
+        if(inputProcessors == null) {
+            inputProcessors = new Array<InputProcessor>();
+            PlantActor[] plantActors = gameHud.getPlantActors();
+            for(int i = 0; i < plantActors.length; i++) {
+                inputProcessors.add(plantActors[i]);
+            }
+            inputProcessors.add(new GestureDetector(this));
+        }
+        inputMultiplexer.setProcessors(inputProcessors);
+        Gdx.input.setInputProcessor(inputMultiplexer);
+    }
+
+    public void plant(int plantIndex, TextureRegion sprite) {
+        plants.add(new Plant(this, gameStage, sprite, plantIndex, selectedX * 32f, selectedY * 32f));
+        inputProcessors.insert(0, plants.peek());
+        selectedX = selectedY = -1;
+        gameHud.setMessage("");
+        gameHud.setCanDraw(false);
     }
 
 //  Touch methods
@@ -383,6 +428,8 @@ public class GameScreen extends AbsoluteScreen {
                         gameHud.setMessage("");
                         gameHud.setCanDraw(false);
                     }
+
+                    Plant.nullSelectedPlant();
                 } catch (Exception e) {
                     Gdx.app.log("Verbose", "Error: " + e.getMessage());
                 }
@@ -429,7 +476,7 @@ public class GameScreen extends AbsoluteScreen {
             cam.zoom += 0.01f;
         }
         pastZoomDistance = distance;
-        cam.zoom = MathUtils.clamp(cam.zoom, 0.3f, worldWidth/screenWidth);
+        cam.zoom = MathUtils.clamp(cam.zoom, 0.4f, worldWidth/screenWidth);
         boundCamera();
         return true;
     }
@@ -447,7 +494,8 @@ public class GameScreen extends AbsoluteScreen {
 //  Screen methods
     @Override
     public void show() {
-        super.show();
+//        super.show();
+        bindInput();
     }
 
     @Override
@@ -478,7 +526,12 @@ public class GameScreen extends AbsoluteScreen {
             waves.get(i).dispose();
         }
 
+        for(int i = 0; i < plants.size; i++) {
+            plants.get(i).dispose();
+        }
+
         topHud.dispose();
+        gameHud.dispose();
         map.dispose();
 
         world.dispose();
@@ -495,6 +548,10 @@ public class GameScreen extends AbsoluteScreen {
 
     public PlantSquare[][] getPlantSquares() {
         return this.plantSquares;
+    }
+
+    public GameHud getGameHud() {
+        return this.gameHud;
     }
 
     public boolean[][] getDirectionSquares() {

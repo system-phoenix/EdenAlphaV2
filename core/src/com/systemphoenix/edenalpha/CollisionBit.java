@@ -7,4 +7,7 @@ public class CollisionBit {
     public static final short SPAWNPOINT = 8;
     public static final short ENDPOINT = 16;
     public static final short DIRECTION = 32;
+    public static final short PLANT = 64;
+    public static final short ENEMYRANGE = 128;
+    public static final short EFFECTIVERANGE = 256;
 }
