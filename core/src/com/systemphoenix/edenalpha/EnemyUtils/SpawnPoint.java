@@ -1,5 +1,6 @@
 package com.systemphoenix.edenalpha.EnemyUtils;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -24,8 +25,13 @@ public class SpawnPoint implements Disposable {
         for(int i = 0; i < enemies.size; i++) {
             Enemy enemy = enemies.get(i);
             if(enemy.canDispose()) {
-                enemy.dispose();
-                enemies.removeIndex(i);
+                try{
+                    enemies.removeIndex(i);
+//                    enemies.set(i, null);
+                    enemy.dispose();
+                } catch (Exception e) {
+                    Gdx.app.log("Verbose", "error in disposal: " + e.getMessage());
+                }
             }
         }
     }
@@ -45,7 +51,7 @@ public class SpawnPoint implements Disposable {
 
     public void spawnEnemy(int index) {
         enemies.add(sleepingEnemies.get(index));
-        enemies.get(index).spawn();
+        enemies.peek().spawn();
     }
 
     public void addEnemy(Enemy enemy) {

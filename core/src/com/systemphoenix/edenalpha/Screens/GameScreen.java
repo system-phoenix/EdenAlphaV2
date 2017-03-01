@@ -353,7 +353,6 @@ public class GameScreen extends AbsoluteScreen {
         try {
             gameGraphics.setProjectionMatrix(gameStage.getCamera().combined);
             gameStage.draw();
-            gameStage.act(delta);
         } catch(Exception e) {
             Gdx.app.log("Verbose", "Error rendering gameStage: " + e.getMessage());
         }
@@ -392,6 +391,10 @@ public class GameScreen extends AbsoluteScreen {
     public void plant(int plantIndex, TextureRegion sprite) {
         plants.add(new Plant(this, gameStage, sprite, plantIndex, selectedX * 32f, selectedY * 32f));
         inputProcessors.insert(0, plants.peek());
+        resetHud();
+    }
+
+    public void resetHud() {
         selectedX = selectedY = -1;
         gameHud.setMessage("");
         gameHud.setCanDraw(false);
@@ -424,9 +427,7 @@ public class GameScreen extends AbsoluteScreen {
                         gameHud.setMessage("(" + selectedX + ", " + selectedY +")");
                         gameHud.setCanDraw(true);
                     } else {
-                        selectedX = selectedY = -1;
-                        gameHud.setMessage("");
-                        gameHud.setCanDraw(false);
+                        resetHud();
                     }
 
                     Plant.nullSelectedPlant();

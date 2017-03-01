@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -20,8 +21,8 @@ import com.systemphoenix.edenalpha.Screens.GameScreen;
 public class Enemy extends Sprite implements Disposable {
     protected float size, velX, velY, damage;
     protected float stateTime, speed = 50;
-    protected int level = 0, id;
-    protected long lastDirectionChange;
+    protected int level = 0, id, life;
+    protected long lastDirectionChange, deathTimer;
     protected boolean spawned = false, moving = true, canDraw = false, canDispose = false, directionSquares[][];
     protected enum Direction {NORTH, SOUTH, EAST, WEST}
     protected Direction direction = Direction.SOUTH, opDirection = Direction.NORTH;
@@ -30,6 +31,7 @@ public class Enemy extends Sprite implements Disposable {
     protected Animation<TextureRegion> northAnimation, southAnimation, eastAnimation, westAnimation;
 
     protected GameScreen gameScreen;
+    protected Rectangle hitBox;
 
     protected Body body;
 
@@ -41,7 +43,9 @@ public class Enemy extends Sprite implements Disposable {
         this.velY = 0;
         this.level = level;
         this.damage = EnemyCodex.damage[level];
+        this.life = 100;
         this.directionSquares = new boolean[screen.getDirectionSquares().length][screen.getDirectionSquares()[0].length];
+        this.setBounds(x, y, 32f, 32f);
 
         for(int i = 0; i < directionSquares.length; i++) {
             for(int j = 0; j < directionSquares[i].length; j++) {
@@ -51,6 +55,8 @@ public class Enemy extends Sprite implements Disposable {
 
         initialize(x, y);
         lastDirectionChange = 0;
+
+        hitBox = new Rectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
     }
 
     protected void initialize(float x, float y) {
@@ -107,6 +113,9 @@ public class Enemy extends Sprite implements Disposable {
     }
 
     public void update(float delta) {
+        if(speed == 10f && System.currentTimeMillis() - deathTimer >= 1000) {
+            canDispose = true;
+        }
         stateTime += delta;
         if(moving) {
             switch (direction) {
@@ -129,6 +138,8 @@ public class Enemy extends Sprite implements Disposable {
             }
             body.setLinearVelocity(velX, velY);
             setPosition(body.getPosition().x - size / 2, body.getPosition().y - size / 2);
+            hitBox.x = this.getX();
+            hitBox.y = this.getY();
 //            setRegion(getFrame(delta));
             setRegion(spriteSheet);
         } else {
@@ -167,6 +178,15 @@ public class Enemy extends Sprite implements Disposable {
     public void damageForest() {
         gameScreen.getRegion().damageForest(this.damage);
         canDispose = true;
+    }
+
+    public void receiveDamage(int damage) {
+        life -= damage;
+        if(life <= 0) {
+//            this.canDispose = true;
+            speed = 10f;
+            deathTimer = System.currentTimeMillis();
+        }
     }
 
     public void setDirection() {
@@ -220,6 +240,18 @@ public class Enemy extends Sprite implements Disposable {
 
     public boolean isMoving() {
         return moving;
+    }
+
+    public int getLife() {
+        return life;
+    }
+
+    public Body getBody() {
+        return body;
+    }
+
+    public Rectangle getHitBox() {
+        return hitBox;
     }
 
     public void setMoving(boolean moving) {

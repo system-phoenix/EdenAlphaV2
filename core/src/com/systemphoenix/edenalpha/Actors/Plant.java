@@ -1,5 +1,7 @@
 package com.systemphoenix.edenalpha.Actors;
 
+import java.util.Random;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Texture;
@@ -32,26 +34,33 @@ public class Plant extends Actor implements InputProcessor, Disposable {
 
     private Body body;
     private Array<Enemy> targets;
+    private Array<Bullet> bullets;
 
     private boolean selected;
 
     private Vector2 damage;
-    private long attackSpeed;
+    private long attackSpeed, lastAttackTime;
     private int plantIndex;
     private float size = 32f;
+
+    private Random rand = new Random();
 
     public Plant(GameScreen gameScreen, Stage gameStage, TextureRegion sprite, int plantIndex, float x, float y) {
         this.plantIndex = plantIndex;
         this.gameScreen = gameScreen;
         this.gameStage = gameStage;
         this.sprite = new Sprite(sprite);
+        this.damage = PlantCodex.DMG[PlantCodex.dmgStats[plantIndex]];
+        this.attackSpeed = PlantCodex.AS[PlantCodex.asStats[plantIndex]];
 
         this.setBounds(x, y, size * 2, size * 2);
 
         initialize();
         this.targets = new Array<Enemy>();
+        this.bullets = new Array<Bullet>();
 
         gameStage.addActor(this);
+        lastAttackTime = System.currentTimeMillis();
     }
 
     public void initialize() {
@@ -93,8 +102,30 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         targets.removeValue(enemy, true);
     }
 
+    public void update() {
+        if(System.currentTimeMillis() - lastAttackTime >= attackSpeed) {
+            try{
+                int dmgRange = (int)(damage.y - damage.x);
+//                targets.get(0).receiveDamage(rand.nextInt(dmgRange) + (int) damage.x);
+                bullets.add(new Bullet(gameScreen, this, targets.get(0), rand.nextInt(dmgRange) + (int) damage.x));
+                lastAttackTime = System.currentTimeMillis();
+            } catch (Exception e) {
+                Gdx.app.log("Verbose", "Error in plant attack: " + e.getMessage());
+            }
+        }
+
+        for(int i = 0; i < targets.size; i++) {
+            if(targets.get(i).getLife() <= 0) {
+                targets.removeIndex(i);
+            }
+        }
+    }
+
     @Override
     public void draw(Batch batch, float alpha) {
+        if(targets.size > 0) {
+            update();
+        }
         if(selected) {
             float a = 0.5f;
             rangeSprite.draw(batch);
@@ -102,6 +133,16 @@ public class Plant extends Actor implements InputProcessor, Disposable {
             effectiveRangeSprite.draw(batch);
         }
         sprite.draw(batch);
+        for(int i = 0; i < bullets.size; i++) {
+            bullets.get(i).render(batch);
+        }
+
+        for(int i = 0; i < bullets.size; i++) {
+            if(bullets.get(i).canDispose()) {
+                bullets.get(i).dispose();
+                bullets.removeIndex(i);
+            }
+        }
     }
 
     @Override
@@ -136,6 +177,7 @@ public class Plant extends Actor implements InputProcessor, Disposable {
             } else {
                 selectedPlant = this;
             }
+            gameScreen.resetHud();
             return true;
         }
         return false;
@@ -172,6 +214,7 @@ public class Plant extends Actor implements InputProcessor, Disposable {
 //        sprite.getTexture().dispose();
         rangeSprite.getTexture().dispose();
         effectiveRangeSprite.getTexture().dispose();
+        gameScreen.getWorld().destroyBody(body);
     }
 
     public static void nullSelectedPlant() {
