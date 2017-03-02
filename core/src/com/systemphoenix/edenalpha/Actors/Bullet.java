@@ -17,7 +17,7 @@ public class Bullet implements Disposable{
     private Plant plant;
     private Enemy target;
 
-    private float speed = 100f, angle, velX, velY;
+    private float speed = 325f, angle, velX, velY;
     private boolean canDispose = false;
     private int damage;
 
@@ -31,7 +31,6 @@ public class Bullet implements Disposable{
 
         hitBox = new Rectangle(plant.getX() + plant.getWidth() / 8, plant.getY() + plant.getWidth() / 8, plant.getWidth() / 4, plant.getHeight() / 4);
         angle = (float)Math.atan((hitBox.getY() - target.getBody().getPosition().y) / (hitBox.getX() - target.getBody().getPosition().x));
-        Gdx.app.log("Verbose", "Computed angle: " + angle);
 
         if(plant.getX() > target.getBody().getPosition().x) {
             velX = (-(float)Math.cos(angle));
@@ -45,11 +44,8 @@ public class Bullet implements Disposable{
             velY = -velY;
         }
 
-        Gdx.app.log("Verbose", "velX: " + velX + ", velY: " + velY);
-
         sprite = new Sprite(new Texture(Gdx.files.internal("misc/bullet.png")));
         timer = System.currentTimeMillis();
-        Gdx.app.log("Verbose", "Spawned Bullet!\n\n");
     }
 
     public void update(float delta) {
@@ -79,7 +75,6 @@ public class Bullet implements Disposable{
     @Override
     public void dispose() {
         sprite.getTexture().dispose();
-//        gameScreen.getWorld().destroyBody(body);
     }
 
     public boolean canDispose() {

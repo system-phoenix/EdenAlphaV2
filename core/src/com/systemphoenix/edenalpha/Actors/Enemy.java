@@ -106,7 +106,6 @@ public class Enemy extends Sprite implements Disposable {
             eastAnimation = new Animation<TextureRegion>(frameDuration, textureRegionsEast);
             westAnimation = new Animation<TextureRegion>(frameDuration, textureRegionsWest);
             canDraw = true;
-            Gdx.app.log("Verbose", "Created enemy!");
         } catch (Exception e) {
             Gdx.app.log("Verbose", "Loading baddies: " + e.getMessage());
         }
