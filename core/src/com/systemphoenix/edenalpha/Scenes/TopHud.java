@@ -6,16 +6,20 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.systemphoenix.edenalpha.Codex.ButtonCodex;
 import com.systemphoenix.edenalpha.EdenAlpha;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class TopHud extends AbsoluteHud {
 
     private Label waveStats, timeStats, readyPlant, loadingMessage;
+    private ButtonActor pauseButton = null;
     private HudBackground hudBg;
+    private GameScreen gameScreen;
 
     public TopHud(EdenAlpha game, GameScreen gameScreen) {
         super(game);
+        this.gameScreen = gameScreen;
 
         hudBg = new HudBackground(0, gameScreen.getWorldHeight() - 74);
         stage.addActor(hudBg);
@@ -59,6 +63,8 @@ public class TopHud extends AbsoluteHud {
         temp.center();
         temp.setFillParent(true);
         temp.add(loadingMessage).expandX().expandY();
+//        stage.addActor(pauseButton);
+//        gameScreen.bindInput(pauseButton);
         stage.addActor(temp);
 
     }
@@ -77,6 +83,16 @@ public class TopHud extends AbsoluteHud {
 
     public void setLoadingMessage(String message) {
         loadingMessage.setText(message);
+    }
+
+    public void setPauseButtonCanDraw(boolean canDraw) {
+        if(pauseButton == null) {
+            pauseButton = new ButtonActor(ButtonCodex.PAUSE, gameScreen, stage, gameScreen.getWorldWidth() - 96, gameScreen.getWorldHeight() - 64, 64);
+            stage.addActor(pauseButton);
+            gameScreen.addProcessor(pauseButton);
+        }
+        this.pauseButton.setCanDraw(canDraw);
+
     }
 
 }

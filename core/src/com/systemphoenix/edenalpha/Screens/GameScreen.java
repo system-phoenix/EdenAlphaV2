@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.input.GestureDetector;
@@ -49,6 +50,8 @@ public class GameScreen extends AbsoluteScreen {
     private TopHud topHud;
     private GameHud gameHud;
 
+    private Sprite loseEndGame, winEndGame, pausedSprite;
+
     private Stage gameStage;
 
     private TiledMap map;
@@ -66,7 +69,7 @@ public class GameScreen extends AbsoluteScreen {
     private float pastZoomDistance, plantSquareSize, accumulator;
     private int enemyLimit = 10, waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1, displaySquare = -3;
     private long timer = 0, newWaveCountdown, timeGap, displaySquareTimer;
-    private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, win = false, lose = false, running = false, canDisplaySquare, showAll, canPlant = false, firstCall = true;
+    private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, willPause = false, win = false, lose = false, running = false, canDisplaySquare, showAll, canPlant = false, firstCall = true;
 
     public GameScreen(EdenAlpha game, MapScreen mapScreen, Region region) {
         super(game);
@@ -79,8 +82,16 @@ public class GameScreen extends AbsoluteScreen {
         this.viewport = new FitViewport(screenWidth, screenHeight, cam);
         this.gameStage = new Stage(viewport, game.getGameGraphics());
 
-        this.topHud = new TopHud(game, this);
         this.gameHud = new GameHud(game, this);
+        this.topHud = new TopHud(game, this);
+
+        this.winEndGame = new Sprite(new Texture(Gdx.files.internal("misc/winEndGame.png")));
+        this.winEndGame.setBounds(0f, 0f, worldWidth, worldHeight);
+        this.loseEndGame = new Sprite(new Texture(Gdx.files.internal("misc/loseEndGame.png")));
+        this.loseEndGame.setBounds(0f, 0f, worldWidth, worldHeight);
+        this.pausedSprite = new Sprite(new Texture(Gdx.files.internal("misc/paused.png")));
+        this.pausedSprite.setBounds(0f, 0f, worldWidth, worldHeight);
+
         Gdx.input.setCatchBackKey(true);
         plants = new Array<Plant>();
         inputProcessors = null;
@@ -228,6 +239,7 @@ public class GameScreen extends AbsoluteScreen {
                 world.step(FPSCAP, 6, 2);
                 accumulator-=FPSCAP;
             }
+
             long currentSec = (System.currentTimeMillis() - timer) / 1000;
             long currentSecTens = currentSec / 10, currentSecOnes = currentSec % 10;
             long currentMin = currentSecTens / 6;
@@ -278,99 +290,107 @@ public class GameScreen extends AbsoluteScreen {
         }
         topHud.setMessage("Forest Land Percentage: " + region.getLifePercentage());
         renderer.setView(cam);
+
     }
 
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0.05f, 0.05f, 0.05f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        if(running) {
-            update(delta);
-            renderer.render();
-            if(Gdx.input.isKeyJustPressed(Input.Keys.BACK)) {
-                game.setScreen(mapScreen);
-                this.dispose();
+        if(!paused) {
+            if(running) {
+                update(delta);
+                renderer.render();
+                if(Gdx.input.isKeyJustPressed(Input.Keys.BACK)) {
+                    game.setScreen(mapScreen);
+                    this.dispose();
+                }
+    //        debugRenderer.render(world, cam.combined);
             }
-//        debugRenderer.render(world, cam.combined);
-        }
-        else if(firstCall){
-//            try {
-                if(System.currentTimeMillis() - timer >= 1000) {
-                    firstCall = false;
-                    initialize();
-                    timer = System.currentTimeMillis();
-                }
-//            } catch(Exception e) {
-//                Gdx.app.log("Verbose", "Call on \"initialize()\": " + e.getMessage());
-//            }
-        }
-
-        gameGraphics.setProjectionMatrix(cam.combined);
-        gameGraphics.begin();
-        if(running) {
-            if(canPlant) {
-                if(selectedX != -1 && selectedY != -1) {
-                    plantSquares[selectedY][selectedX].draw(gameGraphics);
-                }
-            }
-            if(canDisplaySquare) {
-                if(System.currentTimeMillis() - displaySquareTimer >= 25) {
-                    displaySquare++;
-                    displaySquareTimer = System.currentTimeMillis();
-                }
-                if(displaySquare >= 0 && displaySquare < region.getArraySizeX()) {
-                    for(int i = 0; i < region.getArraySizeY(); i++) {
-                        for(int j = displaySquare - 3; j <= displaySquare + 3; j++) {
-                            if(j < region.getArraySizeX() && j >= 0 && plantSquares[i][j] != null)
-                                plantSquares[i][j].preDraw(gameGraphics);
-                        }
+            else if(firstCall){
+    //            try {
+                    if(System.currentTimeMillis() - timer >= 1000) {
+                        firstCall = false;
+                        initialize();
+                        timer = System.currentTimeMillis();
+                        topHud.setPauseButtonCanDraw(true);
                     }
-                    topHud.setReadyPlantMessage("Ready?");
-                } else if(displaySquare >= region.getArraySizeX() + 10) {
-                    for(int i = 0; i < region.getArraySizeY(); i++) {
-                        for(int j = 0; j < region.getArraySizeX(); j++) {
-                            if(plantSquares[i][j] != null) {
-                                plantSquares[i][j].preDraw(gameGraphics);
+    //            } catch(Exception e) {
+    //                Gdx.app.log("Verbose", "Call on \"initialize()\": " + e.getMessage());
+    //            }
+            }
+
+            gameGraphics.setProjectionMatrix(cam.combined);
+            gameGraphics.begin();
+            if(running) {
+                if(canPlant) {
+                    if(selectedX != -1 && selectedY != -1) {
+                        plantSquares[selectedY][selectedX].draw(gameGraphics);
+                    }
+                }
+                if(canDisplaySquare) {
+                    if(System.currentTimeMillis() - displaySquareTimer >= 25) {
+                        displaySquare++;
+                        displaySquareTimer = System.currentTimeMillis();
+                    }
+                    if(displaySquare >= 0 && displaySquare < region.getArraySizeX()) {
+                        for(int i = 0; i < region.getArraySizeY(); i++) {
+                            for(int j = displaySquare - 3; j <= displaySquare + 3; j++) {
+                                if(j < region.getArraySizeX() && j >= 0 && plantSquares[i][j] != null)
+                                    plantSquares[i][j].preDraw(gameGraphics);
                             }
                         }
+                        topHud.setReadyPlantMessage("Ready?");
+                    } else if(displaySquare >= region.getArraySizeX() + 10) {
+                        for(int i = 0; i < region.getArraySizeY(); i++) {
+                            for(int j = 0; j < region.getArraySizeX(); j++) {
+                                if(plantSquares[i][j] != null) {
+                                    plantSquares[i][j].preDraw(gameGraphics);
+                                }
+                            }
+                        }
+                        topHud.setReadyPlantMessage("PLANT!");
                     }
-                    topHud.setReadyPlantMessage("PLANT!");
-                }
-                if(displaySquare > region.getArraySizeX() + 20) {
-                    canDisplaySquare = false;
-                    canPlant = true;
-                    topHud.setReadyPlantMessage("");
-                }
-            } else {
-                if(waveIndex >= 0 && !newWave) {
-                    waves.get(waveIndex).render(gameGraphics);
+                    if(displaySquare > region.getArraySizeX() + 20) {
+                        canDisplaySquare = false;
+                        canPlant = true;
+                        topHud.setReadyPlantMessage("");
+                    }
+                } else {
+                    if(waveIndex >= 0 && !newWave) {
+                        waves.get(waveIndex).render(gameGraphics);
+                    }
                 }
             }
-        }
-        gameGraphics.end();
+            gameGraphics.end();
 
-        try {
-            gameGraphics.setProjectionMatrix(gameStage.getCamera().combined);
-            gameStage.draw();
-        } catch(Exception e) {
-            Gdx.app.log("Verbose", "Error rendering gameStage: " + e.getMessage());
-        }
-        try {
-            gameGraphics.setProjectionMatrix(topHud.getStage().getCamera().combined);
-            topHud.getStage().draw();
-        } catch(Exception e) {
-            Gdx.app.log("Verbose", "Error rendering top hud: " + e.getMessage());
-        }
-        try {
-            gameGraphics.setProjectionMatrix(gameHud.getStage().getCamera().combined);
-            gameHud.getStage().draw();
-        } catch (Exception e) {
-            Gdx.app.log("Verbose", "Error rendering game hud: " + e.getMessage());
-        }
+            try {
+                gameGraphics.setProjectionMatrix(gameStage.getCamera().combined);
+                gameStage.draw();
+            } catch(Exception e) {
+                Gdx.app.log("Verbose", "Error rendering gameStage: " + e.getMessage());
+            }
+            try {
+                gameGraphics.setProjectionMatrix(topHud.getStage().getCamera().combined);
+                topHud.getStage().draw();
+            } catch(Exception e) {
+                Gdx.app.log("Verbose", "Error rendering top hud: " + e.getMessage());
+            }
+            try {
+                gameGraphics.setProjectionMatrix(gameHud.getStage().getCamera().combined);
+                gameHud.getStage().draw();
+            } catch (Exception e) {
+                Gdx.app.log("Verbose", "Error rendering game hud: " + e.getMessage());
+            }
 
-        if(paused || win || lose) {
-            Gdx.gl.glClearColor(0.95f, 0.95f, 0.95f, 0.5f);
+            if(willPause) {
+                pauseGame();
+            }
+
+        } else {
+            gameGraphics.begin();
+            pausedSprite.draw(gameGraphics);
+            gameGraphics.end();
         }
     }
 
@@ -388,9 +408,19 @@ public class GameScreen extends AbsoluteScreen {
         Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
+    public void addProcessor(InputProcessor inputProcessor) {
+        if(inputProcessors == null) {
+            inputProcessors = new Array<InputProcessor>();
+            inputProcessors.add(inputProcessor);
+            inputProcessors.add(new GestureDetector(this));
+        } else {
+            inputProcessors.insert(0, inputProcessor);
+        }
+    }
+
     public void plant(int plantIndex, TextureRegion sprite) {
         plants.add(new Plant(this, gameStage, sprite, plantIndex, selectedX * 32f, selectedY * 32f));
-        inputProcessors.insert(0, plants.peek());
+        inputProcessors.insert(inputProcessors.size - 1, plants.peek());
         resetHud();
     }
 
@@ -436,7 +466,7 @@ public class GameScreen extends AbsoluteScreen {
                 }
             }
         } else {
-            paused = false;
+            resumeGame();
         }
 
         return true;
@@ -454,14 +484,16 @@ public class GameScreen extends AbsoluteScreen {
 
     @Override
     public boolean pan(float x, float y, float deltaX, float deltaY) {
-        Vector3 touchPos = new Vector3();
-        touchPos.set(x, y, 0);
-        cam.unproject(touchPos);
+        if(!paused) {
+            Vector3 touchPos = new Vector3();
+            touchPos.set(x, y, 0);
+            cam.unproject(touchPos);
 
-        cam.position.x -= deltaX;
-        cam.position.y += deltaY;
-        boundCamera();
-        return true;
+            cam.position.x -= cam.zoom * deltaX;
+            cam.position.y += cam.zoom * deltaY;
+            boundCamera();
+            return true;
+        } else return false;
     }
 
     @Override
@@ -471,15 +503,17 @@ public class GameScreen extends AbsoluteScreen {
 
     @Override
     public boolean zoom(float initialDistance, float distance) {
-        if(pastZoomDistance < distance) {
-            cam.zoom -= 0.01f;
-        } else if(pastZoomDistance > distance) {
-            cam.zoom += 0.01f;
-        }
-        pastZoomDistance = distance;
-        cam.zoom = MathUtils.clamp(cam.zoom, 0.4f, worldWidth/screenWidth);
-        boundCamera();
-        return true;
+        if(!paused) {
+            if(pastZoomDistance < distance) {
+                cam.zoom -= 0.01f;
+            } else if(pastZoomDistance > distance) {
+                cam.zoom += 0.01f;
+            }
+            pastZoomDistance = distance;
+            cam.zoom = MathUtils.clamp(cam.zoom, 0.4f, worldWidth/screenWidth);
+            boundCamera();
+            return true;
+        } else return false;
     }
 
     @Override
@@ -506,18 +540,17 @@ public class GameScreen extends AbsoluteScreen {
 
     @Override
     public void pause() {
-        paused = true;
-        timeGap = System.currentTimeMillis() - timer;
+
     }
 
     @Override
     public void resume() {
-        timer = System.currentTimeMillis() - timeGap;
+
     }
 
     @Override
     public void hide() {
-
+        pauseGame();
     }
 
     @Override
@@ -535,8 +568,23 @@ public class GameScreen extends AbsoluteScreen {
         gameHud.dispose();
         map.dispose();
 
+        pausedSprite.getTexture().dispose();
+
         world.dispose();
         debugRenderer.dispose();
+    }
+
+    public void pauseGame() {
+        paused = true;
+        topHud.setPauseButtonCanDraw(false);
+        timeGap = System.currentTimeMillis() - timer;
+    }
+
+    public void resumeGame() {
+        topHud.setPauseButtonCanDraw(true);
+        paused = false;
+        timer = System.currentTimeMillis() - timeGap;
+        willPause = false;
     }
 
     public World getWorld() {
@@ -553,6 +601,10 @@ public class GameScreen extends AbsoluteScreen {
 
     public GameHud getGameHud() {
         return this.gameHud;
+    }
+
+    public TopHud getTopHud() {
+        return this.topHud;
     }
 
     public boolean[][] getDirectionSquares() {
@@ -573,5 +625,10 @@ public class GameScreen extends AbsoluteScreen {
 
     public float getWorldWidth() {
         return this.worldWidth;
+    }
+
+    public void setWillPause(boolean willPause) {
+        this.willPause = willPause;
+        Gdx.app.log("Verbose", "willPause = " + willPause);
     }
 }
