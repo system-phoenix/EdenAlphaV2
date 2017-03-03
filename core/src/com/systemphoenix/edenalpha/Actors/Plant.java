@@ -29,19 +29,19 @@ public class Plant extends Actor implements InputProcessor, Disposable {
     private Vector2 coord;
     private int pastScreenX, pastScreenY;
 
-    private Sprite sprite, rangeSprite, effectiveRangeSprite;
+    private Sprite sprite, rangeSprite, effectiveRangeSprite, redLifeBar, greenLifeBar;
     private Stage gameStage;
 
     private Body body;
     private Array<Enemy> targets;
     private Array<Bullet> bullets;
 
-    private boolean selected;
+    private boolean selected, growing;
 
     private Vector2 damage;
-    private long attackSpeed, lastAttackTime;
+    private long attackSpeed, lastAttackTime, growthTime = 1000, growthTimer;
     private int plantIndex;
-    private float size = 32f;
+    private float size = 32f, hp = 0f, targetHp = 50f;
 
     private Random rand = new Random();
 
@@ -53,6 +53,11 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         this.damage = PlantCodex.DMG[PlantCodex.dmgStats[plantIndex]];
         this.attackSpeed = PlantCodex.AS[PlantCodex.asStats[plantIndex]];
 
+        this.redLifeBar = new Sprite(new Texture(Gdx.files.internal("utilities/redLife.png")));
+        this.redLifeBar.setBounds(x + size / 2, y + size / 4 + size / 2, size, size / 16);
+        this.greenLifeBar = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
+        this.greenLifeBar.setBounds(x + size / 2, y + size / 4 + size / 2, 1f, size / 16);
+
         this.setBounds(x, y, size * 2, size * 2);
 
         initialize();
@@ -61,6 +66,8 @@ public class Plant extends Actor implements InputProcessor, Disposable {
 
         gameStage.addActor(this);
         lastAttackTime = System.currentTimeMillis();
+        growthTimer = System.currentTimeMillis();
+        growing = true;
     }
 
     public void initialize() {
@@ -103,45 +110,64 @@ public class Plant extends Actor implements InputProcessor, Disposable {
     }
 
     public void update() {
-        if(System.currentTimeMillis() - lastAttackTime >= attackSpeed) {
-            try{
-                int dmgRange = (int)(damage.y - damage.x);
-//                targets.get(0).receiveDamage(rand.nextInt(dmgRange) + (int) damage.x);
-                bullets.add(new Bullet(gameScreen, this, targets.get(0), rand.nextInt(dmgRange) + (int) damage.x));
-                lastAttackTime = System.currentTimeMillis();
-            } catch (Exception e) {
-                Gdx.app.log("Verbose", "Error in plant attack: " + e.getMessage());
+        if(!growing) {
+            if(targets.size > 0 && System.currentTimeMillis() - lastAttackTime >= attackSpeed) {
+                try{
+                    int dmgRange = (int)(damage.y - damage.x);
+    //                targets.get(0).receiveDamage(rand.nextInt(dmgRange) + (int) damage.x);
+                    bullets.add(new Bullet(gameScreen, this, targets.get(0), rand.nextInt(dmgRange) + (int) damage.x));
+                    lastAttackTime = System.currentTimeMillis();
+                } catch (Exception e) {
+                    Gdx.app.log("Verbose", "Error in plant attack: " + e.getMessage());
+                }
             }
-        }
 
-        for(int i = 0; i < targets.size; i++) {
-            if(targets.get(i).getLife() <= 0) {
-                targets.removeIndex(i);
+            for(int i = 0; i < targets.size; i++) {
+                if(targets.get(i).getLife() <= 0) {
+                    targets.removeIndex(i);
+                }
+            }
+        } else {
+            if(System.currentTimeMillis() - growthTimer >= growthTime) {
+                hp += 5;
+                float multiplier = hp / targetHp;
+                greenLifeBar.setBounds(greenLifeBar.getX(), greenLifeBar.getY(), size * multiplier, size / 16);
+                if(hp >= targetHp) {
+                    lastAttackTime = System.currentTimeMillis();
+                    growing = false;
+                    redLifeBar.setY(redLifeBar.getY() - size / 2);
+                    greenLifeBar.setY(greenLifeBar.getY() - size / 2);
+                }
+                growthTimer = System.currentTimeMillis();
             }
         }
     }
 
     @Override
     public void draw(Batch batch, float alpha) {
-        if(targets.size > 0) {
-            update();
-        }
+        update();
         if(selected) {
             float a = 0.5f;
             rangeSprite.draw(batch);
             effectiveRangeSprite.setColor(effectiveRangeSprite.getColor().r, effectiveRangeSprite.getColor().g, effectiveRangeSprite.getColor().b, a);
             effectiveRangeSprite.draw(batch);
         }
-        sprite.draw(batch);
-        for(int i = 0; i < bullets.size; i++) {
-            bullets.get(i).render(batch);
-        }
-
-        for(int i = 0; i < bullets.size; i++) {
-            if(bullets.get(i).canDispose()) {
-                bullets.get(i).dispose();
-                bullets.removeIndex(i);
+        if(!growing) {
+            sprite.draw(batch);
+            for(int i = 0; i < bullets.size; i++) {
+                bullets.get(i).render(batch);
             }
+
+            for(int i = 0; i < bullets.size; i++) {
+                if(bullets.get(i).canDispose()) {
+                    bullets.get(i).dispose();
+                    bullets.removeIndex(i);
+                }
+            }
+        }
+        if(growing || selected) {
+            redLifeBar.draw(batch);
+            greenLifeBar.draw(batch);
         }
     }
 

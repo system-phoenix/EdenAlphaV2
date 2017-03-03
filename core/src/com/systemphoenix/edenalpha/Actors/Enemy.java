@@ -20,14 +20,15 @@ import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class Enemy extends Sprite implements Disposable {
     protected float size, velX, velY, damage;
-    protected float stateTime, speed = 50;
-    protected int level = 0, id, life;
-    protected long lastDirectionChange, deathTimer;
-    protected boolean spawned = false, moving = true, canDraw = false, canDispose = false, directionSquares[][];
+    protected float stateTime, speed = 30;
+    protected int level = 0, id, life, maxLife;
+    protected long lastDirectionChange, deathTimer, damageTimer;
+    protected boolean spawned = false, moving = true, canDraw = false, canDispose = false, directionSquares[][], drawHpBar;
     protected enum Direction {NORTH, SOUTH, EAST, WEST}
     protected Direction direction = Direction.SOUTH, opDirection = Direction.NORTH;
 
     protected Texture spriteSheet;
+    protected Sprite greenLifeBar, redLifeBar;
     protected Animation<TextureRegion> northAnimation, southAnimation, eastAnimation, westAnimation;
 
     protected GameScreen gameScreen;
@@ -43,7 +44,7 @@ public class Enemy extends Sprite implements Disposable {
         this.velY = 0;
         this.level = level;
         this.damage = EnemyCodex.damage[level];
-        this.life = 100;
+        this.life = this.maxLife = 100;
         this.directionSquares = new boolean[screen.getDirectionSquares().length][screen.getDirectionSquares()[0].length];
         this.setBounds(x, y, 32f, 32f);
 
@@ -57,6 +58,12 @@ public class Enemy extends Sprite implements Disposable {
         lastDirectionChange = 0;
 
         hitBox = new Rectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+
+        greenLifeBar = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
+        greenLifeBar.setBounds(this.getX(), this.getY(), 32f, 2f);
+
+        redLifeBar = new Sprite(new Texture(Gdx.files.internal("utilities/redLife.png")));
+        redLifeBar.setBounds(this.getX(), this.getY(), 32f, 2f);
     }
 
     protected void initialize(float x, float y) {
@@ -112,7 +119,7 @@ public class Enemy extends Sprite implements Disposable {
     }
 
     public void update(float delta) {
-        if(speed == 10f && System.currentTimeMillis() - deathTimer >= 1000) {
+        if(speed == 10f && System.currentTimeMillis() - deathTimer >= 100) {
             canDispose = true;
         }
         stateTime += delta;
@@ -137,6 +144,14 @@ public class Enemy extends Sprite implements Disposable {
             }
             body.setLinearVelocity(velX, velY);
             setPosition(body.getPosition().x - size / 2, body.getPosition().y - size / 2);
+            float multiplier = life >= 0 ? ((float)life / (float)maxLife) : 0;
+            greenLifeBar.setBounds(this.getX(), this.getY(), 32f * multiplier, 2f);
+            redLifeBar.setBounds(this.getX(), this.getY(), 32f, 2f);
+            if(drawHpBar) {
+                if(System.currentTimeMillis() - damageTimer >= 5000) {
+                    drawHpBar = false;
+                }
+            }
             hitBox.x = this.getX();
             hitBox.y = this.getY();
 //            setRegion(getFrame(delta));
@@ -171,6 +186,10 @@ public class Enemy extends Sprite implements Disposable {
 //        super.draw(batch);
         if(spawned) {
             batch.draw(getFrame(), this.getX(), this.getY());
+            if(drawHpBar) {
+                redLifeBar.draw(batch);
+                greenLifeBar.draw(batch);
+            }
         }
     }
 
@@ -181,6 +200,8 @@ public class Enemy extends Sprite implements Disposable {
 
     public void receiveDamage(int damage) {
         life -= damage;
+        drawHpBar = true;
+        damageTimer = System.currentTimeMillis();
         if(life <= 0) {
 //            this.canDispose = true;
             speed = 10f;
