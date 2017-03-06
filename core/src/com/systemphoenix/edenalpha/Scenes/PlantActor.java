@@ -1,5 +1,6 @@
 package com.systemphoenix.edenalpha.Scenes;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Texture;
@@ -16,7 +17,7 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
 
     private GameScreen gameScreen;
 
-    private int index;
+    private int plantIndex;
     private float size;
     private boolean canDraw;
 
@@ -28,18 +29,22 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
     private Vector2 coord;
     private int pastScreenX, pastScreenY;
 
-    public PlantActor(GameScreen gameScreen, TextureRegion textureRegion, int index, float size) {
-        this.gameScreen = gameScreen;
+    public PlantActor(Sprite textureRegion, int plantIndex, int index, float size) {
+        this.gameScreen = null;
         this.textureRegion = textureRegion;
         this.sprite = new Sprite(textureRegion);
-        this.index = index;
+        this.plantIndex = plantIndex;
 
-        this.plantName = PlantCodex.plantNames[index];
+        this.plantName = PlantCodex.plantName[plantIndex];
 
         this.setBounds(PlantCodex.plantSelectorIndex[index], 64f, size, size);
 
         this.size = size;
         this.canDraw = false;
+    }
+
+    public void setGameScreen(GameScreen gameScreen) {
+        this.gameScreen = gameScreen;
     }
 
     @Override
@@ -74,7 +79,7 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
         Actor hitActor = gameScreen.getGameHud().getStage().hit(coord.x, coord.y, true);
 
         if(hitActor == this) {
-            gameScreen.plant(index, textureRegion);
+            gameScreen.plant(plantIndex, textureRegion);
             return true;
         }
         return false;
@@ -92,10 +97,12 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
             pastScreenX = screenX;
             pastScreenY = screenY;
         }
-        Actor hitActor = gameScreen.getGameHud().getStage().hit(coord.x, coord.y, true);
+        if(gameScreen != null) {
+            Actor hitActor = gameScreen.getGameHud().getStage().hit(coord.x, coord.y, true);
 
-        if(hitActor == this) {
-            return true;
+            if(hitActor == this) {
+                return true;
+            }
         }
         return false;
     }

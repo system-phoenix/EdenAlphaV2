@@ -18,23 +18,24 @@ public class GameHud extends AbsoluteHud implements Disposable {
 
     private boolean canDraw;
 
-    public GameHud(EdenAlpha game, GameScreen gameScreen) {
+    public GameHud(EdenAlpha game, GameScreen gameScreen, PlantActor[] plantActors) {
         super(game);
 
         toSplit = new Texture(Gdx.files.internal("trees/treesFinal.png"));
         TextureRegion[][] tempRegion = TextureRegion.split(toSplit, 64, 64);
 
-        int counter = 0;
-        plantActors = new PlantActor[6];
-        for(int i = 0; i < tempRegion.length; i++) {
-            for(int j = 0; j < tempRegion[i].length; j++) {
-                if(counter < plantActors.length) {
-                    plantActors[counter] = new PlantActor(gameScreen, tempRegion[i][j], counter, 64);
-                    counter++;
-                }
-            }
-
-        }
+        this.plantActors = plantActors;
+//        int counter = 0;
+//        plantActors = new PlantActor[6];
+//        for(int i = 0; i < tempRegion.length; i++) {
+//            for(int j = 0; j < tempRegion[i].length; j++) {
+//                if(counter < plantActors.length) {
+//                    plantActors[counter] = new PlantActor(gameScreen, tempRegion[i][j], counter, counter, 64);
+//                    counter++;
+//                }
+//            }
+//
+//        }
 
         plantSelector = new PlantSelector(plantActors);
 

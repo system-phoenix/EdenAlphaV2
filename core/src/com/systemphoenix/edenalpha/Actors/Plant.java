@@ -39,9 +39,9 @@ public class Plant extends Actor implements InputProcessor, Disposable {
     private boolean selected, growing;
 
     private Vector2 damage;
-    private long attackSpeed, lastAttackTime, growthTime = 1000, growthTimer;
+    private long attackSpeed, lastAttackTime, growthTimer;
     private int plantIndex;
-    private float size = 32f, hp = 0f, targetHp = 50f;
+    private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1;
 
     private Random rand = new Random();
 
@@ -50,8 +50,10 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         this.gameScreen = gameScreen;
         this.gameStage = gameStage;
         this.sprite = new Sprite(sprite);
-        this.damage = PlantCodex.DMG[PlantCodex.dmgStats[plantIndex]];
-        this.attackSpeed = PlantCodex.AS[PlantCodex.asStats[plantIndex]];
+        this.damage = PlantCodex.DMG[plantIndex];
+        this.attackSpeed = PlantCodex.AS[plantIndex];
+        this.targetHp = PlantCodex.maxHP[plantIndex];
+        this.growthRate = targetHp / (PlantCodex.growthTime[plantIndex] * 5);
 
         this.redLifeBar = new Sprite(new Texture(Gdx.files.internal("utilities/redLife.png")));
         this.redLifeBar.setBounds(x + size / 2, y + size / 4 + size / 2, size, size / 16);
@@ -128,8 +130,8 @@ public class Plant extends Actor implements InputProcessor, Disposable {
                 }
             }
         } else {
-            if(System.currentTimeMillis() - growthTimer >= growthTime) {
-                hp += 5;
+            if(System.currentTimeMillis() - growthTimer >= 200) {
+                hp += growthRate;
                 float multiplier = hp / targetHp;
                 greenLifeBar.setBounds(greenLifeBar.getX(), greenLifeBar.getY(), size * multiplier, size / 16);
                 if(hp >= targetHp) {

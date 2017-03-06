@@ -45,6 +45,7 @@ public class GameScreen extends AbsoluteScreen {
     private Region region;
 
     private MapScreen mapScreen;
+    private PlantScreen plantScreen;
 
     private Viewport viewport;
     private TopHud topHud;
@@ -71,10 +72,11 @@ public class GameScreen extends AbsoluteScreen {
     private long timer = 0, newWaveCountdown, timeGap, displaySquareTimer;
     private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, willPause = false, win = false, lose = false, running = false, canDisplaySquare, showAll, canPlant = false, firstCall = true;
 
-    public GameScreen(EdenAlpha game, MapScreen mapScreen, Region region) {
+    public GameScreen(EdenAlpha game, MapScreen mapScreen, PlantScreen plantScreen, Region region, PlantActor[] plantActors) {
         super(game);
         this.region = region;
         this.mapScreen = mapScreen;
+        this.plantScreen = plantScreen;
 
         worldHeight = region.getWorldHeight();
         worldWidth = region.getWorldWidth();
@@ -82,8 +84,12 @@ public class GameScreen extends AbsoluteScreen {
         this.viewport = new FitViewport(screenWidth, screenHeight, cam);
         this.gameStage = new Stage(viewport, game.getGameGraphics());
 
-        this.gameHud = new GameHud(game, this);
+        this.gameHud = new GameHud(game, this, plantActors);
         this.topHud = new TopHud(game, this);
+
+        for(int i = 0; i < plantActors.length; i++) {
+            plantActors[i].setGameScreen(this);
+        }
 
         this.winEndGame = new Sprite(new Texture(Gdx.files.internal("misc/winEndGame.png")));
         this.winEndGame.setBounds(0f, 0f, worldWidth, worldHeight);
@@ -572,6 +578,7 @@ public class GameScreen extends AbsoluteScreen {
 
         world.dispose();
         debugRenderer.dispose();
+        plantScreen.dispose();
     }
 
     public void pauseGame() {

@@ -29,6 +29,7 @@ public class MapScreen extends AbsoluteScreen {
     private RegionHud regionHud;
     private Region currentRegion;
 
+    private PlantScreen plantScreen = null;
     private GameScreen gameScreen = null;
     private Viewport viewport;
 
@@ -117,7 +118,11 @@ public class MapScreen extends AbsoluteScreen {
         cam.unproject(touchPos);
 
         game.setSelectedMapIndex(fieldSelection.getIndex());
-        game.setScreen(new GameScreen(game, this, fieldSelection.getRegionByIndex(game.getSelectedMapIndex())));
+        plantScreen = new PlantScreen(game, this, fieldSelection.getRegionByIndex(game.getSelectedMapIndex()));
+        game.setScreen(plantScreen);
+//        if(gameScreen != null) gameScreen.dispose();
+//        gameScreen = new GameScreen(game, this, fieldSelection.getRegionByIndex(game.getSelectedMapIndex()));
+//        game.setScreen(gameScreen);
 //        game.getLoadingScreen().createGameScreen(game, fieldSelection.getRegionByIndex(game.getSelectedMapIndex()));
         return true;
     }
@@ -149,6 +154,7 @@ public class MapScreen extends AbsoluteScreen {
     public void dispose() {
         mapSprite.getTexture().dispose();
         fieldSelection.dispose();
+        if(plantScreen != null) plantScreen.dispose();
         if(gameScreen != null) gameScreen.dispose();
         regionHud.dispose();
     }
