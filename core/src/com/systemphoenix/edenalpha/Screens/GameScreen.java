@@ -546,7 +546,7 @@ public class GameScreen extends AbsoluteScreen {
 
     @Override
     public void pause() {
-
+        pauseGame();
     }
 
     @Override
