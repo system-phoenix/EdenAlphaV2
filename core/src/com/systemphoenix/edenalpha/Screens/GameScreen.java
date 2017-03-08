@@ -70,7 +70,7 @@ public class GameScreen extends AbsoluteScreen {
     private float pastZoomDistance, plantSquareSize, accumulator;
     private int enemyLimit = 10, waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1, displaySquare = -3;
     private long timer = 0, newWaveCountdown, timeGap, displaySquareTimer;
-    private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, willPause = false, win = false, lose = false, running = false, canDisplaySquare, showAll, canPlant = false, firstCall = true;
+    private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, willPause = false, win = false, lose = false, running = false, canDisplaySquare, canPlant = false, firstCall = true;
 
     public GameScreen(EdenAlpha game, MapScreen mapScreen, PlantScreen plantScreen, Region region, PlantActor[] plantActors) {
         super(game);
@@ -284,15 +284,23 @@ public class GameScreen extends AbsoluteScreen {
             }
 
             if(waveIndex >= 0 && !newWave) {
-                Wave wave = waves.get(waveIndex);
-                wave.update(delta);
-                if(wave.isCleared()) {
-                    newWave = true;
-                    newWaveCountdown = System.currentTimeMillis();
+                if(waveIndex < waveLimit) {
+                    Wave wave = waves.get(waveIndex);
+                    wave.update(delta);
+                    if(wave.isCleared()) {
+                        newWave = true;
+                        newWaveCountdown = System.currentTimeMillis();
+                    }
+                } else {
+                    win = true;
+                    running = false;
                 }
             }
 
             topHud.setTimeStats(currentMinTens + "" + currentMinOnes + ":" + currentSecTens + "" + currentSecOnes);
+        } else {
+            lose = true;
+            running = false;
         }
         topHud.setMessage("Forest Land Percentage: " + region.getLifePercentage());
         renderer.setView(cam);
@@ -393,6 +401,16 @@ public class GameScreen extends AbsoluteScreen {
                 pauseGame();
             }
 
+            if(win || lose) {
+                gameGraphics.begin();
+                if(win) {
+                    winEndGame.draw(gameGraphics);
+                } else {
+                    loseEndGame.draw(gameGraphics);
+                }
+                gameGraphics.end();
+            }
+
         } else {
             gameGraphics.begin();
             pausedSprite.draw(gameGraphics);
@@ -444,7 +462,7 @@ public class GameScreen extends AbsoluteScreen {
 
     @Override
     public boolean tap(float x, float y, int count, int button) {
-        if(!paused) {
+        if(!paused && !win && !lose) {
             Vector3 touchPos = new Vector3();
             touchPos.set(x, y, 0);
             cam.unproject(touchPos);
@@ -471,10 +489,12 @@ public class GameScreen extends AbsoluteScreen {
                     Gdx.app.log("Verbose", "Error: " + e.getMessage());
                 }
             }
-        } else {
+        } else if(paused) {
             resumeGame();
+        } else {
+            game.setScreen(mapScreen);
+            this.dispose();
         }
-
         return true;
     }
 
