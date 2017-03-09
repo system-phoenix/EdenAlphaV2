@@ -29,6 +29,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.systemphoenix.edenalpha.Actors.Plant;
+import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.CollisionBit;
 import com.systemphoenix.edenalpha.EdenAlpha;
 import com.systemphoenix.edenalpha.EnemyUtils.Wave;
@@ -52,6 +53,7 @@ public class GameScreen extends AbsoluteScreen {
     private GameHud gameHud;
 
     private Sprite loseEndGame, winEndGame, pausedSprite;
+    private Sprite redRangeSprite, greenRangeSprite;
 
     private Stage gameStage;
 
@@ -68,7 +70,7 @@ public class GameScreen extends AbsoluteScreen {
 
     private PlantSquare[][] plantSquares;
     private float pastZoomDistance, plantSquareSize, accumulator;
-    private int enemyLimit = 10, waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1, displaySquare = -3;
+    private int enemyLimit = 10, waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1, displaySquare = -3, pseudoPlantIndex = -1;
     private long timer = 0, newWaveCountdown, timeGap, displaySquareTimer;
     private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, willPause = false, win = false, lose = false, running = false, canDisplaySquare, canPlant = false, firstCall = true;
 
@@ -117,6 +119,10 @@ public class GameScreen extends AbsoluteScreen {
             topHud.setLoadingMessage("Loading world...");
             createWorld();
             topHud.setLoadingMessage("Loading enemies...");
+            redRangeSprite = new Sprite(new Texture(Gdx.files.internal("plantRange/rangeSprite.png")));
+            redRangeSprite.setBounds(0, 0, 0, 0);
+            greenRangeSprite = new Sprite(new Texture(Gdx.files.internal("plantRange/effectiveRangeSprite.png")));
+            greenRangeSprite.setBounds(0, 0, 0, 0);
             createEnemyWaves();
         } catch(Exception e) {
             Gdx.app.log("Verbose", "level " + e.getMessage());
@@ -376,6 +382,13 @@ public class GameScreen extends AbsoluteScreen {
                         waves.get(waveIndex).render(gameGraphics);
                     }
                 }
+
+                if(gameHud.canDraw() && (selectedX != -1 && selectedY != -1) && PlantActor.getRecentlySelectedActor() != null) {
+                    redRangeSprite.draw(gameGraphics);
+                    float a = 0.5f;
+                    greenRangeSprite.setColor(greenRangeSprite.getColor().r, greenRangeSprite.getColor().g, greenRangeSprite.getColor().b, a);
+                    greenRangeSprite.draw(gameGraphics);
+                }
             }
             gameGraphics.end();
 
@@ -393,7 +406,7 @@ public class GameScreen extends AbsoluteScreen {
             }
             try {
                 gameGraphics.setProjectionMatrix(gameHud.getStage().getCamera().combined);
-                gameHud.getStage().draw();
+                gameHud.draw();
             } catch (Exception e) {
                 Gdx.app.log("Verbose", "Error rendering game hud: " + e.getMessage());
             }
@@ -481,6 +494,9 @@ public class GameScreen extends AbsoluteScreen {
 
                         gameHud.setMessage("(" + selectedX + ", " + selectedY +")");
                         gameHud.setCanDraw(true);
+                        if(PlantActor.getRecentlySelectedActor() != null) {
+                            setPseudoPlant(pseudoPlantIndex);
+                        }
                     } else {
                         resetHud();
                     }
@@ -600,6 +616,8 @@ public class GameScreen extends AbsoluteScreen {
         world.dispose();
         debugRenderer.dispose();
         plantScreen.dispose();
+        greenRangeSprite.getTexture().dispose();
+        redRangeSprite.getTexture().dispose();
     }
 
     public void pauseGame() {
@@ -644,7 +662,7 @@ public class GameScreen extends AbsoluteScreen {
     }
 
     public Vector2 getSelectedXY() {
-        return new Vector2(selectedX, selectedY);
+        return new Vector2(selectedX * plantSquareSize, selectedY * plantSquareSize);
     }
 
     public float getWorldHeight() {
@@ -658,5 +676,15 @@ public class GameScreen extends AbsoluteScreen {
     public void setWillPause(boolean willPause) {
         this.willPause = willPause;
         Gdx.app.log("Verbose", "willPause = " + willPause);
+    }
+
+    public void setPseudoPlant(int plantIndex) {
+        this.pseudoPlantIndex = plantIndex;
+//        .setBounds(this.getX() - (32f * actualRange), this.getY() - (32f * actualRange), (32f * actualRange * 2) + this.getWidth(), (32f * actualRange * 2) + this.getHeight());
+//        redRangeSprite.setBounds(gameScreen.getSelectedXY().x, gameScreen.getSelectedXY().y, 64, 64);
+        float actualRange = PlantCodex.range[plantIndex];
+        float effectiveRange = PlantCodex.effectiveRange[plantIndex];
+        redRangeSprite.setBounds(this.getSelectedXY().x - (32f * actualRange), this.getSelectedXY().y - (32f * actualRange), (32f * actualRange * 2) + 64, (32f * actualRange * 2) + 64);
+        greenRangeSprite.setBounds(this.getSelectedXY().x - (32f * effectiveRange), this.getSelectedXY().y - (32f * effectiveRange), (32f * effectiveRange * 2) + 64, (32f * effectiveRange * 2) + 64);
     }
 }

@@ -23,6 +23,7 @@ import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class Plant extends Actor implements InputProcessor, Disposable {
     private static Plant selectedPlant = null;
+    private static boolean selectAllPlants = false;
 
     private GameScreen gameScreen;
 
@@ -148,7 +149,7 @@ public class Plant extends Actor implements InputProcessor, Disposable {
     @Override
     public void draw(Batch batch, float alpha) {
         update();
-        if(selected) {
+        if(selected || selectAllPlants) {
             float a = 0.5f;
             rangeSprite.draw(batch);
             effectiveRangeSprite.setColor(effectiveRangeSprite.getColor().r, effectiveRangeSprite.getColor().g, effectiveRangeSprite.getColor().b, a);
@@ -250,5 +251,9 @@ public class Plant extends Actor implements InputProcessor, Disposable {
             selectedPlant.selected = false;
             selectedPlant = null;
         }
+    }
+
+    public static void setSelectAllPlants(boolean selectPlants) {
+        selectAllPlants = selectPlants;
     }
 }

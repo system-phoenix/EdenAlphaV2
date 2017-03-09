@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
+import com.systemphoenix.edenalpha.Actors.Plant;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
@@ -85,6 +86,9 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
             drawRectangle = true;
             recentlySelectedActor = this;
             gameScreen.getGameHud().setCheckButtonCanDraw(true);
+            gameScreen.getGameHud().setCanDraw();
+            gameScreen.setPseudoPlant(plantIndex);
+            Plant.setSelectAllPlants(true);
             return true;
         }
         return false;

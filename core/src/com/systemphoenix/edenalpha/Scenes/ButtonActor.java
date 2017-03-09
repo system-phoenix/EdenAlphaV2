@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Disposable;
+import com.systemphoenix.edenalpha.Actors.Plant;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
@@ -79,6 +80,7 @@ public class ButtonActor extends Actor implements InputProcessor, Disposable {
                 case ButtonCodex.CHECK:
                     PlantActor plantActor = PlantActor.getRecentlySelectedActor();
                     gameScreen.plant(plantActor.getPlantIndex(), plantActor.getSprite());
+                    Plant.setSelectAllPlants(false);
                     Gdx.app.log("Verbose", "Hit: CheckButton!");
                     break;
             }

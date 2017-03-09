@@ -1,13 +1,18 @@
 package com.systemphoenix.edenalpha.Scenes;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Disposable;
+import com.systemphoenix.edenalpha.Actors.Plant;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
+import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.EdenAlpha;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class GameHud extends AbsoluteHud implements Disposable {
-    
+
     private GameScreen gameScreen;
     
     private PlantSelector plantSelector;
@@ -15,7 +20,7 @@ public class GameHud extends AbsoluteHud implements Disposable {
 
     private ButtonActor checkButton;
 
-    private boolean canDraw;
+    private boolean canDraw, canDrawCheck;
 
     public GameHud(EdenAlpha game, GameScreen gameScreen, PlantActor[] plantActors) {
         super(game);
@@ -42,9 +47,6 @@ public class GameHud extends AbsoluteHud implements Disposable {
     }
 
     public void draw() {
-        if(PlantActor.getRecentlySelectedActor() != null) {
-            checkButton.setCanDraw(true);
-        }
         if(canDraw) {
             stage.draw();
         }
@@ -59,6 +61,14 @@ public class GameHud extends AbsoluteHud implements Disposable {
     public void setCanDraw(boolean canDraw) {
         this.canDraw = canDraw;
         plantSelector.setCanDraw(canDraw);
+        if(canDrawCheck) {
+            checkButton.setCanDraw(canDraw);
+            Plant.setSelectAllPlants(canDraw);
+        }
+    }
+
+    public void setCanDraw() {
+        canDrawCheck = true;
     }
     
     public void setCheckButtonCanDraw(boolean canDraw) {
@@ -72,6 +82,10 @@ public class GameHud extends AbsoluteHud implements Disposable {
 
     public PlantActor[] getPlantActors() {
         return plantActors;
+    }
+
+    public boolean canDraw() {
+        return canDraw;
     }
 
 }
