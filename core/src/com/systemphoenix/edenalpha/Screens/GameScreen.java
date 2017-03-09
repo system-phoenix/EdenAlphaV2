@@ -328,6 +328,7 @@ public class GameScreen extends AbsoluteScreen {
                         initialize();
                         timer = System.currentTimeMillis();
                         topHud.setPauseButtonCanDraw(true);
+                        gameHud.setCheckButtonCanDraw(false);
                     }
     //            } catch(Exception e) {
     //                Gdx.app.log("Verbose", "Call on \"initialize()\": " + e.getMessage());

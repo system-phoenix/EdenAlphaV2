@@ -316,9 +316,8 @@ public class PlantScreen extends AbsoluteScreen {
                                 this.dispose();
                             } else {
                                 PlantActor plantActor[] = new PlantActor[6];
-//                                plantActors[counter] = new PlantActor(gameScreen, tempRegion[i][j], counter, counter, 64);
                                 for(int k = 0; k < plantActor.length; k++) {
-                                    plantActor[k] = new PlantActor(renderedActorSprites[k], selectedIndeces[k], k, 64);
+                                    plantActor[k] = new PlantActor(renderedActorSprites[k], rectangleSprite, selectedIndeces[k], k, 64);
                                 }
                                 game.setScreen(new GameScreen(game, mapScreen, this, region, plantActor));
                             }
@@ -394,7 +393,9 @@ public class PlantScreen extends AbsoluteScreen {
         }
 
         for(int i = 0; i < renderedActorSprites.length; i++) {
-            renderedActorSprites[i].getTexture().dispose();
+            if(renderedActorSprites[i] != null && renderedActorSprites[i].getTexture() != null) {
+                renderedActorSprites[i].getTexture().dispose();
+            }
         }
         rectangleSprite.getTexture().dispose();
         trees.dispose();

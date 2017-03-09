@@ -1,41 +1,27 @@
 package com.systemphoenix.edenalpha.Scenes;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Disposable;
+import com.systemphoenix.edenalpha.Codex.ButtonCodex;
 import com.systemphoenix.edenalpha.EdenAlpha;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class GameHud extends AbsoluteHud implements Disposable {
-
+    
+    private GameScreen gameScreen;
+    
     private PlantSelector plantSelector;
     private PlantActor[] plantActors;
 
-    private Texture toSplit;
+    private ButtonActor checkButton;
 
     private boolean canDraw;
 
     public GameHud(EdenAlpha game, GameScreen gameScreen, PlantActor[] plantActors) {
         super(game);
-
-        toSplit = new Texture(Gdx.files.internal("trees/treesFinal.png"));
-        TextureRegion[][] tempRegion = TextureRegion.split(toSplit, 64, 64);
-
+        
+        this.gameScreen = gameScreen;
         this.plantActors = plantActors;
-//        int counter = 0;
-//        plantActors = new PlantActor[6];
-//        for(int i = 0; i < tempRegion.length; i++) {
-//            for(int j = 0; j < tempRegion[i].length; j++) {
-//                if(counter < plantActors.length) {
-//                    plantActors[counter] = new PlantActor(gameScreen, tempRegion[i][j], counter, counter, 64);
-//                    counter++;
-//                }
-//            }
-//
-//        }
 
         plantSelector = new PlantSelector(plantActors);
 
@@ -56,6 +42,9 @@ public class GameHud extends AbsoluteHud implements Disposable {
     }
 
     public void draw() {
+        if(PlantActor.getRecentlySelectedActor() != null) {
+            checkButton.setCanDraw(true);
+        }
         if(canDraw) {
             stage.draw();
         }
@@ -65,12 +54,20 @@ public class GameHud extends AbsoluteHud implements Disposable {
     public void dispose() {
         stage.dispose();
         plantSelector.dispose();
-        toSplit.dispose();
     }
 
     public void setCanDraw(boolean canDraw) {
         this.canDraw = canDraw;
         plantSelector.setCanDraw(canDraw);
+    }
+    
+    public void setCheckButtonCanDraw(boolean canDraw) {
+        if(checkButton == null) {
+            checkButton = new ButtonActor(ButtonCodex.CHECK, gameScreen, stage, gameScreen.getWorldWidth() - 160, 32, 128);
+            stage.addActor(checkButton);
+            gameScreen.addProcessor(checkButton);
+        }
+        this.checkButton.setCanDraw(canDraw);
     }
 
     public PlantActor[] getPlantActors() {

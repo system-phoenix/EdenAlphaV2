@@ -66,6 +66,7 @@ public class ButtonActor extends Actor implements InputProcessor, Disposable {
             switch (index) {
                 case ButtonCodex.PAUSE:
                     gameScreen.setWillPause(true);
+                    Gdx.app.log("Verbose", "Hit: PauseButton!");
                     break;
                 case ButtonCodex.PLAY:
                     break;
@@ -74,6 +75,11 @@ public class ButtonActor extends Actor implements InputProcessor, Disposable {
                 case ButtonCodex.RESTART:
                     break;
                 case ButtonCodex.HOME:
+                    break;
+                case ButtonCodex.CHECK:
+                    PlantActor plantActor = PlantActor.getRecentlySelectedActor();
+                    gameScreen.plant(plantActor.getPlantIndex(), plantActor.getSprite());
+                    Gdx.app.log("Verbose", "Hit: CheckButton!");
                     break;
             }
             return true;

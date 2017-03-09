@@ -1,12 +1,8 @@
 package com.systemphoenix.edenalpha.Scenes;
 
-import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
@@ -15,25 +11,26 @@ import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class PlantActor extends Actor implements InputProcessor, Disposable {
 
+    private static PlantActor recentlySelectedActor = null;
+
     private GameScreen gameScreen;
 
     private int plantIndex;
     private float size;
-    private boolean canDraw;
+    private boolean canDraw, drawRectangle = false;
 
     private String plantName;
 
-    private Sprite sprite;
-    private TextureRegion textureRegion;
+    private Sprite sprite, rectangleSprite;
 
     private Vector2 coord;
     private int pastScreenX, pastScreenY;
 
-    public PlantActor(Sprite textureRegion, int plantIndex, int index, float size) {
+    public PlantActor(Sprite textureRegion, Sprite rectangleSprite, int plantIndex, int index, float size) {
         this.gameScreen = null;
-        this.textureRegion = textureRegion;
         this.sprite = new Sprite(textureRegion);
         this.plantIndex = plantIndex;
+        this.rectangleSprite = rectangleSprite;
 
         this.plantName = PlantCodex.plantName[plantIndex];
 
@@ -51,6 +48,9 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
     public void draw(Batch batch, float alpha) {
         if(canDraw) {
             batch.draw(sprite, this.getX(), this.getY(), size, size);
+            if(drawRectangle) {
+                rectangleSprite.draw(batch);
+            }
         }
     }
 
@@ -79,7 +79,12 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
         Actor hitActor = gameScreen.getGameHud().getStage().hit(coord.x, coord.y, true);
 
         if(hitActor == this) {
-            gameScreen.plant(plantIndex, textureRegion);
+//            gameScreen.plant(plantIndex, textureRegion);
+            rectangleSprite.setBounds(this.getX() - 5, this.getY() - 5, this.getWidth() + 10, this.getHeight() + 10);
+            if(recentlySelectedActor != null) recentlySelectedActor.setDrawRectangle(false);
+            drawRectangle = true;
+            recentlySelectedActor = this;
+            gameScreen.getGameHud().setCheckButtonCanDraw(true);
             return true;
         }
         return false;
@@ -124,5 +129,21 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
 
     public void setCanDraw(boolean canDraw) {
         this.canDraw = canDraw;
+    }
+
+    public void setDrawRectangle(boolean drawRectangle) {
+        this.drawRectangle = drawRectangle;
+    }
+
+    public int getPlantIndex() {
+        return plantIndex;
+    }
+
+    public Sprite getSprite() {
+        return sprite;
+    }
+
+    public static PlantActor getRecentlySelectedActor() {
+        return recentlySelectedActor;
     }
 }
