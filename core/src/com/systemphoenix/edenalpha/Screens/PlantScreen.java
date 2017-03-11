@@ -315,11 +315,15 @@ public class PlantScreen extends AbsoluteScreen {
                                 game.setScreen(mapScreen);
                                 this.dispose();
                             } else {
-                                PlantActor plantActor[] = new PlantActor[6];
-                                for(int k = 0; k < plantActor.length; k++) {
-                                    plantActor[k] = new PlantActor(renderedActorSprites[k], rectangleSprite, selectedIndeces[k], k, 64);
+                                if(currentSelectionIndex > 0) {
+                                    PlantActor plantActor[] = new PlantActor[currentSelectionIndex];
+                                    for(int k = 0; k < plantActor.length; k++) {
+                                        plantActor[k] = new PlantActor(renderedActorSprites[k], rectangleSprite, selectedIndeces[k], k, 64);
+                                    }
+                                    game.setScreen(new GameScreen(game, mapScreen, this, region, plantActor));
+                                } else {
+                                    Gdx.app.log("verbose", "UYou cannot start the game without plants!");
                                 }
-                                game.setScreen(new GameScreen(game, mapScreen, this, region, plantActor));
                             }
                         } else {
                             rectangleSprite.setBounds(rectangles[i][j].getX(), rectangles[i][j].getY(), rectangles[i][j].getWidth(), rectangles[i][j].getHeight());
