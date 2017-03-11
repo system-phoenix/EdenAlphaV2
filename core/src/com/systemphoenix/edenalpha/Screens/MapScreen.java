@@ -118,7 +118,7 @@ public class MapScreen extends AbsoluteScreen {
         cam.unproject(touchPos);
 
         game.setSelectedMapIndex(fieldSelection.getIndex());
-        plantScreen = new PlantScreen(game, this, fieldSelection.getRegionByIndex(game.getSelectedMapIndex()));
+        plantScreen = new PlantScreen(game, this, fieldSelection.getRegion());
         game.setScreen(plantScreen);
 //        if(gameScreen != null) gameScreen.dispose();
 //        gameScreen = new GameScreen(game, this, fieldSelection.getRegionByIndex(game.getSelectedMapIndex()));

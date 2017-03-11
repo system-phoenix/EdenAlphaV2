@@ -15,12 +15,14 @@ public class Wave implements Disposable {
     private GameScreen gameScreen;
 
     private long nextSpawn;
-    private int enemyLimit, levels[], spawnCounter = 0;
+    private int enemyLimit, levels[], spawnCounter = 0, waveIndex, levelCounter = -1;
 
-    public Wave(GameScreen screen, Array<Vector2> spawnPoints, int enemyLimit, int... levels) {
+    public Wave(GameScreen screen, Array<Vector2> spawnPoints, int waveIndex, int enemyLimit, int... levels) {
         this.enemyLimit = enemyLimit;
         this.gameScreen = screen;
         this.levels = levels;
+        this.waveIndex = waveIndex;
+        this.levelCounter = 0;
 
         createSpawnPoints(spawnPoints);
         createEnemy();
@@ -36,9 +38,11 @@ public class Wave implements Disposable {
     public void createEnemy() {
         for(int counter = 0; counter < enemyLimit; counter++) {
             for(int i = 0; i < spawnPoints.size; i++) {
-                spawnPoints.get(i).addEnemy(new Enemy(gameScreen, levels[0], spawnPoints.get(i).getVector().x, spawnPoints.get(i).getVector().y, 32, counter));
+                spawnPoints.get(i).addEnemy(new Enemy(gameScreen, waveIndex, levels[levelCounter], spawnPoints.get(i).getVector().x, spawnPoints.get(i).getVector().y, 32, counter));
     //            spawnPoints.get(i).spawnEnemy(i);
             }
+            levelCounter++;
+            if(levelCounter >= levels.length) levelCounter = 0;
         }
     }
 

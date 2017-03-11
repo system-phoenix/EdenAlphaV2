@@ -109,24 +109,20 @@ public class GameScreen extends AbsoluteScreen {
 
     private void initialize() {
         TmxMapLoader mapLoader;
-        try {
-            topHud.setLoadingMessage("Loading level...");
-            mapLoader = new TmxMapLoader();
-            map = mapLoader.load("levels/" + region.getMapIndex() + ".tmx");
-            renderer = new OrthogonalTiledMapRenderer(map);
-            Gdx.app.log("Verbose", "Successfully loaded level: " + worldWidth + " x " + worldHeight);
+        topHud.setLoadingMessage("Loading level...");
+        mapLoader = new TmxMapLoader();
+        map = mapLoader.load("levels/" + region.getMapIndex() + ".tmx");
+        renderer = new OrthogonalTiledMapRenderer(map);
+        Gdx.app.log("Verbose", "Successfully loaded level: " + worldWidth + " x " + worldHeight);
 
-            topHud.setLoadingMessage("Loading world...");
-            createWorld();
-            topHud.setLoadingMessage("Loading enemies...");
-            redRangeSprite = new Sprite(new Texture(Gdx.files.internal("plantRange/rangeSprite.png")));
-            redRangeSprite.setBounds(0, 0, 0, 0);
-            greenRangeSprite = new Sprite(new Texture(Gdx.files.internal("plantRange/effectiveRangeSprite.png")));
-            greenRangeSprite.setBounds(0, 0, 0, 0);
-            createEnemyWaves();
-        } catch(Exception e) {
-            Gdx.app.log("Verbose", "level " + e.getMessage());
-        }
+        topHud.setLoadingMessage("Loading world...");
+        createWorld();
+        topHud.setLoadingMessage("Loading enemies...");
+        redRangeSprite = new Sprite(new Texture(Gdx.files.internal("plantRange/rangeSprite.png")));
+        redRangeSprite.setBounds(0, 0, 0, 0);
+        greenRangeSprite = new Sprite(new Texture(Gdx.files.internal("plantRange/effectiveRangeSprite.png")));
+        greenRangeSprite.setBounds(0, 0, 0, 0);
+        createEnemyWaves();
 
         cam.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
         boundCamera();
@@ -147,13 +143,18 @@ public class GameScreen extends AbsoluteScreen {
 
         int limit;
 
+        int[][] temp = region.getWaves();
+
+        Gdx.app.log("Verbose", "Variable temp: length = " + temp.length + ", temp[index].length = " + temp[0].length);
+
         for(int i = 0; i < waveLimit; i++) {
             if((i + 1) % 5 == 0) {
                 limit = enemyLimit * 2;
             } else {
                 limit = enemyLimit;
             }
-            waves.add(new Wave(this, spawnPoints, limit, 2));
+            waves.add(new Wave(this, spawnPoints, i, limit, temp[i]));
+            Gdx.app.log("Verbose", "Created waves!");
         }
     }
 

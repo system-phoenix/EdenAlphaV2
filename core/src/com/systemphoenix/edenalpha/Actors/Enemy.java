@@ -36,7 +36,7 @@ public class Enemy extends Sprite implements Disposable {
 
     protected Body body;
 
-    public Enemy(GameScreen screen, int level, float x, float y, float size, int id) {
+    public Enemy(GameScreen screen, int waveIndex, int level, float x, float y, float size, int id) {
         this.gameScreen = screen;
         this.id = id;
         this.size = size;
@@ -44,7 +44,8 @@ public class Enemy extends Sprite implements Disposable {
         this.velY = 0;
         this.level = level;
         this.damage = EnemyCodex.damage[level];
-        this.life = this.maxLife = 100;
+        this.speed = EnemyCodex.speed[level];
+        this.life = this.maxLife = EnemyCodex.getHP(level, waveIndex, gameScreen.getRegion().getMapIndex());
         this.directionSquares = new boolean[screen.getDirectionSquares().length][screen.getDirectionSquares()[0].length];
         this.setBounds(x, y, 32f, 32f);
 
