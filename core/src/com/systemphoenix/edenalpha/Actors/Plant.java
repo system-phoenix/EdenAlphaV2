@@ -1,7 +1,5 @@
 package com.systemphoenix.edenalpha.Actors;
 
-import java.util.Random;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Texture;
@@ -21,6 +19,12 @@ import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.CollisionBit;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Random;
+
+import sun.rmi.runtime.Log;
+
 public class Plant extends Actor implements InputProcessor, Disposable {
     private static Plant selectedPlant = null;
     private static boolean selectAllPlants = false;
@@ -36,6 +40,10 @@ public class Plant extends Actor implements InputProcessor, Disposable {
     private Body body;
     private Array<Enemy> targets;
     private Array<Bullet> bullets;
+    private Array<Pulse> pulses;
+    private Array<Slash> slashes;
+    private Array<Root> roots;
+
 
     private boolean selected, growing;
 
@@ -43,6 +51,7 @@ public class Plant extends Actor implements InputProcessor, Disposable {
     private long attackSpeed, lastAttackTime, growthTimer;
     private int plantIndex;
     private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1;
+    private boolean hasTarget = false;
 
     private Random rand = new Random();
 
@@ -66,6 +75,9 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         initialize();
         this.targets = new Array<Enemy>();
         this.bullets = new Array<Bullet>();
+        this.pulses = new Array<Pulse>();
+        this.slashes = new Array<Slash>();
+        this.roots = new Array<Root>();
 
         gameStage.addActor(this);
         lastAttackTime = System.currentTimeMillis();
@@ -118,10 +130,36 @@ public class Plant extends Actor implements InputProcessor, Disposable {
                 try{
                     int dmgRange = (int)(damage.y - damage.x);
     //                targets.get(0).receiveDamage(rand.nextInt(dmgRange) + (int) damage.x);
-                    bullets.add(new Bullet(gameScreen, this, targets.get(0), rand.nextInt(dmgRange) + (int) damage.x));
+                    if(PlantCodex.projectileSize[plantIndex] > 0) {
+                        bullets.add(new Bullet(gameScreen, this, targets.get(0), rand.nextInt(dmgRange) + (int) damage.x));
+                    } else {
+                        switch (plantIndex) {
+                            case 4:
+                                pulses.add(new Pulse(gameScreen, this, rand.nextInt(dmgRange) + (int) damage.x, targets));
+                                break;
+                            case 5:
+                                roots.add(new Root(gameScreen, this, rand.nextInt(dmgRange) + (int) damage.x, targets, false));
+                                break;
+                            case 11:
+                                slashes.add(new Slash(gameScreen, this, rand.nextInt(dmgRange) + (int) damage.x, targets));
+                                break;
+                            case 13:
+                                if(!hasTarget) {
+                                    Gdx.app.log("verbose","root");
+                                    hasTarget = true;
+                                    roots.add(new Root(gameScreen, this, 0, targets, true));
+                                }
+                                break;
+                        }
+                    }
                     lastAttackTime = System.currentTimeMillis();
                 } catch (Exception e) {
-                    Gdx.app.log("Verbose", "Error in plant attack: " + e.getMessage());
+//                    Gdx.app.log("Verbose", "Error in plant attack: " + e.getMessage());
+//                    Log.e("Eden", "exception", e);
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    e.printStackTrace(pw);
+                    Gdx.app.log("Verbose", "Error in plant attack: " + sw.toString());
                 }
             }
 
@@ -161,10 +199,43 @@ public class Plant extends Actor implements InputProcessor, Disposable {
                 bullets.get(i).render(batch);
             }
 
+            for(int i = 0; i < pulses.size; i++) {
+                pulses.get(i).render(batch, Gdx.graphics.getDeltaTime());
+            }
+            
+            for(int i = 0; i < slashes.size; i++) {
+                slashes.get(i).render(batch, Gdx.graphics.getDeltaTime());
+            }
+
+            for(int i = 0; i < roots.size; i++) {
+                roots.get(i).render(batch);
+            }
+
             for(int i = 0; i < bullets.size; i++) {
                 if(bullets.get(i).canDispose()) {
                     bullets.get(i).dispose();
                     bullets.removeIndex(i);
+                }
+            }
+
+            for(int i = 0; i < pulses.size; i++) {
+                if(pulses.get(i).canDispose()) {
+                    pulses.get(i).dispose();
+                    pulses.removeIndex(i);
+                }
+            }
+
+            for(int i = 0; i < slashes.size; i++) {
+                if(slashes.get(i).canDispose()) {
+                    slashes.get(i).dispose();
+                    slashes.removeIndex(i);
+                }
+            }
+
+            for(int i = 0; i < roots.size; i++) {
+                if(roots.get(i).canDispose()) {
+                    roots.get(i).dispose();
+                    roots.removeIndex(i);
                 }
             }
         }
@@ -255,5 +326,13 @@ public class Plant extends Actor implements InputProcessor, Disposable {
 
     public static void setSelectAllPlants(boolean selectPlants) {
         selectAllPlants = selectPlants;
+    }
+
+    public int getPlantIndex() {
+        return plantIndex;
+    }
+
+    public void setHasTarget(boolean hasTarget) {
+        this.hasTarget = hasTarget;
     }
 }

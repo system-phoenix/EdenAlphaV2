@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Disposable;
+import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class Bullet implements Disposable{
@@ -17,7 +18,7 @@ public class Bullet implements Disposable{
     private Plant plant;
     private Enemy target;
 
-    private float speed = 325f, angle, velX, velY;
+    private float speed = 480f, angle, velX, velY, projectileSize;
     private boolean canDispose = false;
     private int damage;
 
@@ -29,7 +30,9 @@ public class Bullet implements Disposable{
         this.target = target;
         this.damage = damage;
 
-        hitBox = new Rectangle(plant.getX() + plant.getWidth() / 8, plant.getY() + plant.getWidth() / 8, plant.getWidth() / 4, plant.getHeight() / 4);
+        projectileSize = PlantCodex.projectileSize[plant.getPlantIndex()];
+
+        hitBox = new Rectangle(plant.getX() + (plant.getWidth() - projectileSize) / 2, plant.getY() + (plant.getWidth() - projectileSize) / 2, projectileSize, projectileSize);
         angle = (float)Math.atan((hitBox.getY() - target.getBody().getPosition().y) / (hitBox.getX() - target.getBody().getPosition().x));
 
         if(plant.getX() > target.getBody().getPosition().x) {
@@ -44,7 +47,7 @@ public class Bullet implements Disposable{
             velY = -velY;
         }
 
-        sprite = new Sprite(new Texture(Gdx.files.internal("misc/bullet.png")));
+        sprite = new Sprite(new Texture(Gdx.files.internal("bullets/" + PlantCodex.bulletFile[plant.getPlantIndex()] + "Bullet.png")));
         timer = System.currentTimeMillis();
     }
 
@@ -64,7 +67,7 @@ public class Bullet implements Disposable{
 
     public void render(Batch batch) {
         update(Gdx.graphics.getDeltaTime());
-        batch.draw(sprite, hitBox.getX(), hitBox.getY(), plant.getWidth() / 4, plant.getHeight() / 4);
+        batch.draw(sprite, hitBox.getX(), hitBox.getY(), projectileSize, projectileSize);
     }
 
     public void hitTarget(Enemy enemy) {

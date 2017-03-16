@@ -25,11 +25,7 @@ public class PlantCodex {
     };
 
     public static final long AS[] = {
-            1500,       baseAS,       2000,       1500,           baseAS,           500,            750,         750,       baseAS,       333,        333,        3000,       500,        0,          500,
-    };
-
-    public static final boolean target[] = {
-            true,       true,       false,      true,           false,          true,           true,        true,      true,       true,       false,      false,      true,       true,       true
+            1500,       baseAS,       2000,       1500,           baseAS,           baseAS,            750,         750,       baseAS,       333,        333,        3000,       500,        0,          500,
     };
 
     public static final float range[] = {
@@ -49,7 +45,7 @@ public class PlantCodex {
     };
 
     public static final float seedProduction[] = {
-            1.5f,       5,          1,          0,              0,              0,              2.5f,        0,         0,          0,          20,         0,          10,         0,          5
+            1.5f,       5,          1,          0,              0,              0,              2.5f,        0,         0,          10,         20,         0,          10,         0,          5
     };
 
     public static final float projectileSize[] = {
@@ -57,7 +53,11 @@ public class PlantCodex {
     };
 
     public static final Vector2[] DMG = {
-            new Vector2(25, 35),    new Vector2(25, 35),    new Vector2(35, 40),    new Vector2(0, 5),    new Vector2(15, 20),    new Vector2(15, 20),    new Vector2(20, 25),    new Vector2(25, 35),    new Vector2(35, 40),    new Vector2(0, 5),    new Vector2(0, 5),    new Vector2(45, 50),    new Vector2(15, 20),    new Vector2(0, 0),  new Vector2(35, 40)
+            new Vector2(25, 35),    new Vector2(25, 35),    new Vector2(35, 40),    new Vector2(0, 5),    new Vector2(15, 20),    new Vector2(15, 20),    new Vector2(20, 25),    new Vector2(25, 35),    new Vector2(35, 40),    new Vector2(0, 5),    new Vector2(0, 5),    new Vector2(70, 80),    new Vector2(15, 20),    new Vector2(0, 0),  new Vector2(35, 40)
+    };
+
+    public static final String bulletFile[] = {
+            "brown",    "yellow",   "brown",    "blue",         "--",           "--",           "brown",    "green",    "brown",   "purple",   "blue",     "--",        "green",    "--",       "purple"
     };
 
     public static final float[] plantSelectorIndex = {

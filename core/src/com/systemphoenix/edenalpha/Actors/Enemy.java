@@ -20,10 +20,10 @@ import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class Enemy extends Sprite implements Disposable {
     protected float size, velX, velY, damage;
-    protected float stateTime, speed = 30;
+    protected float stateTime, speed = 30, maxSpeed;
     protected int level = 0, id, life, maxLife;
-    protected long lastDirectionChange, deathTimer, damageTimer;
-    protected boolean spawned = false, moving = true, canDraw = false, canDispose = false, directionSquares[][], drawHpBar;
+    protected long lastDirectionChange, deathTimer, damageTimer, slowTimer, stunLimit, stunTimer;
+    protected boolean spawned = false, moving = true, canDraw = false, canDispose = false, directionSquares[][], drawHpBar, slowed = false, dead, stunned;
     protected enum Direction {NORTH, SOUTH, EAST, WEST}
     protected Direction direction = Direction.SOUTH, opDirection = Direction.NORTH;
 
@@ -44,7 +44,7 @@ public class Enemy extends Sprite implements Disposable {
         this.velY = 0;
         this.level = level;
         this.damage = EnemyCodex.damage[level];
-        this.speed = EnemyCodex.speed[level];
+        this.speed = this.maxSpeed = EnemyCodex.speed[level];
         this.life = this.maxLife = EnemyCodex.getHP(level, waveIndex, gameScreen.getRegion().getMapIndex());
         this.directionSquares = new boolean[screen.getDirectionSquares().length][screen.getDirectionSquares()[0].length];
         this.setBounds(x, y, 32f, 32f);
@@ -120,11 +120,15 @@ public class Enemy extends Sprite implements Disposable {
     }
 
     public void update(float delta) {
-        if(speed == 10f && System.currentTimeMillis() - deathTimer >= 100) {
+        if((dead && System.currentTimeMillis() - deathTimer >= 100) || life <= 0) {
             canDispose = true;
         }
         stateTime += delta;
         if(moving) {
+            if(slowed && System.currentTimeMillis() - slowTimer > 500) {
+                speed = maxSpeed;
+                slowed = false;
+            }
             switch (direction) {
                 case EAST:
                     velX = speed;
@@ -204,9 +208,25 @@ public class Enemy extends Sprite implements Disposable {
         drawHpBar = true;
         damageTimer = System.currentTimeMillis();
         if(life <= 0) {
-//            this.canDispose = true;
-            speed = 10f;
+            dead = true;
             deathTimer = System.currentTimeMillis();
+        }
+    }
+
+    public void slow(float percentage) {
+        if(!slowed) {
+            speed -= maxSpeed * percentage;
+//            if(speed <= 10) speed = 10;
+        }
+        slowed = true;
+        slowTimer = System.currentTimeMillis();
+    }
+
+    public void stun(long stunLimit) {
+        if(!stunned) {
+            this.stunLimit = stunLimit;
+            stunTimer = System.currentTimeMillis();
+            this.speed = 0;
         }
     }
 
