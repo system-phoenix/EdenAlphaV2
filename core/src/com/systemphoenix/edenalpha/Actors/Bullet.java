@@ -33,19 +33,7 @@ public class Bullet implements Disposable{
         projectileSize = PlantCodex.projectileSize[plant.getPlantIndex()];
 
         hitBox = new Rectangle(plant.getX() + (plant.getWidth() - projectileSize) / 2, plant.getY() + (plant.getWidth() - projectileSize) / 2, projectileSize, projectileSize);
-        angle = (float)Math.atan((hitBox.getY() - target.getBody().getPosition().y) / (hitBox.getX() - target.getBody().getPosition().x));
-
-        if(plant.getX() > target.getBody().getPosition().x) {
-            velX = (-(float)Math.cos(angle));
-        } else {
-            velX = (float)Math.cos(angle);
-        }
-
-        velY = (float)Math.sin(angle);
-
-        if((angle > 0 && velX < 0 && velY > 0) || (angle < 0 && velX < 0 && velY < 0)) {
-            velY = -velY;
-        }
+        angle = (float)Math.atan2((hitBox.getY() - target.getBody().getPosition().y), (hitBox.getX() - target.getBody().getPosition().x));
 
         sprite = new Sprite(new Texture(Gdx.files.internal("bullets/" + PlantCodex.bulletFile[plant.getPlantIndex()] + "Bullet.png")));
         timer = System.currentTimeMillis();
@@ -53,8 +41,8 @@ public class Bullet implements Disposable{
 
     public void update(float delta) {
 
-        hitBox.x += speed * delta * velX;
-        hitBox.y += speed * delta * velY;
+        hitBox.x += speed * delta * (-Math.cos(angle));
+        hitBox.y += speed * delta * (-Math.sin(angle));
 
         if(target.getHitBox().overlaps(hitBox)) {
             hitTarget(target);
