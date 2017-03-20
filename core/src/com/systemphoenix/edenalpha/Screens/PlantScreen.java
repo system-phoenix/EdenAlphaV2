@@ -272,13 +272,17 @@ public class PlantScreen extends AbsoluteScreen {
         Rectangle rect = new Rectangle(x - 16f, 720 - (y + 16f), 32f, 32f);
 
         if(selectRectangle.overlaps(rect)) {
-            if(currentSelectionIndex < selectedIndeces.length) {
+            if(currentSelectionIndex <= selectedIndeces.length) {
                 selected[index] = !selected[index];
                 if(selected[index]) {
-                    selectedIndeces[currentSelectionIndex] = index;
-                    renderedActorSprites[currentSelectionIndex].set(actorSprites[index]);
-                    renderedActorSprites[currentSelectionIndex].setBounds(PlantCodex.plantSelectorIndex[currentSelectionIndex], 64, 64, 64);
-                    currentSelectionIndex++;
+                    if(currentSelectionIndex < selectedIndeces.length) {
+                        selectedIndeces[currentSelectionIndex] = index;
+                        renderedActorSprites[currentSelectionIndex].set(actorSprites[index]);
+                        renderedActorSprites[currentSelectionIndex].setBounds(PlantCodex.plantSelectorIndex[currentSelectionIndex], 64, 64, 64);
+                        currentSelectionIndex++;
+                    } else {
+                        selected[index] = !selected[index];
+                    }
                 } else {
                     for(int i = 0; i < selectedIndeces.length; i++) {
                         if(selectedIndeces[i] == index) {
