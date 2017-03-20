@@ -45,7 +45,7 @@ public class PlantCodex {
     };
 
     public static final float seedProduction[] = {
-            1.5f,       5,          1,          0,              0,              0,              2.5f,        0,         0,          10,         20,         0,          10,         0,          5
+            0.1f,       0.2f,          0.05f,          0,              0,              0,              0.25f,        0,         0,          0.5f,         1f,         0,          0.5f,         0,          0.1f
     };
 
     public static final float projectileSize[] = {
@@ -53,7 +53,7 @@ public class PlantCodex {
     };
 
     public static final Vector2[] DMG = {
-            new Vector2(25, 35),    new Vector2(25, 35),    new Vector2(35, 40),    new Vector2(0, 5),    new Vector2(15, 20),    new Vector2(15, 20),    new Vector2(20, 25),    new Vector2(25, 35),    new Vector2(35, 40),    new Vector2(0, 5),    new Vector2(0, 5),    new Vector2(70, 80),    new Vector2(15, 20),    new Vector2(0, 0),  new Vector2(35, 40)
+            new Vector2(25, 35),    new Vector2(25, 35),    new Vector2(35, 40),    new Vector2(0, 5),    new Vector2(15, 20),    new Vector2(15, 20),    new Vector2(20, 25),    new Vector2(25, 35),    new Vector2(35, 40),    new Vector2(0, 5),    new Vector2(0, 5),    new Vector2(45, 50),    new Vector2(15, 20),    new Vector2(0, 0),  new Vector2(35, 40)
     };
 
     public static final String bulletFile[] = {

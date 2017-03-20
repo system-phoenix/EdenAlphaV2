@@ -69,9 +69,9 @@ public class GameScreen extends AbsoluteScreen {
     private Array<InputProcessor> inputProcessors;
 
     private PlantSquare[][] plantSquares;
-    private float pastZoomDistance, plantSquareSize, accumulator;
+    private float pastZoomDistance, plantSquareSize, accumulator, seeds = 50, seedRate = 0.25f;
     private int enemyLimit = 10, waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1, displaySquare = -3, pseudoPlantIndex = -1;
-    private long timer = 0, newWaveCountdown, timeGap, displaySquareTimer;
+    private long timer = 0, newWaveCountdown, timeGap, displaySquareTimer, seedTimer;
     private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, willPause = false, win = false, lose = false, running = false, canDisplaySquare, canPlant = false, firstCall = true;
 
     public GameScreen(EdenAlpha game, MapScreen mapScreen, PlantScreen plantScreen, Region region, PlantActor[] plantActors) {
@@ -277,6 +277,12 @@ public class GameScreen extends AbsoluteScreen {
                     canDisplaySquare = true;
                 }
             }
+
+            if(System.currentTimeMillis() - seedTimer >= 1000) {
+                seedTimer = System.currentTimeMillis();
+                seeds += seedRate;
+                topHud.setSeedStatMessage("" + (int)seeds);
+            }
             if(newWave) {
                 if(System.currentTimeMillis() - newWaveCountdown >= 5000) {
                     newWave = false;
@@ -287,7 +293,7 @@ public class GameScreen extends AbsoluteScreen {
                     }
                 }
 
-                topHud.setWaveStatMessage("Wave " + (waveIndex + 1));
+                topHud.setWaveStatMessage("" + (waveIndex + 1));
             }
 
             if(waveIndex >= 0 && !newWave) {
@@ -309,7 +315,7 @@ public class GameScreen extends AbsoluteScreen {
             lose = true;
             running = false;
         }
-        topHud.setMessage("Forest Land Percentage: " + region.getLifePercentage());
+        topHud.setMessage("" + (int)region.getLifePercentage());
         renderer.setView(cam);
 
     }
@@ -334,7 +340,10 @@ public class GameScreen extends AbsoluteScreen {
                         firstCall = false;
                         initialize();
                         timer = System.currentTimeMillis();
+                        seedTimer = System.currentTimeMillis();
+                        topHud.createLabels();
                         topHud.setPauseButtonCanDraw(true);
+                        topHud.setSeedStatMessage("" + (int)seeds);
                         gameHud.setCheckButtonCanDraw(false);
                     }
     //            } catch(Exception e) {
@@ -401,13 +410,14 @@ public class GameScreen extends AbsoluteScreen {
             }
             try {
                 gameGraphics.setProjectionMatrix(topHud.getStage().getCamera().combined);
+                topHud.draw(gameGraphics);
                 topHud.getStage().draw();
             } catch(Exception e) {
                 Gdx.app.log("Verbose", "Error rendering top hud: " + e.getMessage());
             }
             try {
                 gameGraphics.setProjectionMatrix(gameHud.getStage().getCamera().combined);
-                gameHud.draw();
+                gameHud.draw(gameGraphics);
             } catch (Exception e) {
                 Gdx.app.log("Verbose", "Error rendering game hud: " + e.getMessage());
             }
@@ -458,8 +468,11 @@ public class GameScreen extends AbsoluteScreen {
     }
 
     public void plant(int plantIndex, TextureRegion sprite) {
+        seeds -= PlantCodex.cost[plantIndex];
+        topHud.setSeedStatMessage("" + (int)seeds);
         plants.add(new Plant(this, gameStage, sprite, plantIndex, selectedX * 32f, selectedY * 32f));
         inputProcessors.insert(inputProcessors.size - 1, plants.peek());
+        updateSeedRate();
         resetHud();
     }
 
@@ -484,7 +497,6 @@ public class GameScreen extends AbsoluteScreen {
             touchPos.x = touchPos.x - (int)touchPos.x  > 0.5 ? (int) touchPos.x + 1 : (int) touchPos.x;
             touchPos.y = touchPos.y - (int)touchPos.y  > 0.5 ? (int) touchPos.y + 1 : (int) touchPos.y;
             if(canPlant) {
-                try {
                     if(selectedX == (int)touchPos.x / (int)plantSquareSize && selectedY == (int)touchPos.y / (int)plantSquareSize) {
                         selectedY = selectedX = -1;
                         gameHud.setMessage("");
@@ -503,9 +515,6 @@ public class GameScreen extends AbsoluteScreen {
                     }
 
                     Plant.nullSelectedPlant();
-                } catch (Exception e) {
-                    Gdx.app.log("Verbose", "Error: " + e.getMessage());
-                }
             }
         } else if(paused) {
             resumeGame();
@@ -674,6 +683,17 @@ public class GameScreen extends AbsoluteScreen {
         return this.worldWidth;
     }
 
+    public float getSeeds() {
+        return seeds;
+    }
+
+    public void updateSeedRate() {
+        seedRate = 0.25f;
+        for(int i = 0; i < plants.size; i++) {
+            seedRate += plants.get(i).getSeedRate();
+        }
+    }
+
     public void setWillPause(boolean willPause) {
         this.willPause = willPause;
         Gdx.app.log("Verbose", "willPause = " + willPause);
@@ -683,9 +703,11 @@ public class GameScreen extends AbsoluteScreen {
         this.pseudoPlantIndex = plantIndex;
 //        .setBounds(this.getX() - (32f * actualRange), this.getY() - (32f * actualRange), (32f * actualRange * 2) + this.getWidth(), (32f * actualRange * 2) + this.getHeight());
 //        redRangeSprite.setBounds(gameScreen.getSelectedXY().x, gameScreen.getSelectedXY().y, 64, 64);
-        float actualRange = PlantCodex.range[plantIndex];
-        float effectiveRange = PlantCodex.effectiveRange[plantIndex];
-        redRangeSprite.setBounds(this.getSelectedXY().x - (32f * actualRange), this.getSelectedXY().y - (32f * actualRange), (32f * actualRange * 2) + 64, (32f * actualRange * 2) + 64);
-        greenRangeSprite.setBounds(this.getSelectedXY().x - (32f * effectiveRange), this.getSelectedXY().y - (32f * effectiveRange), (32f * effectiveRange * 2) + 64, (32f * effectiveRange * 2) + 64);
+        if(plantIndex >= 0 && plantIndex < 15) {
+            float actualRange = PlantCodex.range[plantIndex];
+            float effectiveRange = PlantCodex.effectiveRange[plantIndex];
+            redRangeSprite.setBounds(this.getSelectedXY().x - (32f * actualRange), this.getSelectedXY().y - (32f * actualRange), (32f * actualRange * 2) + 64, (32f * actualRange * 2) + 64);
+            greenRangeSprite.setBounds(this.getSelectedXY().x - (32f * effectiveRange), this.getSelectedXY().y - (32f * effectiveRange), (32f * effectiveRange * 2) + 64, (32f * effectiveRange * 2) + 64);
+        }
     }
 }

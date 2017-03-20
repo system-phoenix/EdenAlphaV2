@@ -23,8 +23,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Random;
 
-import sun.rmi.runtime.Log;
-
 public class Plant extends Actor implements InputProcessor, Disposable {
     private static Plant selectedPlant = null;
     private static boolean selectAllPlants = false;
@@ -50,7 +48,7 @@ public class Plant extends Actor implements InputProcessor, Disposable {
     private Vector2 damage;
     private long attackSpeed, lastAttackTime, growthTimer;
     private int plantIndex;
-    private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1;
+    private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1, seedRate;
     private boolean hasTarget = false;
 
     private Random rand = new Random();
@@ -64,6 +62,7 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         this.attackSpeed = PlantCodex.AS[plantIndex];
         this.targetHp = PlantCodex.maxHP[plantIndex];
         this.growthRate = targetHp / (PlantCodex.growthTime[plantIndex] * 5);
+        this.seedRate = PlantCodex.seedProduction[plantIndex];
 
         this.redLifeBar = new Sprite(new Texture(Gdx.files.internal("utilities/redLife.png")));
         this.redLifeBar.setBounds(x + size / 2, y + size / 4 + size / 2, size, size / 16);
@@ -330,6 +329,10 @@ public class Plant extends Actor implements InputProcessor, Disposable {
 
     public int getPlantIndex() {
         return plantIndex;
+    }
+
+    public float getSeedRate() {
+        return seedRate;
     }
 
     public void setHasTarget(boolean hasTarget) {

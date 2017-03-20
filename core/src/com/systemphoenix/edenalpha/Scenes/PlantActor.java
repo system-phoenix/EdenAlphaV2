@@ -1,6 +1,8 @@
 package com.systemphoenix.edenalpha.Scenes;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
@@ -17,12 +19,12 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
     private GameScreen gameScreen;
 
     private int plantIndex;
-    private float size;
+    private float size, plantCost;
     private boolean canDraw, drawRectangle = false;
 
     private String plantName;
 
-    private Sprite sprite, rectangleSprite;
+    private Sprite sprite, rectangleSprite, maskSprite;
 
     private Vector2 coord;
     private int pastScreenX, pastScreenY;
@@ -34,7 +36,10 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
         this.rectangleSprite = rectangleSprite;
 
         this.plantName = PlantCodex.plantName[plantIndex];
+        this.plantCost = PlantCodex.cost[plantIndex];
 
+        this.maskSprite = new Sprite(new Texture(Gdx.files.internal("utilities/mask.png")));
+        this.maskSprite.setBounds(PlantCodex.plantSelectorIndex[index], 64f, size, size);
         this.setBounds(PlantCodex.plantSelectorIndex[index], 64f, size, size);
 
         this.size = size;
@@ -49,8 +54,13 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
     public void draw(Batch batch, float alpha) {
         if(canDraw) {
             batch.draw(sprite, this.getX(), this.getY(), size, size);
+
             if(drawRectangle) {
                 rectangleSprite.draw(batch);
+            }
+
+            if(plantCost > gameScreen.getSeeds()) {
+                maskSprite.draw(batch);
             }
         }
     }
@@ -79,12 +89,13 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
         }
         Actor hitActor = gameScreen.getGameHud().getStage().hit(coord.x, coord.y, true);
 
-        if(hitActor == this) {
+        if(hitActor == this && canDraw) {
 //            gameScreen.plant(plantIndex, textureRegion);
             rectangleSprite.setBounds(this.getX() - 5, this.getY() - 5, this.getWidth() + 10, this.getHeight() + 10);
             if(recentlySelectedActor != null) recentlySelectedActor.setDrawRectangle(false);
             drawRectangle = true;
             recentlySelectedActor = this;
+            gameScreen.getGameHud().setData();
             gameScreen.getGameHud().setCheckButtonCanDraw(true);
             gameScreen.getGameHud().setCanDraw();
             gameScreen.setPseudoPlant(plantIndex);
@@ -109,7 +120,7 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
         if(gameScreen != null) {
             Actor hitActor = gameScreen.getGameHud().getStage().hit(coord.x, coord.y, true);
 
-            if(hitActor == this) {
+            if(hitActor == this && canDraw) {
                 return true;
             }
         }
@@ -141,6 +152,10 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
 
     public int getPlantIndex() {
         return plantIndex;
+    }
+
+    public float getPlantCost() {
+        return plantCost;
     }
 
     public Sprite getSprite() {

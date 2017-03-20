@@ -21,6 +21,7 @@ android {
         applicationId "com.systemphoenix.edenalpha"
         minSdkVersion 14
         targetSdkVersion 24
+        multiDexEnabled true
     }
 }
 
