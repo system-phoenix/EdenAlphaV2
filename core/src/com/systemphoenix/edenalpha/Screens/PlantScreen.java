@@ -368,13 +368,13 @@ public class PlantScreen extends AbsoluteScreen {
         }
         this.plantType.setText(plantType);
         plantCost.setText("" + (int)(PlantCodex.cost[index]));
-        plantHP.setBounds(plantHP.getX(), plantHP.getY(), barSize * (PlantCodex.maxHP[index] / PlantCodex.baseHP), plantHP.getHeight());
+        plantHP.setBounds(plantHP.getX(), plantHP.getY(), barSize * (PlantCodex.hpStats[PlantCodex.maxHP[index]] / PlantCodex.baseHP), plantHP.getHeight());
         if(index != 13) {
-            plantAS.setBounds(plantAS.getX(), plantAS.getY(), barSize * ((float)PlantCodex.baseAS / (float)(PlantCodex.AS[index] * 3f)), plantAS.getHeight());
+            plantAS.setBounds(plantAS.getX(), plantAS.getY(), barSize * ((float)PlantCodex.baseAS / (float)(PlantCodex.asStats[PlantCodex.AS[index]] * 3f)), plantAS.getHeight());
         } else {
             plantAS.setBounds(plantAS.getX(), plantAS.getY(), 0, plantAS.getHeight());
         }
-        plantDmg.setBounds(plantDmg.getX(), plantDmg.getY(), barSize * ((((PlantCodex.DMG[index].x + PlantCodex.DMG[index].y)) / (((PlantCodex.baseDmg.x + PlantCodex.baseDmg.y))))), plantDmg.getHeight());
+        plantDmg.setBounds(plantDmg.getX(), plantDmg.getY(), barSize * ((((PlantCodex.dmgStats[PlantCodex.DMG[index]].x + PlantCodex.dmgStats[PlantCodex.DMG[index]].y)) / (((PlantCodex.baseDmg.x + PlantCodex.baseDmg.y))))), plantDmg.getHeight());
         plantGrowthTime.setText("" + (int)(PlantCodex.growthTime[index]) + " seconds");
     }
 

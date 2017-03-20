@@ -51,7 +51,7 @@ public class Pulse implements Disposable {
     public void render(Batch batch, float delta) {
         stateTime += delta;
         if(!canDispose && !isBlank) {
-            float actualRange = PlantCodex.range[plant.getPlantIndex()];
+            float actualRange = PlantCodex.rangeStats[PlantCodex.range[plant.getPlantIndex()]];
             batch.draw(animation.getKeyFrame(stateTime), plant.getX() - (32f * actualRange), plant.getY() - (32f * actualRange), (32f * actualRange * 2) + plant.getWidth(), (32f * actualRange * 2) + plant.getHeight());
         } else {
             batch.draw(animation.getKeyFrame(stateTime), gameScreen.getWorldWidth(), gameScreen.getWorldHeight());

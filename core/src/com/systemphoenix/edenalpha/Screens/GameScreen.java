@@ -468,12 +468,14 @@ public class GameScreen extends AbsoluteScreen {
     }
 
     public void plant(int plantIndex, TextureRegion sprite) {
-        seeds -= PlantCodex.cost[plantIndex];
-        topHud.setSeedStatMessage("" + (int)seeds);
-        plants.add(new Plant(this, gameStage, sprite, plantIndex, selectedX * 32f, selectedY * 32f));
-        inputProcessors.insert(inputProcessors.size - 1, plants.peek());
-        updateSeedRate();
-        resetHud();
+        if(seeds - PlantCodex.cost[plantIndex] >= 0) {
+            seeds -= PlantCodex.cost[plantIndex];
+            topHud.setSeedStatMessage("" + (int)seeds);
+            plants.add(new Plant(this, gameStage, sprite, plantIndex, selectedX * 32f, selectedY * 32f));
+            inputProcessors.insert(inputProcessors.size - 1, plants.peek());
+            updateSeedRate();
+            resetHud();
+        }
     }
 
     public void resetHud() {
@@ -704,10 +706,15 @@ public class GameScreen extends AbsoluteScreen {
 //        .setBounds(this.getX() - (32f * actualRange), this.getY() - (32f * actualRange), (32f * actualRange * 2) + this.getWidth(), (32f * actualRange * 2) + this.getHeight());
 //        redRangeSprite.setBounds(gameScreen.getSelectedXY().x, gameScreen.getSelectedXY().y, 64, 64);
         if(plantIndex >= 0 && plantIndex < 15) {
-            float actualRange = PlantCodex.range[plantIndex];
+            float actualRange = PlantCodex.rangeStats[PlantCodex.range[plantIndex]];
             float effectiveRange = PlantCodex.effectiveRange[plantIndex];
             redRangeSprite.setBounds(this.getSelectedXY().x - (32f * actualRange), this.getSelectedXY().y - (32f * actualRange), (32f * actualRange * 2) + 64, (32f * actualRange * 2) + 64);
             greenRangeSprite.setBounds(this.getSelectedXY().x - (32f * effectiveRange), this.getSelectedXY().y - (32f * effectiveRange), (32f * effectiveRange * 2) + 64, (32f * effectiveRange * 2) + 64);
         }
+    }
+
+    public void incrementSeeds(float value) {
+        this.seeds += value;
+        topHud.setSeedStatMessage("" + (int)seeds);
     }
 }

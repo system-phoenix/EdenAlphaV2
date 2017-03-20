@@ -47,7 +47,7 @@ public class Plant extends Actor implements InputProcessor, Disposable {
 
     private Vector2 damage;
     private long attackSpeed, lastAttackTime, growthTimer;
-    private int plantIndex;
+    private int plantIndex, upgradeIndex = 0;
     private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1, seedRate;
     private boolean hasTarget = false;
 
@@ -58,11 +58,11 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         this.gameScreen = gameScreen;
         this.gameStage = gameStage;
         this.sprite = new Sprite(sprite);
-        this.damage = PlantCodex.DMG[plantIndex];
-        this.attackSpeed = PlantCodex.AS[plantIndex];
-        this.targetHp = PlantCodex.maxHP[plantIndex];
+        this.damage = PlantCodex.dmgStats[PlantCodex.DMG[plantIndex]];
+        this.attackSpeed = PlantCodex.asStats[PlantCodex.AS[plantIndex]];
+        this.targetHp = PlantCodex.hpStats[PlantCodex.maxHP[plantIndex]];
         this.growthRate = targetHp / (PlantCodex.growthTime[plantIndex] * 5);
-        this.seedRate = PlantCodex.seedProduction[plantIndex];
+        this.seedRate = PlantCodex.seedRateStats[PlantCodex.seedProduction[plantIndex]];
 
         this.redLifeBar = new Sprite(new Texture(Gdx.files.internal("utilities/redLife.png")));
         this.redLifeBar.setBounds(x + size / 2, y + size / 4 + size / 2, size, size / 16);
@@ -94,7 +94,7 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         body = gameScreen.getWorld().createBody(bodyDef);
 
         CircleShape circleShape = new CircleShape();
-        float actualRange = PlantCodex.range[plantIndex];
+        float actualRange = PlantCodex.rangeStats[PlantCodex.range[plantIndex]];
         float computedRange = size + 32f * actualRange;
         float effectiveRange = PlantCodex.effectiveRange[plantIndex];
         circleShape.setRadius(computedRange);
@@ -122,6 +122,24 @@ public class Plant extends Actor implements InputProcessor, Disposable {
     public void removeTarget(Enemy enemy) {
         targets.removeValue(enemy, true);
     }
+
+//    public void upgrade() {
+//        upgradeIndex++;
+//        switch (plantIndex) {
+//            case 0:
+//            case 4:
+//            case 5:
+//            case 6:
+//            case 7:
+//            case 8:
+//                targetHp = PlantCodex.hpStats[PlantCodex.maxHP[plantIndex] + upgradeIndex];
+//                attackSpeed = PlantCodex.asStats[PlantCodex.AS[plantIndex] + upgradeIndex];
+//                damage = PlantCodex.dmgStats[PlantCodex.DMG[plantIndex] + upgradeIndex];
+//                break;
+//            case 1:
+//
+//        }
+//    }
 
     public void update() {
         if(!growing) {

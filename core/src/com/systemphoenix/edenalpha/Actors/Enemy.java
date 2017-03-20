@@ -20,7 +20,7 @@ import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class Enemy extends Sprite implements Disposable {
     protected float size, velX, velY, damage;
-    protected float stateTime, speed = 30, maxSpeed;
+    protected float stateTime, speed = 30, maxSpeed, seedDrop, stackSlowRate = 0;
     protected int level = 0, id, life, maxLife;
     protected long lastDirectionChange, deathTimer, damageTimer, slowTimer, stunLimit, stunTimer;
     protected boolean spawned = false, moving = true, canDraw = false, canDispose = false, directionSquares[][], drawHpBar, slowed = false, dead, stunned;
@@ -46,6 +46,7 @@ public class Enemy extends Sprite implements Disposable {
         this.damage = EnemyCodex.damage[level];
         this.speed = this.maxSpeed = EnemyCodex.speed[level];
         this.life = this.maxLife = EnemyCodex.getHP(level, waveIndex, gameScreen.getRegion().getMapIndex());
+        this.seedDrop = EnemyCodex.seedDrop[level];
         this.directionSquares = new boolean[screen.getDirectionSquares().length][screen.getDirectionSquares()[0].length];
         this.setBounds(x, y, 32f, 32f);
 
@@ -122,6 +123,7 @@ public class Enemy extends Sprite implements Disposable {
     public void update(float delta) {
         if((dead && System.currentTimeMillis() - deathTimer >= 100) || life <= 0) {
             canDispose = true;
+            gameScreen.incrementSeeds(seedDrop);
         }
         stateTime += delta;
         if(moving) {
@@ -211,6 +213,17 @@ public class Enemy extends Sprite implements Disposable {
             dead = true;
             deathTimer = System.currentTimeMillis();
         }
+    }
+
+    public void stackSlow(float percentage) {
+        stackSlowRate += percentage;
+        if(speed > 10) {
+            speed -= maxSpeed * stackSlowRate;
+        } else {
+            speed = 10;
+        }
+        slowed = true;
+        slowTimer = System.currentTimeMillis();
     }
 
     public void slow(float percentage) {
