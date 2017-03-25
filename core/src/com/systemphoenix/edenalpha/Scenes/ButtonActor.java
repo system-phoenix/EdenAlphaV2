@@ -57,7 +57,7 @@ public class ButtonActor extends Actor implements InputProcessor, Disposable {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         if((pastScreenX == -1 && pastScreenY == -1) || !(pastScreenX == screenX && pastScreenY == screenY)) {
-            coord = gameScreen.getGameHud().getStage().screenToStageCoordinates(new Vector2((float)screenX, (float)screenY));
+            coord = stage.screenToStageCoordinates(new Vector2((float)screenX, (float)screenY));
             pastScreenX = screenX;
             pastScreenY = screenY;
         }
@@ -83,6 +83,9 @@ public class ButtonActor extends Actor implements InputProcessor, Disposable {
                     Plant.setSelectAllPlants(false);
                     Gdx.app.log("Verbose", "Hit: CheckButton!");
                     break;
+                case ButtonCodex.CROSS:
+                    gameScreen.unroot(Plant.getSelectedPlant());
+                    break;
             }
             return true;
         }
@@ -97,16 +100,12 @@ public class ButtonActor extends Actor implements InputProcessor, Disposable {
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
         if((pastScreenX == -1 && pastScreenY == -1) || !(pastScreenX == screenX && pastScreenY == screenY)) {
-            coord = gameScreen.getGameHud().getStage().screenToStageCoordinates(new Vector2((float)screenX, (float)screenY));
+            coord = stage.screenToStageCoordinates(new Vector2((float)screenX, (float)screenY));
             pastScreenX = screenX;
             pastScreenY = screenY;
         }
-        Actor hitActor = gameScreen.getGameHud().getStage().hit(coord.x, coord.y, true);
-
-        if(hitActor == this) {
-            return true;
-        }
-        return false;
+        Actor hitActor = stage.hit(coord.x, coord.y, true);
+        return hitActor == this;
     }
 
     @Override

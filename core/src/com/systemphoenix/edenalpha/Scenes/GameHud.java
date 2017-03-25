@@ -2,14 +2,17 @@ package com.systemphoenix.edenalpha.Scenes;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.systemphoenix.edenalpha.Actors.Plant;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
@@ -19,20 +22,24 @@ import com.systemphoenix.edenalpha.Screens.GameScreen;
 public class GameHud extends AbsoluteHud implements Disposable {
 
     private GameScreen gameScreen;
+    private Stage plantStage;
     
     private PlantSelector plantSelector;
     private PlantActor[] plantActors;
 
-    private ButtonActor checkButton;
+    private ButtonActor checkButton, crossButton;
 
     private boolean canDraw, canDrawCheck;
-    private int index;
+    private int index, drawable = 0;
 
     private Label plantName, plantType, plantCost, plantGrowthTime;
     private Sprite plantHP, plantAS, plantDmg, rectSprite;
 
     public GameHud(EdenAlpha game, GameScreen gameScreen, PlantActor[] plantActors) {
         super(game);
+
+        viewport = new FitViewport(worldWidth, worldHeight, new OrthographicCamera());
+        plantStage = new Stage(viewport, gameGraphics);
         
         this.gameScreen = gameScreen;
         this.plantActors = plantActors;
@@ -71,7 +78,7 @@ public class GameHud extends AbsoluteHud implements Disposable {
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 14;
         parameter.borderColor = border;
-        parameter.borderWidth = 1;
+        parameter.borderWidth = 0;
         font = generator.generateFont(parameter);
 
         tempTable.top().padTop(15);
@@ -148,12 +155,20 @@ public class GameHud extends AbsoluteHud implements Disposable {
 
     public void draw(Batch batch) {
         if(canDraw) {
-            batch.begin();
-            plantHP.draw(batch);
-            plantDmg.draw(batch);
-            plantAS.draw(batch);
-            batch.end();
-            stage.draw();
+            switch(drawable) {
+                case 0:
+                    batch.setProjectionMatrix(plantStage.getCamera().combined);
+                    plantStage.draw();
+                    break;
+                default:
+                    batch.setProjectionMatrix(stage.getCamera().combined);
+                    stage.draw();
+                    batch.begin();
+                    plantHP.draw(batch);
+                    plantDmg.draw(batch);
+                    plantAS.draw(batch);
+                    batch.end();
+            }
         }
     }
 
@@ -211,6 +226,7 @@ public class GameHud extends AbsoluteHud implements Disposable {
         plantSelector.setCanDraw(canDraw);
         if(canDrawCheck) {
             checkButton.setCanDraw(canDraw);
+            crossButton.setCanDraw(canDraw);
             Plant.setSelectAllPlants(canDraw);
         }
     }
@@ -218,11 +234,19 @@ public class GameHud extends AbsoluteHud implements Disposable {
     public void setCanDraw() {
         canDrawCheck = true;
     }
+
+    public void setDrawable(int drawable) {
+        this.drawable = drawable;
+    }
     
     public void setCheckButtonCanDraw(boolean canDraw) {
         if(checkButton == null) {
             checkButton = new ButtonActor(ButtonCodex.CHECK, gameScreen, stage, gameScreen.getWorldWidth() - 160, 32, 128);
+            crossButton = new ButtonActor(ButtonCodex.CROSS, gameScreen, plantStage, 32, 32, 128);
+            plantStage.addActor(crossButton);
+            crossButton.setCanDraw(canDraw);
             stage.addActor(checkButton);
+            gameScreen.addProcessor(crossButton);
             gameScreen.addProcessor(checkButton);
         }
         this.checkButton.setCanDraw(canDraw);

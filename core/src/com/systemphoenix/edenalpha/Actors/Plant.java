@@ -295,6 +295,9 @@ public class Plant extends Actor implements InputProcessor, Disposable {
                 selectedPlant = this;
             }
             gameScreen.resetHud();
+            gameScreen.getGameHud().setDrawable(0);
+            gameScreen.getGameHud().setCanDraw(true);
+            selectAllPlants = false;
             return true;
         }
         return false;
@@ -332,6 +335,29 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         rangeSprite.getTexture().dispose();
         effectiveRangeSprite.getTexture().dispose();
         gameScreen.getWorld().destroyBody(body);
+
+        redLifeBar.getTexture().dispose();
+        greenLifeBar.getTexture().dispose();
+
+        for(int i = 0; i < bullets.size; i++) {
+            bullets.get(i).dispose();
+            bullets.removeIndex(i);
+        }
+
+        for(int i = 0; i < pulses.size; i++) {
+            pulses.get(i).dispose();
+            pulses.removeIndex(i);
+        }
+
+        for(int i = 0; i < slashes.size; i++) {
+            slashes.get(i).dispose();
+            slashes.removeIndex(i);
+        }
+
+        for(int i = 0; i < roots.size; i++) {
+            roots.get(i).dispose();
+            roots.removeIndex(i);
+        }
     }
 
     public static void nullSelectedPlant() {
@@ -355,5 +381,9 @@ public class Plant extends Actor implements InputProcessor, Disposable {
 
     public void setHasTarget(boolean hasTarget) {
         this.hasTarget = hasTarget;
+    }
+
+    public static Plant getSelectedPlant() {
+        return selectedPlant;
     }
 }

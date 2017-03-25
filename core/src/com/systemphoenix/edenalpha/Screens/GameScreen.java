@@ -68,7 +68,7 @@ public class GameScreen extends AbsoluteScreen {
     private Array<Plant> plants;
     private Array<InputProcessor> inputProcessors;
 
-    private PlantSquare[][] plantSquares;
+    private PlantSquare[][] plantSquares, subSquares;
     private float pastZoomDistance, plantSquareSize, accumulator, seeds = 50, seedRate = 0.25f;
     private int enemyLimit = 10, waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1, displaySquare = -3, pseudoPlantIndex = -1;
     private long timer = 0, newWaveCountdown, timeGap, displaySquareTimer, seedTimer;
@@ -164,10 +164,12 @@ public class GameScreen extends AbsoluteScreen {
         debugRenderer = new Box2DDebugRenderer();
 
         plantSquares = new PlantSquare[region.getArraySizeY()][region.getArraySizeX()];
+        subSquares = new PlantSquare[region.getArraySizeY()][region.getArraySizeX()];
         directionSquares = new boolean[region.getArraySizeY()][region.getArraySizeX()];
         for(int i = 0; i < region.getArraySizeY(); i++) {
             for(int j = 0; j < region.getArraySizeX(); j++) {
                 plantSquares[i][j] = null;
+                subSquares[i][j] = null;
                 directionSquares[i][j] = false;
             }
         }
@@ -416,7 +418,6 @@ public class GameScreen extends AbsoluteScreen {
                 Gdx.app.log("Verbose", "Error rendering top hud: " + e.getMessage());
             }
             try {
-                gameGraphics.setProjectionMatrix(gameHud.getStage().getCamera().combined);
                 gameHud.draw(gameGraphics);
             } catch (Exception e) {
                 Gdx.app.log("Verbose", "Error rendering game hud: " + e.getMessage());
@@ -474,8 +475,31 @@ public class GameScreen extends AbsoluteScreen {
             plants.add(new Plant(this, gameStage, sprite, plantIndex, selectedX * 32f, selectedY * 32f));
             inputProcessors.insert(inputProcessors.size - 1, plants.peek());
             updateSeedRate();
+
+            for(int i = selectedY - 1; i <= selectedY + 1; i++) {
+                for(int j = selectedX - 1; j <= selectedX + 1; j++) {
+                    subSquares[i][j] = plantSquares[i][j];
+                    plantSquares[i][j] = null;
+                }
+            }
+
             resetHud();
         }
+    }
+
+    public void unroot(Plant plant) {
+        plants.removeValue(plant, true);
+        int x = (int)plant.getX() / 32, y = (int)plant.getY() / 32;
+        for(int i = y - 1; i <= y + 1; i++) {
+            for(int j = x - 1; j <= x + 1; j++) {
+                plantSquares[i][j] = subSquares[i][j];
+                subSquares[i][j] = null;
+            }
+        }
+        plant.remove();
+        plant.dispose();
+        updateSeedRate();
+        resetHud();
     }
 
     public void resetHud() {
@@ -515,7 +539,7 @@ public class GameScreen extends AbsoluteScreen {
                     } else {
                         resetHud();
                     }
-
+                    gameHud.setDrawable(-1);
                     Plant.nullSelectedPlant();
             }
         } else if(paused) {

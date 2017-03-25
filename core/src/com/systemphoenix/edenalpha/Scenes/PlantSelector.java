@@ -9,12 +9,13 @@ import com.badlogic.gdx.utils.Disposable;
 
 public class PlantSelector extends Actor implements Disposable {
 
-    private Sprite sprite;
+    private Sprite sprite, exSprite;
     private boolean canDraw = false;
 
     private PlantActor[] plantActors;
 
     public PlantSelector(PlantActor[] plantActors) {
+        exSprite = new Sprite(new Texture(Gdx.files.internal("misc/lowerHudData.png")));
         sprite = new Sprite(new Texture(Gdx.files.internal("misc/lowerHud.png")));
         this.plantActors = plantActors;
     }
@@ -23,6 +24,7 @@ public class PlantSelector extends Actor implements Disposable {
     public void draw(Batch batch, float alpha) {
         if(canDraw) {
             batch.draw(sprite, 0f, 32f);
+            batch.draw(exSprite, 0f, 32f);
         }
     }
 
@@ -32,6 +34,7 @@ public class PlantSelector extends Actor implements Disposable {
         for(int i = 0; i < plantActors.length; i++) {
             plantActors[i].dispose();
         }
+        exSprite.getTexture().dispose();
     }
 
     public void setCanDraw(boolean canDraw) {

@@ -149,7 +149,7 @@ public class PlantScreen extends AbsoluteScreen {
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 14;
         parameter.borderColor = border;
-        parameter.borderWidth = 1;
+        parameter.borderWidth = 0;
         font = generator.generateFont(parameter);
 
         tempTable.top().padTop(15);
