@@ -22,8 +22,8 @@ public class Enemy extends Sprite implements Disposable {
     protected float size, velX, velY, damage;
     protected float stateTime, speed = 30, maxSpeed, seedDrop, stackSlowRate = 0;
     protected int level = 0, id, life, maxLife;
-    protected long lastDirectionChange, deathTimer, damageTimer, slowTimer, stunLimit, stunTimer;
-    protected boolean spawned = false, moving = true, canDraw = false, canDispose = false, directionSquares[][], drawHpBar, slowed = false, dead, stunned;
+    protected long lastDirectionChange, deathTimer, damageTimer, slowTimer, stunLimit, stunTimer, attackSpeed, lastAttackTime;
+    protected boolean spawned = false, moving = true, canDraw = false, canDispose = false, directionSquares[][], drawHpBar, slowed = false, dead, stunned, attacking;
     protected enum Direction {NORTH, SOUTH, EAST, WEST}
     protected Direction direction = Direction.SOUTH, opDirection = Direction.NORTH;
 
@@ -36,6 +36,8 @@ public class Enemy extends Sprite implements Disposable {
 
     protected Body body;
 
+    protected Plant plantTarget;
+
     public Enemy(GameScreen screen, int waveIndex, int level, float x, float y, float size, int id) {
         this.gameScreen = screen;
         this.id = id;
@@ -47,6 +49,7 @@ public class Enemy extends Sprite implements Disposable {
         this.speed = this.maxSpeed = EnemyCodex.speed[level];
         this.life = this.maxLife = EnemyCodex.getHP(level, waveIndex, gameScreen.getRegion().getMapIndex());
         this.seedDrop = EnemyCodex.seedDrop[level];
+        this.attackSpeed = EnemyCodex.attackSpeed[level];
         this.directionSquares = new boolean[screen.getDirectionSquares().length][screen.getDirectionSquares()[0].length];
         this.setBounds(x, y, 32f, 32f);
 
@@ -57,6 +60,7 @@ public class Enemy extends Sprite implements Disposable {
         }
 
         initialize(x, y);
+        lastAttackTime = System.currentTimeMillis();
         lastDirectionChange = 0;
 
         hitBox = new Rectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
@@ -82,7 +86,7 @@ public class Enemy extends Sprite implements Disposable {
         shape.setRadius(size / 2);
         fixtureDef.shape = shape;
         fixtureDef.filter.categoryBits = CollisionBit.ENEMY;
-        fixtureDef.filter.maskBits = CollisionBit.PATHBOUND | CollisionBit.ENDPOINT | CollisionBit.ENEMYRANGE;
+        fixtureDef.filter.maskBits = CollisionBit.PATHBOUND | CollisionBit.ENDPOINT | CollisionBit.ENEMYRANGE | CollisionBit.PLANT;
 
         body.createFixture(fixtureDef).setUserData(this);
 
@@ -127,9 +131,14 @@ public class Enemy extends Sprite implements Disposable {
         }
         stateTime += delta;
         if(moving) {
-            if(slowed && System.currentTimeMillis() - slowTimer > 500) {
+            if(!attacking && (slowed && System.currentTimeMillis() - slowTimer > 500)) {
                 speed = maxSpeed;
                 slowed = false;
+            } else if(attacking) {
+                if(System.currentTimeMillis() - lastAttackTime > attackSpeed) {
+                    plantTarget.receiveDamage(damage);
+                    lastAttackTime = System.currentTimeMillis();
+                }
             }
             switch (direction) {
                 case EAST:
@@ -201,7 +210,7 @@ public class Enemy extends Sprite implements Disposable {
     }
 
     public void damageForest() {
-        gameScreen.getRegion().damageForest(this.damage);
+        gameScreen.getRegion().damageForest(1);
         canDispose = true;
     }
 
@@ -235,12 +244,30 @@ public class Enemy extends Sprite implements Disposable {
         slowTimer = System.currentTimeMillis();
     }
 
-    public void stun(long stunLimit) {
+    public void stun() {
         if(!stunned) {
-            this.stunLimit = stunLimit;
-            stunTimer = System.currentTimeMillis();
-            this.speed = 0;
+            speed -= maxSpeed;
         }
+        stunned = true;
+    }
+
+    public void attack(Plant plantTarget) {
+        if(!attacking) {
+            speed -= maxSpeed;
+            this.plantTarget = plantTarget;
+        }
+
+        attacking = true;
+    }
+
+    public void removeStun() {
+        stunned = false;
+        speed = maxSpeed;
+    }
+
+    public void stopAttacking() {
+        attacking = false;
+        speed = maxSpeed;
     }
 
     public void setDirection() {

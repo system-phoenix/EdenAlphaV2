@@ -36,17 +36,17 @@ public class Plant extends Actor implements InputProcessor, Disposable {
     private Stage gameStage;
 
     private Body body;
-    private Array<Enemy> targets;
+    private Array<Enemy> targets, attackers;
     private Array<Bullet> bullets;
     private Array<Pulse> pulses;
     private Array<Slash> slashes;
     private Array<Root> roots;
 
 
-    private boolean selected, growing;
+    private boolean selected, growing, canDispose = false, hit = false;
 
     private Vector2 damage;
-    private long attackSpeed, lastAttackTime, growthTimer;
+    private long attackSpeed, lastAttackTime, growthTimer, lastHitTime;
     private int plantIndex, upgradeIndex = 0;
     private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1, seedRate;
     private boolean hasTarget = false;
@@ -73,6 +73,7 @@ public class Plant extends Actor implements InputProcessor, Disposable {
 
         initialize();
         this.targets = new Array<Enemy>();
+        this.attackers = new Array<Enemy>();
         this.bullets = new Array<Bullet>();
         this.pulses = new Array<Pulse>();
         this.slashes = new Array<Slash>();
@@ -113,14 +114,44 @@ public class Plant extends Actor implements InputProcessor, Disposable {
 
         body.createFixture(fixtureDef).setUserData(this);
 
+        circleShape = new CircleShape();
+        circleShape.setRadius(size + 32f * effectiveRange);
+
+        fixtureDef.shape = circleShape;
+        fixtureDef.filter.categoryBits = CollisionBit.EFFECTIVERANGE;
+        fixtureDef.filter.maskBits = CollisionBit.PLANT;
+        fixtureDef.isSensor = true;
+
+        body.createFixture(fixtureDef).setUserData(this);
+
+        circleShape = new CircleShape();
+        circleShape.setRadius(size - 0.1f);
+
+        fixtureDef.shape = circleShape;
+        fixtureDef.filter.categoryBits = CollisionBit.PLANT;
+        fixtureDef.filter.maskBits = CollisionBit.EFFECTIVERANGE | CollisionBit.ENEMY;
+        fixtureDef.isSensor = true;
+
+        body.createFixture(fixtureDef).setUserData(this);
+
     }
 
     public void acquireTarget(Enemy enemy) {
         targets.add(enemy);
     }
 
+    public void acquireAttacker(Enemy enemy) {
+        enemy.attack(this);
+        attackers.add(enemy);
+    }
+
     public void removeTarget(Enemy enemy) {
         targets.removeValue(enemy, true);
+    }
+
+    public void removeAttacker(Enemy enemy) {
+        attackers.get(attackers.indexOf(enemy, true)).stopAttacking();
+        attackers.removeValue(enemy, true);
     }
 
 //    public void upgrade() {
@@ -203,62 +234,70 @@ public class Plant extends Actor implements InputProcessor, Disposable {
 
     @Override
     public void draw(Batch batch, float alpha) {
-        update();
-        if(selected || selectAllPlants) {
-            float a = 0.5f;
-            rangeSprite.draw(batch);
-            effectiveRangeSprite.setColor(effectiveRangeSprite.getColor().r, effectiveRangeSprite.getColor().g, effectiveRangeSprite.getColor().b, a);
-            effectiveRangeSprite.draw(batch);
-        }
-        if(!growing) {
-            sprite.draw(batch);
-            for(int i = 0; i < bullets.size; i++) {
-                bullets.get(i).render(batch);
+        if(!growing && hp <= 0) {
+            canDispose = true;
+        } else {
+            update();
+            if(selected || selectAllPlants) {
+                float a = 0.5f;
+                rangeSprite.draw(batch);
+                effectiveRangeSprite.setColor(effectiveRangeSprite.getColor().r, effectiveRangeSprite.getColor().g, effectiveRangeSprite.getColor().b, a);
+                effectiveRangeSprite.draw(batch);
             }
+            if(!growing) {
+                sprite.draw(batch);
+                for(int i = 0; i < bullets.size; i++) {
+                    bullets.get(i).render(batch);
+                }
 
-            for(int i = 0; i < pulses.size; i++) {
-                pulses.get(i).render(batch, Gdx.graphics.getDeltaTime());
-            }
-            
-            for(int i = 0; i < slashes.size; i++) {
-                slashes.get(i).render(batch, Gdx.graphics.getDeltaTime());
-            }
+                for(int i = 0; i < pulses.size; i++) {
+                    pulses.get(i).render(batch, Gdx.graphics.getDeltaTime());
+                }
 
-            for(int i = 0; i < roots.size; i++) {
-                roots.get(i).render(batch);
-            }
+                for(int i = 0; i < slashes.size; i++) {
+                    slashes.get(i).render(batch, Gdx.graphics.getDeltaTime());
+                }
 
-            for(int i = 0; i < bullets.size; i++) {
-                if(bullets.get(i).canDispose()) {
-                    bullets.get(i).dispose();
-                    bullets.removeIndex(i);
+                for(int i = 0; i < roots.size; i++) {
+                    roots.get(i).render(batch);
+                }
+
+                for(int i = 0; i < bullets.size; i++) {
+                    if(bullets.get(i).canDispose()) {
+                        bullets.get(i).dispose();
+                        bullets.removeIndex(i);
+                    }
+                }
+
+                for(int i = 0; i < pulses.size; i++) {
+                    if(pulses.get(i).canDispose()) {
+                        pulses.get(i).dispose();
+                        pulses.removeIndex(i);
+                    }
+                }
+
+                for(int i = 0; i < slashes.size; i++) {
+                    if(slashes.get(i).canDispose()) {
+                        slashes.get(i).dispose();
+                        slashes.removeIndex(i);
+                    }
+                }
+
+                for(int i = 0; i < roots.size; i++) {
+                    if(roots.get(i).canDispose()) {
+                        roots.get(i).dispose();
+                        roots.removeIndex(i);
+                    }
                 }
             }
-
-            for(int i = 0; i < pulses.size; i++) {
-                if(pulses.get(i).canDispose()) {
-                    pulses.get(i).dispose();
-                    pulses.removeIndex(i);
-                }
+            if(growing || selected || hit) {
+                redLifeBar.draw(batch);
+                greenLifeBar.draw(batch);
             }
 
-            for(int i = 0; i < slashes.size; i++) {
-                if(slashes.get(i).canDispose()) {
-                    slashes.get(i).dispose();
-                    slashes.removeIndex(i);
-                }
+            if(hit && System.currentTimeMillis() - lastHitTime > 3000) {
+                hit = false;
             }
-
-            for(int i = 0; i < roots.size; i++) {
-                if(roots.get(i).canDispose()) {
-                    roots.get(i).dispose();
-                    roots.removeIndex(i);
-                }
-            }
-        }
-        if(growing || selected) {
-            redLifeBar.draw(batch);
-            greenLifeBar.draw(batch);
         }
     }
 
@@ -288,16 +327,20 @@ public class Plant extends Actor implements InputProcessor, Disposable {
 
         if(hitActor == this) {
             selected = !selected;
-            if(selectedPlant != this && selectedPlant != null) {
-                selectedPlant.selected = false;
-                selectedPlant = this;
+            if(selected) {
+                if(selectedPlant != this && selectedPlant != null) {
+                    selectedPlant.selected = false;
+                    selectedPlant = this;
+                } else {
+                    selectedPlant = this;
+                }
+                gameScreen.resetHud();
+                gameScreen.getGameHud().setDrawable(0);
+                gameScreen.getGameHud().setCanDraw(true);
+                selectAllPlants = false;
             } else {
-                selectedPlant = this;
+                nullSelectedPlant();
             }
-            gameScreen.resetHud();
-            gameScreen.getGameHud().setDrawable(0);
-            gameScreen.getGameHud().setCanDraw(true);
-            selectAllPlants = false;
             return true;
         }
         return false;
@@ -358,6 +401,13 @@ public class Plant extends Actor implements InputProcessor, Disposable {
             roots.get(i).dispose();
             roots.removeIndex(i);
         }
+
+        for(int i = 0; i < attackers.size; i++) {
+            attackers.get(i).stopAttacking();
+        }
+
+        gameScreen.getWorld().destroyBody(body);
+        gameScreen.getPlants().removeValue(this, true);
     }
 
     public static void nullSelectedPlant() {
@@ -379,8 +429,24 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         return seedRate;
     }
 
+    public boolean isGrowing() {
+        return growing;
+    }
+
+    public boolean canDispose() {
+        return canDispose;
+    }
+
     public void setHasTarget(boolean hasTarget) {
         this.hasTarget = hasTarget;
+    }
+
+    public void receiveDamage(float damage) {
+        this.hp -= damage;
+        float multiplier = hp / targetHp;
+        greenLifeBar.setBounds(greenLifeBar.getX(), greenLifeBar.getY(), size * multiplier, greenLifeBar.getHeight());
+        hit = true;
+        lastHitTime = System.currentTimeMillis();
     }
 
     public static Plant getSelectedPlant() {

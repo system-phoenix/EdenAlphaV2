@@ -157,8 +157,10 @@ public class GameHud extends AbsoluteHud implements Disposable {
         if(canDraw) {
             switch(drawable) {
                 case 0:
-                    batch.setProjectionMatrix(plantStage.getCamera().combined);
-                    plantStage.draw();
+                    if(Plant.getSelectedPlant() != null) {
+                        batch.setProjectionMatrix(plantStage.getCamera().combined);
+                        plantStage.draw();
+                    }
                     break;
                 default:
                     batch.setProjectionMatrix(stage.getCamera().combined);

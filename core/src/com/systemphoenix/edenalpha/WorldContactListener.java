@@ -36,6 +36,22 @@ public class WorldContactListener implements ContactListener {
                 } else {
                     ((Plant) b.getUserData()).acquireTarget((Enemy) a.getUserData());
                 }
+                break;
+            case CollisionBit.EFFECTIVERANGE | CollisionBit.PLANT:
+                Gdx.app.log("Verbose", "Plants collide!");
+                break;
+            case CollisionBit.ENEMY | CollisionBit.PLANT:
+                if(a.getFilterData().categoryBits == CollisionBit.PLANT) {
+                    if(!((Plant) a.getUserData()).isGrowing()) {
+                        ((Plant) a.getUserData()).acquireAttacker((Enemy) b.getUserData());
+                    }
+                } else {
+                    if(!((Plant) b.getUserData()).isGrowing()) {
+                        ((Plant) b.getUserData()).acquireAttacker((Enemy) a.getUserData());
+                    }
+                }
+                Gdx.app.log("Verbose", "Plant - Enemy collision!");
+                break;
             default:
                 break;
         }
@@ -52,6 +68,12 @@ public class WorldContactListener implements ContactListener {
                     ((Plant) a.getUserData()).removeTarget((Enemy) b.getUserData());
                 } else {
                     ((Plant) b.getUserData()).removeTarget((Enemy) a.getUserData());
+                }
+            case CollisionBit.ENEMY | CollisionBit.PLANT:
+                if(a.getFilterData().categoryBits == CollisionBit.ENEMY) {
+//                    ((Enemy) a.getUserData()).removeStun();
+                } else {
+//                    ((Enemy) b.getUserData()).removeStun();
                 }
             default:
                 break;

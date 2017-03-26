@@ -13,11 +13,15 @@ public class EnemyCodex {
     };
 
     public static final float damage[] = {
-            0,      0,      0,      0,      0,      0,      0,      0
+            5,      10,     15,     50,     25,     25,     30,     30
     };
 
     public static final float speed[] = {
             25,     35,     40,     15,     50,     40,     45,     50
+    };
+
+    public static final long attackSpeed[] = {
+            1000,   1000,   1500,   3000,   750,    500,    1500,   1000
     };
 
     public static final float seedDrop[] = {

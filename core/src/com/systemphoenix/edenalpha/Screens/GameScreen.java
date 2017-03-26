@@ -405,6 +405,11 @@ public class GameScreen extends AbsoluteScreen {
             gameGraphics.end();
 
             try {
+                for(int i = 0; i < plants.size; i++) {
+                    if(plants.get(i).canDispose()) {
+                        unroot(plants.get(i));
+                    }
+                }
                 gameGraphics.setProjectionMatrix(gameStage.getCamera().combined);
                 gameStage.draw();
             } catch(Exception e) {
@@ -711,6 +716,10 @@ public class GameScreen extends AbsoluteScreen {
 
     public float getSeeds() {
         return seeds;
+    }
+
+    public Array<Plant> getPlants() {
+        return plants;
     }
 
     public void updateSeedRate() {
