@@ -334,7 +334,7 @@ public class GameScreen extends AbsoluteScreen {
                     game.setScreen(mapScreen);
                     this.dispose();
                 }
-    //        debugRenderer.render(world, cam.combined);
+//            debugRenderer.render(world, cam.combined);
             }
             else if(firstCall){
     //            try {

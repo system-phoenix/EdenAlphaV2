@@ -42,13 +42,14 @@ public class Plant extends Actor implements InputProcessor, Disposable {
     private Array<Slash> slashes;
     private Array<Root> roots;
 
+    private PlantCollision plantCollision;
 
     private boolean selected, growing, canDispose = false, hit = false;
 
     private Vector2 damage;
     private long attackSpeed, lastAttackTime, growthTimer, lastHitTime;
-    private int plantIndex, upgradeIndex = 0;
-    private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1, seedRate;
+    private int plantIndex, upgradeIndex = 0, downGradeIndex = 0;
+    private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1, seedRate, effectiveRange, sunlightAccumulation = 1f;
     private boolean hasTarget = false;
 
     private Random rand = new Random();
@@ -97,7 +98,7 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         CircleShape circleShape = new CircleShape();
         float actualRange = PlantCodex.rangeStats[PlantCodex.range[plantIndex]];
         float computedRange = size + 32f * actualRange;
-        float effectiveRange = PlantCodex.effectiveRange[plantIndex];
+        effectiveRange = PlantCodex.effectiveRange[plantIndex];
         circleShape.setRadius(computedRange);
 
         rangeSprite = new Sprite(new Texture(Gdx.files.internal("plantRange/rangeSprite.png")));
@@ -115,16 +116,6 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         body.createFixture(fixtureDef).setUserData(this);
 
         circleShape = new CircleShape();
-        circleShape.setRadius(size + 32f * effectiveRange);
-
-        fixtureDef.shape = circleShape;
-        fixtureDef.filter.categoryBits = CollisionBit.EFFECTIVERANGE;
-        fixtureDef.filter.maskBits = CollisionBit.PLANT;
-        fixtureDef.isSensor = true;
-
-        body.createFixture(fixtureDef).setUserData(this);
-
-        circleShape = new CircleShape();
         circleShape.setRadius(size - 0.1f);
 
         fixtureDef.shape = circleShape;
@@ -133,6 +124,8 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         fixtureDef.isSensor = true;
 
         body.createFixture(fixtureDef).setUserData(this);
+
+        plantCollision = new PlantCollision(gameScreen, this, size, effectiveRange);
 
     }
 
@@ -171,6 +164,26 @@ public class Plant extends Actor implements InputProcessor, Disposable {
 //
 //        }
 //    }
+
+
+    public void downGrade(float update) {
+        downGradeIndex += update;
+        Gdx.app.log("Verbose", "Plant downgraded! Index: " + downGradeIndex);
+
+        if(PlantCodex.DMG[plantIndex] + downGradeIndex + upgradeIndex >= 0) {
+            damage = PlantCodex.dmgStats[PlantCodex.DMG[plantIndex] + downGradeIndex + upgradeIndex];
+        }
+
+        if(PlantCodex.AS[plantIndex] + downGradeIndex + upgradeIndex> 0) {
+            attackSpeed = PlantCodex.asStats[PlantCodex.AS[plantIndex] + downGradeIndex + upgradeIndex];
+        }
+
+        if(update < 0) {
+            sunlightAccumulation /= 2;
+        } else {
+            sunlightAccumulation *= 2;
+        }
+    }
 
     public void update() {
         if(!growing) {
@@ -406,6 +419,8 @@ public class Plant extends Actor implements InputProcessor, Disposable {
             attackers.get(i).stopAttacking();
         }
 
+        plantCollision.dispose();
+
         gameScreen.getWorld().destroyBody(body);
         gameScreen.getPlants().removeValue(this, true);
     }
@@ -429,12 +444,32 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         return seedRate;
     }
 
+    public float getSize() {
+        return size;
+    }
+
+    public float getEffectiveRange() {
+        return effectiveRange;
+    }
+
     public boolean isGrowing() {
         return growing;
     }
 
     public boolean canDispose() {
         return canDispose;
+    }
+
+    public GameScreen getGameScreen() {
+        return gameScreen;
+    }
+
+    public PlantCollision getPlantCollision() {
+        return plantCollision;
+    }
+
+    public void setPlantCollision(PlantCollision plantCollision) {
+        this.plantCollision = plantCollision;
     }
 
     public void setHasTarget(boolean hasTarget) {

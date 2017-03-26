@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.systemphoenix.edenalpha.Actors.Enemy;
 import com.systemphoenix.edenalpha.Actors.Plant;
+import com.systemphoenix.edenalpha.Actors.PlantCollision;
 
 public class WorldContactListener implements ContactListener {
     @Override
@@ -38,7 +39,15 @@ public class WorldContactListener implements ContactListener {
                 }
                 break;
             case CollisionBit.EFFECTIVERANGE | CollisionBit.PLANT:
-                Gdx.app.log("Verbose", "Plants collide!");
+                if(a.getFilterData().categoryBits == CollisionBit.EFFECTIVERANGE) {
+                    if(((PlantCollision) a.getUserData()).checkCollision((Plant) b.getUserData())) {
+                        ((Plant) b.getUserData()).getPlantCollision().applyImpulse();
+                    }
+                } else {
+                    if(((PlantCollision) b.getUserData()).checkCollision((Plant) a.getUserData())) {
+                        ((Plant) a.getUserData()).getPlantCollision().applyImpulse();
+                    }
+                }
                 break;
             case CollisionBit.ENEMY | CollisionBit.PLANT:
                 if(a.getFilterData().categoryBits == CollisionBit.PLANT) {
@@ -50,7 +59,6 @@ public class WorldContactListener implements ContactListener {
                         ((Plant) b.getUserData()).acquireAttacker((Enemy) a.getUserData());
                     }
                 }
-                Gdx.app.log("Verbose", "Plant - Enemy collision!");
                 break;
             default:
                 break;
@@ -75,6 +83,18 @@ public class WorldContactListener implements ContactListener {
                 } else {
 //                    ((Enemy) b.getUserData()).removeStun();
                 }
+                break;
+            case CollisionBit.EFFECTIVERANGE | CollisionBit.PLANT:
+                if(a.getFilterData().categoryBits == CollisionBit.EFFECTIVERANGE) {
+                    if(((PlantCollision) a.getUserData()).removeCollision((Plant) b.getUserData())) {
+                        ((Plant) b.getUserData()).getPlantCollision().applyImpulse();
+                    }
+                } else {
+                    if(((PlantCollision) b.getUserData()).removeCollision((Plant) a.getUserData())) {
+                        ((Plant) a.getUserData()).getPlantCollision().applyImpulse();
+                    }
+                }
+                break;
             default:
                 break;
         }
