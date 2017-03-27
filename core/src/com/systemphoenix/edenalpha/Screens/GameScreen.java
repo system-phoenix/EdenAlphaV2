@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -63,6 +65,9 @@ public class GameScreen extends AbsoluteScreen {
     private World world;
     private Box2DDebugRenderer debugRenderer;
 
+    private Music bgMusic;
+    private Sound bulletSound, pulseSound, slashSound;
+
     private Array<Body> spawnPoints, endPoints, pathBounds;
     private Array<Wave> waves;
     private Array<Plant> plants;
@@ -99,6 +104,10 @@ public class GameScreen extends AbsoluteScreen {
         this.loseEndGame.setBounds(0f, 0f, worldWidth, worldHeight);
         this.pausedSprite = new Sprite(new Texture(Gdx.files.internal("misc/paused.png")));
         this.pausedSprite.setBounds(0f, 0f, worldWidth, worldHeight);
+
+        bulletSound = Gdx.audio.newSound(Gdx.files.internal("sfx/fx/Bullet.mp3"));
+        slashSound = Gdx.audio.newSound(Gdx.files.internal("sfx/fx/Slash.mp3"));
+        pulseSound = Gdx.audio.newSound(Gdx.files.internal("sfx/fx/Pulse.mp3"));
 
         Gdx.input.setCatchBackKey(true);
         plants = new Array<Plant>();
@@ -337,7 +346,6 @@ public class GameScreen extends AbsoluteScreen {
 //            debugRenderer.render(world, cam.combined);
             }
             else if(firstCall){
-    //            try {
                     if(System.currentTimeMillis() - timer >= 1000) {
                         firstCall = false;
                         initialize();
@@ -347,10 +355,11 @@ public class GameScreen extends AbsoluteScreen {
                         topHud.setPauseButtonCanDraw(true);
                         topHud.setSeedStatMessage("" + (int)seeds);
                         gameHud.setCheckButtonCanDraw(false);
+
+                        bgMusic = Gdx.audio.newMusic(Gdx.files.internal("sfx/bg/" + region.getMusicFX()));
+                        bgMusic.setLooping(true);
+//                        bgMusic.play();
                     }
-    //            } catch(Exception e) {
-    //                Gdx.app.log("Verbose", "Call on \"initialize()\": " + e.getMessage());
-    //            }
             }
 
             gameGraphics.setProjectionMatrix(cam.combined);
@@ -477,7 +486,21 @@ public class GameScreen extends AbsoluteScreen {
         if(seeds - PlantCodex.cost[plantIndex] >= 0) {
             seeds -= PlantCodex.cost[plantIndex];
             topHud.setSeedStatMessage("" + (int)seeds);
-            plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f));
+            switch(plantIndex) {
+                case 4:
+                    plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f, pulseSound));
+                    break;
+                case 5:
+                    break;
+                case 11:
+                    plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f, slashSound));
+                    break;
+                case 13:
+                    break;
+                default:
+                    plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f, bulletSound));
+                    break;
+            }
             inputProcessors.insert(inputProcessors.size - 1, plants.peek());
             updateSeedRate();
 
@@ -647,6 +670,11 @@ public class GameScreen extends AbsoluteScreen {
         for(int i = 0; i < plants.size; i++) {
             plants.get(i).dispose();
         }
+
+        bgMusic.dispose();
+        bulletSound.dispose();
+        pulseSound.dispose();
+        slashSound.dispose();
 
         topHud.dispose();
         gameHud.dispose();

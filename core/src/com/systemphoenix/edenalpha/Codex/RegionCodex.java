@@ -100,4 +100,8 @@ public class RegionCodex {
             },
         };
 
+    public static final String mapSound[] = {
+            "01.ogg", "02.mp3", "03.ogg", "04.mp4", "05.ogg", "06.mp3", "07.ogg", "02.mp3", "04.mp3", "06.mp3", "01.ogg", "02.mp3", "03.ogg", "04.mp4", "05.ogg", "06.mp3", "07.ogg"
+    };
+
 }

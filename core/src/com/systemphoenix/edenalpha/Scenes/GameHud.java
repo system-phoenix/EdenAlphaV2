@@ -262,4 +262,8 @@ public class GameHud extends AbsoluteHud implements Disposable {
         return canDraw;
     }
 
+    public int getDrawable() {
+        return drawable;
+    }
+
 }

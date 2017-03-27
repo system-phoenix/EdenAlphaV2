@@ -2,6 +2,7 @@ package com.systemphoenix.edenalpha.Actors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -30,6 +31,8 @@ public class Plant extends Actor implements InputProcessor, Disposable {
 
     private GameScreen gameScreen;
 
+    private Sound sound;
+
     private Vector2 coord;
     private int pastScreenX, pastScreenY;
 
@@ -50,12 +53,12 @@ public class Plant extends Actor implements InputProcessor, Disposable {
     private Vector2 damage;
     private long attackSpeed, lastAttackTime, growthTimer, lastHitTime;
     private int plantIndex, upgradeIndex = 0, downGradeIndex = 0;
-    private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1, seedRate, effectiveRange, sunlightAccumulation = 1f;
+    private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1, seedRate, effectiveRange;
     private boolean hasTarget = false;
 
     private Random rand = new Random();
 
-    public Plant(GameScreen gameScreen, Stage gameStage, TextureRegion sprite, PlantSquare square, int plantIndex, float x, float y) {
+    public Plant(GameScreen gameScreen, Stage gameStage, TextureRegion sprite, PlantSquare square, int plantIndex, float x, float y, Sound sound) {
         this.plantIndex = plantIndex;
         this.gameScreen = gameScreen;
         this.gameStage = gameStage;
@@ -80,6 +83,8 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         this.pulses = new Array<Pulse>();
         this.slashes = new Array<Slash>();
         this.roots = new Array<Root>();
+
+        this.sound = sound;
 
         gameStage.addActor(this);
         lastAttackTime = System.currentTimeMillis();
@@ -184,10 +189,11 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         }
 
         if(update < 0) {
-            sunlightAccumulation /= 2;
+            seedRate /= 2;
         } else {
-            sunlightAccumulation *= 2;
+            seedRate *= 2;
         }
+        gameScreen.updateSeedRate();
     }
 
     public void update() {
@@ -195,19 +201,21 @@ public class Plant extends Actor implements InputProcessor, Disposable {
             if(targets.size > 0 && System.currentTimeMillis() - lastAttackTime >= attackSpeed) {
                 try{
                     int dmgRange = (int)(damage.y - damage.x);
-    //                targets.get(0).receiveDamage(rand.nextInt(dmgRange) + (int) damage.x);
                     if(PlantCodex.projectileSize[plantIndex] > 0) {
                         bullets.add(new Bullet(gameScreen, this, targets.get(0), rand.nextInt(dmgRange) + (int) damage.x));
+                        sound.play();
                     } else {
                         switch (plantIndex) {
                             case 4:
                                 pulses.add(new Pulse(gameScreen, this, rand.nextInt(dmgRange) + (int) damage.x, targets));
+                                sound.play();
                                 break;
                             case 5:
                                 roots.add(new Root(gameScreen, this, rand.nextInt(dmgRange) + (int) damage.x, targets, false));
                                 break;
                             case 11:
                                 slashes.add(new Slash(gameScreen, this, rand.nextInt(dmgRange) + (int) damage.x, targets));
+                                sound.play();
                                 break;
                             case 13:
                                 if(!hasTarget) {
