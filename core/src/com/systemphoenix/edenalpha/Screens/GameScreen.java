@@ -477,7 +477,7 @@ public class GameScreen extends AbsoluteScreen {
         if(seeds - PlantCodex.cost[plantIndex] >= 0) {
             seeds -= PlantCodex.cost[plantIndex];
             topHud.setSeedStatMessage("" + (int)seeds);
-            plants.add(new Plant(this, gameStage, sprite, plantIndex, selectedX * 32f, selectedY * 32f));
+            plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f));
             inputProcessors.insert(inputProcessors.size - 1, plants.peek());
             updateSeedRate();
 

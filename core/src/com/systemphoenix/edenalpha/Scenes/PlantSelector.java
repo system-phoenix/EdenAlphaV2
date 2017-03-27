@@ -23,8 +23,8 @@ public class PlantSelector extends Actor implements Disposable {
     @Override
     public void draw(Batch batch, float alpha) {
         if(canDraw) {
-            batch.draw(sprite, 0f, 32f);
-            batch.draw(exSprite, 0f, 32f);
+            batch.draw(sprite, 0f, 0f);
+            batch.draw(exSprite, 0f, 0f);
         }
     }
 

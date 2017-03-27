@@ -63,8 +63,8 @@ public class GameHud extends AbsoluteHud implements Disposable {
 
         Label tempLabel, spaceFiller;
         Table tempTable = new Table(), infoTable = new Table(), renderTable;
-        tempTable.setBounds(0, 30, 111, 140);
-        infoTable.setBounds(111, 30, 200, 140);
+        tempTable.setBounds(0, 0, 111, 140);
+        infoTable.setBounds(111, 0, 200, 140);
         renderTable = infoTable;
 
         rectSprite = new Sprite(new Texture(Gdx.files.internal("misc/0_PlantSquare.png")));
@@ -108,7 +108,7 @@ public class GameHud extends AbsoluteHud implements Disposable {
         tempTable.row();
         infoTable.row();
 
-        float startY = 115, startX = 111;
+        float startY = 85, startX = 111;
 
         tempLabel = new Label("HP:", new Label.LabelStyle(font, fontColor));
         spaceFiller = new Label(" ", new Label.LabelStyle(font, fontColor));

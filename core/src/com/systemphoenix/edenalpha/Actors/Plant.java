@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.CollisionBit;
+import com.systemphoenix.edenalpha.PlantSquares.PlantSquare;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 import java.io.PrintWriter;
@@ -54,7 +55,7 @@ public class Plant extends Actor implements InputProcessor, Disposable {
 
     private Random rand = new Random();
 
-    public Plant(GameScreen gameScreen, Stage gameStage, TextureRegion sprite, int plantIndex, float x, float y) {
+    public Plant(GameScreen gameScreen, Stage gameStage, TextureRegion sprite, PlantSquare square, int plantIndex, float x, float y) {
         this.plantIndex = plantIndex;
         this.gameScreen = gameScreen;
         this.gameStage = gameStage;
@@ -84,6 +85,10 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         lastAttackTime = System.currentTimeMillis();
         growthTimer = System.currentTimeMillis();
         growing = true;
+
+        if((square.getType() & PlantCodex.typeBit[plantIndex]) != 0) {
+            downGrade(-1);
+        }
     }
 
     public void initialize() {

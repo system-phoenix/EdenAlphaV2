@@ -13,7 +13,8 @@ import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class PlantSquare extends Sprite {
     protected float x, y;
-    protected int gridX, gridY, type;
+    protected int gridX, gridY;
+    protected short type;
     protected Body body;
     protected Texture square;
 
@@ -38,16 +39,12 @@ public class PlantSquare extends Sprite {
 
         body.createFixture(fixtureDef);
 
-        this.type = type;
+        this.type = (short) type;
         try {
             this.square = new Texture(Gdx.files.internal("misc/" + this.type + "_PlantSquare.png"));
         } catch(Exception e) {
             Gdx.app.log("Verbose", "Plant square: " + e.getMessage());
         }
-    }
-
-    public void collision() {
-
     }
 
     @Override
@@ -83,7 +80,7 @@ public class PlantSquare extends Sprite {
         return this.gridY;
     }
 
-    public int getType() {
+    public short getType() {
         return this.type;
     }
 

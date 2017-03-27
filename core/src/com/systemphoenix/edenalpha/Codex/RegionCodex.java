@@ -60,7 +60,7 @@ public class RegionCodex {
         };
 
     public static final int timeStart[] = {
-            63, 63, 63, 63, 63, 63, 63, 63, 64, 63, 63, 63, 63, 64, 63, 63, 64
+            63, 63, 63, 63, 63, 63, 63, 63, 64, 63, 63, 63, 65, 64, 63, 63, 64
         };
 
     public static final int waves[][][] = {{

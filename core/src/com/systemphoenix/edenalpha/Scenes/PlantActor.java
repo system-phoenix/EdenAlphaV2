@@ -39,8 +39,8 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
         this.plantCost = PlantCodex.cost[plantIndex];
 
         this.maskSprite = new Sprite(new Texture(Gdx.files.internal("utilities/mask.png")));
-        this.maskSprite.setBounds(PlantCodex.plantSelectorIndex[index], 64f, size, size);
-        this.setBounds(PlantCodex.plantSelectorIndex[index], 64f, size, size);
+        this.maskSprite.setBounds(PlantCodex.plantSelectorIndex[index], 32f, size, size);
+        this.setBounds(PlantCodex.plantSelectorIndex[index], 32f, size, size);
 
         this.size = size;
         this.canDraw = false;
