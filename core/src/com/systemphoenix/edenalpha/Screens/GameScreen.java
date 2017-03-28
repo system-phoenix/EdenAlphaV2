@@ -491,11 +491,9 @@ public class GameScreen extends AbsoluteScreen {
                     plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f, pulseSound));
                     break;
                 case 5:
-                    break;
                 case 11:
-                    plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f, slashSound));
-                    break;
                 case 13:
+                    plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f, slashSound));
                     break;
                 default:
                     plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f, bulletSound));
@@ -524,6 +522,7 @@ public class GameScreen extends AbsoluteScreen {
                 subSquares[i][j] = null;
             }
         }
+        gameHud.setDrawable(1);
         plant.remove();
         plant.dispose();
         updateSeedRate();

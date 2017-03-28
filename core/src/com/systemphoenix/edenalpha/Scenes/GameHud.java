@@ -30,7 +30,7 @@ public class GameHud extends AbsoluteHud implements Disposable {
     private ButtonActor checkButton, crossButton;
 
     private boolean canDraw, canDrawCheck;
-    private int index, drawable = 0;
+    private int index, drawable = 1;
 
     private Label plantName, plantType, plantCost, plantGrowthTime;
     private Sprite plantHP, plantAS, plantDmg, rectSprite;
@@ -158,11 +158,19 @@ public class GameHud extends AbsoluteHud implements Disposable {
             switch(drawable) {
                 case 0:
                     if(Plant.getSelectedPlant() != null) {
+                        checkButton.setCanPress(false);
+                        crossButton.setCanPress(true);
                         batch.setProjectionMatrix(plantStage.getCamera().combined);
                         plantStage.draw();
                     }
                     break;
                 default:
+                    if(PlantCodex.cost[index] < gameScreen.getSeeds()) {
+                        checkButton.setCanPress(true);
+                    } else {
+                        checkButton.setCanPress(false);
+                    }
+                    crossButton.setCanPress(false);
                     batch.setProjectionMatrix(stage.getCamera().combined);
                     stage.draw();
                     batch.begin();

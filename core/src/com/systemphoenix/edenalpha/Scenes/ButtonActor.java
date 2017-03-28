@@ -20,22 +20,34 @@ public class ButtonActor extends Actor implements InputProcessor, Disposable {
     private Stage stage;
 
     private int index, pastScreenX, pastScreenY;
-    private Sprite sprite;
-    private boolean canDraw = false;
+    private Sprite beforePressSprite, onPressSprite, voidPressSprite;
+    private boolean canDraw = false, canPress = true, isPressed;
 
     public ButtonActor(int index, GameScreen gameScreen, Stage stage, float x, float y, int size) {
         this.index = index;
         this.stage = stage;
         this.gameScreen = gameScreen;
         this.setBounds(x, y, size, size);
-        sprite = new Sprite(new Texture(Gdx.files.internal("utilities/" + ButtonCodex.fileNames[index])));
-        sprite.setBounds(x, y, size, size);
+        beforePressSprite = new Sprite(new Texture(Gdx.files.internal("utilities/" + ButtonCodex.beforePress[index])));
+        beforePressSprite.setBounds(x, y, size, size);
+        onPressSprite = new Sprite(new Texture(Gdx.files.internal("utilities/" + ButtonCodex.onPress[index])));
+        onPressSprite.setBounds(x, y, size, size);
+        voidPressSprite = new Sprite(new Texture(Gdx.files.internal("utilities/" + ButtonCodex.voidPress[index])));
+        voidPressSprite.setBounds(x, y, size, size);
     }
 
     @Override
     public void draw(Batch batch, float alpha) {
         if(canDraw) {
-            sprite.draw(batch);
+            if(canPress) {
+                if(isPressed) {
+                    onPressSprite.draw(batch);
+                } else {
+                    beforePressSprite.draw(batch);
+                }
+            } else {
+                voidPressSprite.draw(batch);
+            }
         }
     }
 
@@ -63,7 +75,8 @@ public class ButtonActor extends Actor implements InputProcessor, Disposable {
         }
         Actor hitActor = stage.hit(coord.x, coord.y, true);
 
-        if(hitActor == this && canDraw) {
+        if(hitActor == this && canDraw && canPress) {
+            isPressed = true;
             switch (index) {
                 case ButtonCodex.PAUSE:
                     gameScreen.setWillPause(true);
@@ -77,11 +90,9 @@ public class ButtonActor extends Actor implements InputProcessor, Disposable {
                 case ButtonCodex.HOME:
                     break;
                 case ButtonCodex.CHECK:
-                    if(gameScreen.getGameHud().getDrawable() != 1) {
-                        PlantActor plantActor = PlantActor.getRecentlySelectedActor();
-                        gameScreen.plant(plantActor.getPlantIndex(), plantActor.getSprite());
-                        Plant.setSelectAllPlants(false);
-                    }
+                    PlantActor plantActor = PlantActor.getRecentlySelectedActor();
+                    gameScreen.plant(plantActor.getPlantIndex(), plantActor.getSprite());
+                    Plant.setSelectAllPlants(false);
                     break;
                 case ButtonCodex.CROSS:
                     gameScreen.unroot(Plant.getSelectedPlant());
@@ -94,7 +105,16 @@ public class ButtonActor extends Actor implements InputProcessor, Disposable {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
+        if((pastScreenX == -1 && pastScreenY == -1) || !(pastScreenX == screenX && pastScreenY == screenY)) {
+            coord = stage.screenToStageCoordinates(new Vector2((float)screenX, (float)screenY));
+            pastScreenX = screenX;
+            pastScreenY = screenY;
+        }
+        Actor hitActor = stage.hit(coord.x, coord.y, true);
+        if(hitActor == this ) {
+            isPressed = false;
+        }
+        return hitActor == this;
     }
 
     @Override
@@ -120,10 +140,14 @@ public class ButtonActor extends Actor implements InputProcessor, Disposable {
 
     @Override
     public void dispose() {
-        sprite.getTexture().dispose();
+        beforePressSprite.getTexture().dispose();
     }
 
     public void setCanDraw(boolean canDraw) {
         this.canDraw = canDraw;
+    }
+
+    public void setCanPress(boolean canPress) {
+        this.canPress = canPress;
     }
 }

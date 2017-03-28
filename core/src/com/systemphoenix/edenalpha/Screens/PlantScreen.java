@@ -28,6 +28,7 @@ public class PlantScreen extends AbsoluteScreen {
     private Stage stage;
     private Texture trees, plants;
     private Sprite lowerHud, playButton, homeButton, plantScreenBG, rectangleSprite, plantHP, plantAS, plantDmg, temppSprite, checkButton, xButton;
+    private Sprite onPressPlay, onPressHome, onPressCross, onPressCheck;
     private Sprite[] sprites, actorSprites, renderedActorSprites;
     private Rectangle rectangles[][], actorRectangles[], selectRectangle;
 
@@ -40,7 +41,7 @@ public class PlantScreen extends AbsoluteScreen {
     private float sizeModifier = 10;
 
     private int selectedIndeces[], currentSelectionIndex, index;
-    private boolean selected[];
+    private boolean selected[], pressingPlay, pressingHome, pressingCross, pressingCheck;
 
     public PlantScreen(EdenAlpha game, MapScreen mapScreen, Region region) {
         super(game);
@@ -91,14 +92,30 @@ public class PlantScreen extends AbsoluteScreen {
     private void initialize() {
         lowerHud = new Sprite(new Texture(Gdx.files.internal("misc/lowerHud.png")));
         plantScreenBG = new Sprite(new Texture(Gdx.files.internal("utilities/plantScreen.png")));
-        playButton = new Sprite(new Texture(Gdx.files.internal("utilities/playButton.png")));
+
+        playButton = new Sprite(new Texture(Gdx.files.internal("utilities/beforePress_playButton.png")));
         playButton.setBounds(worldWidth - 160f, 32f, 128f, 128f);
-        homeButton = new Sprite(new Texture(Gdx.files.internal("utilities/homeButton.png")));
+        onPressPlay = new Sprite(new Texture(Gdx.files.internal("utilities/onPress_playButton.png")));
+        onPressPlay.setBounds(worldWidth - 160f, 32f, 128f, 128f);
+        pressingPlay = false;
+
+        homeButton = new Sprite(new Texture(Gdx.files.internal("utilities/beforePress_homeButton.png")));
         homeButton.setBounds(32f, 32f, 128f, 128f);
-        checkButton = new Sprite(new Texture(Gdx.files.internal("utilities/checkButton.png")));
+        onPressHome = new Sprite(new Texture(Gdx.files.internal("utilities/onPress_homeButton.png")));
+        onPressHome.setBounds(32f, 32f, 128f, 128f);
+        pressingHome = false;
+
+        checkButton = new Sprite(new Texture(Gdx.files.internal("utilities/beforePress_checkButton.png")));
         checkButton.setBounds(950, 200, 128, 128);
-        xButton = new Sprite(new Texture(Gdx.files.internal("utilities/xButton.png")));
+        onPressCheck = new Sprite(new Texture(Gdx.files.internal("utilities/onPress_checkButton.png")));
+        onPressCheck.setBounds(950, 200, 128, 128);
+        pressingCheck = false;
+
+        xButton = new Sprite(new Texture(Gdx.files.internal("utilities/beforePress_crossButton.png")));
         xButton.setBounds(950, 200, 128, 128);
+        onPressCross = new Sprite(new Texture(Gdx.files.internal("utilities/beforePress_crossButton.png")));
+        onPressCross.setBounds(950, 200, 128, 128);
+        pressingCross = false;
 
         selectRectangle = new Rectangle(950, 200, 128, 128);
 
@@ -135,8 +152,8 @@ public class PlantScreen extends AbsoluteScreen {
 
         Label tempLabel, spaceFiller;
         Table tempTable = new Table(), infoTable = new Table(), renderTable;
-        tempTable.setBounds(797, 300, 111, 400);
-        infoTable.setBounds(908, 300, 320, 400);
+        tempTable.setBounds(797, 300, 111, 390);
+        infoTable.setBounds(908, 300, 320, 390);
         renderTable = infoTable;
         temppSprite = new Sprite(new Texture(Gdx.files.internal("misc/0_PlantSquare.png")));
         temppSprite.setBounds(renderTable.getX(), renderTable.getY(), renderTable.getWidth(), renderTable.getHeight());
@@ -241,8 +258,16 @@ public class PlantScreen extends AbsoluteScreen {
         gameGraphics.begin();
         gameGraphics.draw(plantScreenBG, 0, 0);
         gameGraphics.draw(lowerHud, 0, 32f);
-        playButton.draw(gameGraphics);
-        homeButton.draw(gameGraphics);
+        if(pressingPlay) {
+            onPressPlay.draw(gameGraphics);
+        } else {
+            playButton.draw(gameGraphics);
+        }
+        if(pressingHome) {
+            onPressHome.draw(gameGraphics);
+        } else {
+            homeButton.draw(gameGraphics);
+        }
         for(int i = 0; i < sprites.length; i++) {
             if(sprites[i] != null) {
                 sprites[i].draw(gameGraphics);
@@ -254,9 +279,17 @@ public class PlantScreen extends AbsoluteScreen {
         plantAS.draw(gameGraphics);
         plantDmg.draw(gameGraphics);
         if(!selected[index]) {
-            checkButton.draw(gameGraphics);
+            if(pressingCheck) {
+                onPressCheck.draw(gameGraphics);
+            } else {
+                checkButton.draw(gameGraphics);
+            }
         } else {
-            xButton.draw(gameGraphics);
+            if(pressingCross) {
+                onPressCross.draw(gameGraphics);
+            } else {
+                xButton.draw(gameGraphics);
+            }
         }
         for(int i = 0; i < currentSelectionIndex; i++) {
             renderedActorSprites[i].draw(gameGraphics);
@@ -268,7 +301,7 @@ public class PlantScreen extends AbsoluteScreen {
     }
 
     @Override
-    public boolean tap(float x, float y, int count, int button) {
+    public boolean touchDown(float x, float y, int pointer, int button) {
         Rectangle rect = new Rectangle(x - 16f, 720 - (y + 16f), 32f, 32f);
 
         if(selectRectangle.overlaps(rect)) {
@@ -342,6 +375,82 @@ public class PlantScreen extends AbsoluteScreen {
         return true;
     }
 
+    @Override
+    public boolean tap(float x, float y, int count, int button) {
+//        Rectangle rect = new Rectangle(x - 16f, 720 - (y + 16f), 32f, 32f);
+//
+//        if(selectRectangle.overlaps(rect)) {
+//            if(currentSelectionIndex <= selectedIndeces.length) {
+//                selected[index] = !selected[index];
+//                if(selected[index]) {
+//                    if(currentSelectionIndex < selectedIndeces.length) {
+//                        selectedIndeces[currentSelectionIndex] = index;
+//                        renderedActorSprites[currentSelectionIndex].set(actorSprites[index]);
+//                        renderedActorSprites[currentSelectionIndex].setBounds(PlantCodex.plantSelectorIndex[currentSelectionIndex], 64, 64, 64);
+//                        currentSelectionIndex++;
+//                    } else {
+//                        selected[index] = !selected[index];
+//                    }
+//                } else {
+//                    for(int i = 0; i < selectedIndeces.length; i++) {
+//                        if(selectedIndeces[i] == index) {
+//                            for(int j = i; j < selectedIndeces.length; j++) {
+//                                if(j + 1 == selectedIndeces.length) {
+//                                    selectedIndeces[j] = -1;
+//                                    renderedActorSprites[j] = new Sprite();
+//                                } else {
+//                                    selectedIndeces[j] = selectedIndeces[j + 1];
+//                                    renderedActorSprites[j] = renderedActorSprites[j + 1];
+//                                    renderedActorSprites[j].setBounds(PlantCodex.plantSelectorIndex[j], 64, 64, 64);
+//                                }
+//                            }
+//                            break;
+//                        }
+//                    }
+//                    currentSelectionIndex--;
+//                }
+//            }
+//        } else {
+//            for(int i = 0; i < actorRectangles.length; i++) {
+//                if(actorRectangles[i].overlaps(selectRectangle)) {
+//                    Gdx.app.log("Verbose", "Touched on a plant icon" );
+//                    setData(selectedIndeces[i]);
+//                    return true;
+//                }
+//            }
+//
+//            for(int i = 0; i < rectangles.length; i++) {
+//                for(int j = 0; j < rectangles[i].length; j++) {
+//                    if(rect.overlaps(rectangles[i][j])) {
+//                        if(i + 1 == rectangles.length && (j == 0 || j + 1 == rectangles[i].length)) {
+//                            if(j == 0) {
+//                                game.setScreen(mapScreen);
+//                                this.dispose();
+//                            } else {
+//                                if(currentSelectionIndex > 0) {
+//                                    PlantActor plantActor[] = new PlantActor[currentSelectionIndex];
+//                                    for(int k = 0; k < plantActor.length; k++) {
+//                                        plantActor[k] = new PlantActor(renderedActorSprites[k], rectangleSprite, selectedIndeces[k], k, 64);
+//                                    }
+//                                    game.setScreen(new GameScreen(game, mapScreen, this, region, plantActor));
+//                                } else {
+//                                    Gdx.app.log("verbose", "UYou cannot start the game without plants!");
+//                                }
+//                            }
+//                        } else {
+//                            rectangleSprite.setBounds(rectangles[i][j].getX(), rectangles[i][j].getY(), rectangles[i][j].getWidth(), rectangles[i][j].getHeight());
+//                            if(i < rectangles.length - 1) {
+//                                setData(i * rectangles[i].length + j);
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return true;
+        return false;
+    }
+
     private void setData(int index) {
         this.index = index;
         float barSize = 260f;
@@ -413,6 +522,11 @@ public class PlantScreen extends AbsoluteScreen {
         plantAS.getTexture().dispose();
         plantDmg.getTexture().dispose();
         checkButton.getTexture().dispose();
+        xButton.getTexture().dispose();
+        onPressCross.getTexture().dispose();
+        onPressPlay.getTexture().dispose();
+        onPressCheck.getTexture().dispose();
+        onPressHome.getTexture().dispose();
     }
 
     public MapScreen getMapScreen() {
