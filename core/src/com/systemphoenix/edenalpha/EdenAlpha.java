@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.systemphoenix.edenalpha.Screens.LoadingScreen;
 import com.systemphoenix.edenalpha.Screens.MapScreen;
 
 public class EdenAlpha extends Game {
@@ -16,7 +15,6 @@ public class EdenAlpha extends Game {
     private BitmapFont font;
 	private Preferences levelPrefs;
 
-    private com.systemphoenix.edenalpha.Screens.LoadingScreen loadingScreen;
 	private com.systemphoenix.edenalpha.Screens.MapScreen mapScreen;
 	private com.systemphoenix.edenalpha.Screens.MainScreen mainScreen;
 	private int selectedMapIndex = 0;
@@ -44,8 +42,6 @@ public class EdenAlpha extends Game {
 			this.selectedMapIndex = 0;
 		}
 
-        this.loadingScreen = new com.systemphoenix.edenalpha.Screens.LoadingScreen(this);
-        this.setScreen(loadingScreen);
 		this.mainScreen = new com.systemphoenix.edenalpha.Screens.MainScreen(this);
 		this.mapScreen = new com.systemphoenix.edenalpha.Screens.MapScreen(this);
 	}
@@ -59,7 +55,6 @@ public class EdenAlpha extends Game {
         font.dispose();
         generator.dispose();
 
-        loadingScreen.dispose();
         mapScreen.dispose();
         mainScreen.dispose();
 	}
@@ -93,8 +88,4 @@ public class EdenAlpha extends Game {
 	public MapScreen getMapScreen() {
 		return this.mapScreen;
 	}
-
-    public LoadingScreen getLoadingScreen() {
-        return this.loadingScreen;
-    }
 }

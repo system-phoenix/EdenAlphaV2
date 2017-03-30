@@ -15,9 +15,6 @@ import com.systemphoenix.edenalpha.Region;
 import com.systemphoenix.edenalpha.Scenes.RegionHud;
 
 public class MapScreen extends AbsoluteScreen {
-    private float sizeWidth = 480f;
-//    private float sizeHeight = sizeWidth * screenHeight / screenWidth;
-    private float sizeHeight = 384f;
     private boolean flingDisabled = false;
 
     private InputMultiplexer inputMultiplexer;
@@ -27,16 +24,14 @@ public class MapScreen extends AbsoluteScreen {
 
     private com.systemphoenix.edenalpha.Scenes.MapSelect mapSelect;
     private RegionHud regionHud;
-    private Region currentRegion;
 
     private PlantScreen plantScreen = null;
     private GameScreen gameScreen = null;
     private Viewport viewport;
 
-    private boolean readyToSet = false, loading = false;
-
     public MapScreen(EdenAlpha game) {
         super(game);
+        float sizeWidth = 480, sizeHeight = 384;
         this.inputMultiplexer = new InputMultiplexer();
         this.regionHud = new RegionHud(game, sizeWidth, sizeHeight);
         this.mapSelect = new com.systemphoenix.edenalpha.Scenes.MapSelect(game, this, worldWidth, worldHeight);
@@ -83,7 +78,7 @@ public class MapScreen extends AbsoluteScreen {
 //        render stuff above
         gameGraphics.end();
 
-        this.currentRegion = fieldSelection.getRegion();
+        Region currentRegion = fieldSelection.getRegion();
         mapSelect.setCanDraw(true, true);
         if(fieldSelection.getIndex() - 1 >= 0) {
             regionHud.setLeftRegionCode(fieldSelection.getRegionByIndex(fieldSelection.getIndex() - 1).getCode());

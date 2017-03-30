@@ -12,7 +12,6 @@ public class RegionHud extends AbsoluteHud {
 
     private Label regionCode, regionName, regionForestPercentage;
     private Label leftRegionCode, rightRegionCode;
-    private int padding = 20;
 
     public RegionHud(EdenAlpha game) {
         super(game);
@@ -24,16 +23,12 @@ public class RegionHud extends AbsoluteHud {
         super(game);
 
         this.viewport.update((int)projectedWidth, (int)projectedHeight);
-
-//        this.viewport.setScreenWidth((int)projectedWidth);
-//        this.viewport.setScreenHeight((int)projectedHeight);
-
         initialize();
     }
 
     private void initialize() {
+        int padding = 20;
         Color border = Color.BLACK;
-//        Color fontColor = new Color(0.5f, 1f, 0.5f, 1f);
         Color fontColor = Color.WHITE;
         BitmapFont tempFont = font;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/neuropol.ttf"));

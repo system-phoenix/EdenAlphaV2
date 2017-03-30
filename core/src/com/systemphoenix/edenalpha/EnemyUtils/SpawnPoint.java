@@ -19,20 +19,19 @@ public class SpawnPoint implements Disposable {
 
     public void update(float delta) {
         for(int i = 0; i < enemies.size; i++) {
-            enemies.get(i).update(delta);
-        }
-
-        for(int i = 0; i < enemies.size; i++) {
             Enemy enemy = enemies.get(i);
             if(enemy.canDispose()) {
                 try{
                     enemies.removeIndex(i);
-//                    enemies.set(i, null);
                     enemy.dispose();
                 } catch (Exception e) {
                     Gdx.app.log("Verbose", "error in disposal: " + e.getMessage());
                 }
             }
+        }
+
+        for(int i = 0; i < enemies.size; i++) {
+            enemies.get(i).update(delta);
         }
     }
 

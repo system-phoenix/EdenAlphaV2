@@ -17,7 +17,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.systemphoenix.edenalpha.Actors.Plant;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.EdenAlpha;
 import com.systemphoenix.edenalpha.Region;
@@ -27,7 +26,7 @@ public class PlantScreen extends AbsoluteScreen {
 
     private Stage stage;
     private Texture trees, plants;
-    private Sprite lowerHud, playButton, homeButton, plantScreenBG, rectangleSprite, plantHP, plantAS, plantDmg, temppSprite, checkButton, xButton;
+    private Sprite lowerHud, playButton, homeButton, plantScreenBG, rectangleSprite, plantHP, plantAS, plantDmg, checkButton, xButton;
     private Sprite onPressPlay, onPressHome, onPressCross, onPressCheck;
     private Sprite[] sprites, actorSprites, renderedActorSprites;
     private Rectangle rectangles[][], actorRectangles[], selectRectangle;
@@ -151,15 +150,11 @@ public class PlantScreen extends AbsoluteScreen {
         stage = new Stage(viewport, gameGraphics);
 
         Label tempLabel, spaceFiller;
-        Table tempTable = new Table(), infoTable = new Table(), renderTable;
+        Table tempTable = new Table(), infoTable = new Table();
         tempTable.setBounds(797, 300, 111, 390);
         infoTable.setBounds(908, 300, 320, 390);
-        renderTable = infoTable;
-        temppSprite = new Sprite(new Texture(Gdx.files.internal("misc/0_PlantSquare.png")));
-        temppSprite.setBounds(renderTable.getX(), renderTable.getY(), renderTable.getWidth(), renderTable.getHeight());
 
         Color border = Color.BLACK;
-//        Color fontColor = new Color(0.5f, 1f, 0.5f, 1f);
         Color fontColor = Color.WHITE;
         BitmapFont tempFont = font;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/neuropol.ttf"));
@@ -238,8 +233,6 @@ public class PlantScreen extends AbsoluteScreen {
         stage.addActor(infoTable);
         generator.dispose();
         font = tempFont;
-        temppSprite.setX(renderTable.getX());
-        temppSprite.setY(renderTable.getY());
 
         setData(0);
     }
@@ -502,6 +495,15 @@ public class PlantScreen extends AbsoluteScreen {
         playButton.getTexture().dispose();
         homeButton.getTexture().dispose();
         plantScreenBG.getTexture().dispose();
+        plantHP.getTexture().dispose();
+        plantAS.getTexture().dispose();
+        plantDmg.getTexture().dispose();
+        checkButton.getTexture().dispose();
+        xButton.getTexture().dispose();
+        onPressCross.getTexture().dispose();
+        onPressPlay.getTexture().dispose();
+        onPressCheck.getTexture().dispose();
+        onPressHome.getTexture().dispose();
         for(int i = 0; i < sprites.length; i++) {
             if(sprites[i] != null) {
                 sprites[i].getTexture().dispose();
@@ -518,15 +520,6 @@ public class PlantScreen extends AbsoluteScreen {
         trees.dispose();
         plants.dispose();
         stage.dispose();
-        plantHP.getTexture().dispose();
-        plantAS.getTexture().dispose();
-        plantDmg.getTexture().dispose();
-        checkButton.getTexture().dispose();
-        xButton.getTexture().dispose();
-        onPressCross.getTexture().dispose();
-        onPressPlay.getTexture().dispose();
-        onPressCheck.getTexture().dispose();
-        onPressHome.getTexture().dispose();
     }
 
     public MapScreen getMapScreen() {

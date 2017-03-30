@@ -499,6 +499,7 @@ public class GameScreen extends AbsoluteScreen {
                     plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f, bulletSound));
                     break;
             }
+//            plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f));
             inputProcessors.insert(inputProcessors.size - 1, plants.peek());
             updateSeedRate();
 
@@ -514,7 +515,18 @@ public class GameScreen extends AbsoluteScreen {
     }
 
     public void unroot(Plant plant) {
-        plants.removeValue(plant, true);
+        for(int i = 0; i < plants.size; i++) {
+            if(plant.equals(plants.get(i))) {
+                plants.removeIndex(i);
+                break;
+            }
+        }
+        for(int i = 0; i < inputProcessors.size; i++) {
+            if(plant.equals(inputProcessors.get(i))) {
+                inputProcessors.removeIndex(i);
+                break;
+            }
+        }
         int x = (int)plant.getX() / 32, y = (int)plant.getY() / 32;
         for(int i = y - 1; i <= y + 1; i++) {
             for(int j = x - 1; j <= x + 1; j++) {
@@ -522,11 +534,12 @@ public class GameScreen extends AbsoluteScreen {
                 subSquares[i][j] = null;
             }
         }
-        gameHud.setDrawable(1);
+        world.destroyBody(plant.getBody());
         plant.remove();
         plant.dispose();
         updateSeedRate();
         resetHud();
+        gameHud.setDrawable(1);
     }
 
     public void resetHud() {

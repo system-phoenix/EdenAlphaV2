@@ -69,6 +69,8 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         this.growthRate = targetHp / (PlantCodex.growthTime[plantIndex] * 5);
         this.seedRate = PlantCodex.seedRateStats[PlantCodex.seedProduction[plantIndex]];
 
+        this.sound = sound;
+
         this.redLifeBar = new Sprite(new Texture(Gdx.files.internal("utilities/redLife.png")));
         this.redLifeBar.setBounds(x + size / 2, y + size / 4 + size / 2, size, size / 16);
         this.greenLifeBar = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
@@ -83,8 +85,6 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         this.pulses = new Array<Pulse>();
         this.slashes = new Array<Slash>();
         this.roots = new Array<Root>();
-
-        this.sound = sound;
 
         gameStage.addActor(this);
         lastAttackTime = System.currentTimeMillis();
@@ -157,23 +157,23 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         attackers.removeValue(enemy, true);
     }
 
-//    public void upgrade() {
-//        upgradeIndex++;
-//        switch (plantIndex) {
-//            case 0:
-//            case 4:
-//            case 5:
-//            case 6:
-//            case 7:
-//            case 8:
-//                targetHp = PlantCodex.hpStats[PlantCodex.maxHP[plantIndex] + upgradeIndex];
-//                attackSpeed = PlantCodex.asStats[PlantCodex.AS[plantIndex] + upgradeIndex];
-//                damage = PlantCodex.dmgStats[PlantCodex.DMG[plantIndex] + upgradeIndex];
-//                break;
-//            case 1:
-//
-//        }
-//    }
+    public void upgrade() {
+        upgradeIndex++;
+        switch (plantIndex) {
+            case 0:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+                targetHp = PlantCodex.hpStats[PlantCodex.maxHP[plantIndex] + upgradeIndex + downGradeIndex];
+                attackSpeed = PlantCodex.asStats[PlantCodex.AS[plantIndex] + upgradeIndex + downGradeIndex];
+                damage = PlantCodex.dmgStats[PlantCodex.DMG[plantIndex] + upgradeIndex + downGradeIndex];
+                break;
+            case 1:
+
+        }
+    }
 
 
     public void downGrade(float update) {
@@ -199,23 +199,21 @@ public class Plant extends Actor implements InputProcessor, Disposable {
     public void update() {
         if(!growing) {
             if(targets.size > 0 && System.currentTimeMillis() - lastAttackTime >= attackSpeed) {
+                sound.play();
                 try{
                     int dmgRange = (int)(damage.y - damage.x);
                     if(PlantCodex.projectileSize[plantIndex] > 0) {
                         bullets.add(new Bullet(gameScreen, this, targets.get(0), rand.nextInt(dmgRange) + (int) damage.x));
-                        sound.play();
                     } else {
                         switch (plantIndex) {
                             case 4:
                                 pulses.add(new Pulse(gameScreen, this, rand.nextInt(dmgRange) + (int) damage.x, targets));
-                                sound.play();
                                 break;
                             case 5:
                                 roots.add(new Root(gameScreen, this, rand.nextInt(dmgRange) + (int) damage.x, targets, false));
                                 break;
                             case 11:
                                 slashes.add(new Slash(gameScreen, this, rand.nextInt(dmgRange) + (int) damage.x, targets));
-                                sound.play();
                                 break;
                             case 13:
                                 if(!hasTarget) {
@@ -228,8 +226,6 @@ public class Plant extends Actor implements InputProcessor, Disposable {
                     }
                     lastAttackTime = System.currentTimeMillis();
                 } catch (Exception e) {
-//                    Gdx.app.log("Verbose", "Error in plant attack: " + e.getMessage());
-//                    Log.e("Eden", "exception", e);
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
                     e.printStackTrace(pw);
@@ -400,10 +396,9 @@ public class Plant extends Actor implements InputProcessor, Disposable {
 
     @Override
     public void dispose() {
-//        sprite.getTexture().dispose();
+        nullSelectedPlant();
         rangeSprite.getTexture().dispose();
         effectiveRangeSprite.getTexture().dispose();
-        gameScreen.getWorld().destroyBody(body);
 
         redLifeBar.getTexture().dispose();
         greenLifeBar.getTexture().dispose();
@@ -433,9 +428,6 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         }
 
         plantCollision.dispose();
-
-        gameScreen.getWorld().destroyBody(body);
-        gameScreen.getPlants().removeValue(this, true);
     }
 
     public static void nullSelectedPlant() {
@@ -479,6 +471,10 @@ public class Plant extends Actor implements InputProcessor, Disposable {
 
     public PlantCollision getPlantCollision() {
         return plantCollision;
+    }
+
+    public Body getBody() {
+        return body;
     }
 
     public void setPlantCollision(PlantCollision plantCollision) {

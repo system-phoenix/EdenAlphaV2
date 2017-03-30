@@ -1,11 +1,9 @@
 package com.systemphoenix.edenalpha.Screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.systemphoenix.edenalpha.EdenAlpha;
@@ -25,7 +23,6 @@ public class MainScreen extends AbsoluteScreen {
     public MainScreen(EdenAlpha game) {
         super(game);
         this.font.getData().setScale(1.5f);
-        this.font.setColor(Color.BLACK);
         this.glyphLayout = new GlyphLayout();
         int rand = new Random().nextInt(3) + 1;
 
