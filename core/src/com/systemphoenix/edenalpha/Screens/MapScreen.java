@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.systemphoenix.edenalpha.EdenAlpha;
 import com.systemphoenix.edenalpha.FieldSelection;
@@ -31,7 +31,7 @@ public class MapScreen extends AbsoluteScreen {
 
     public MapScreen(EdenAlpha game) {
         super(game);
-        float sizeWidth = 480, sizeHeight = 384;
+        float sizeWidth = 640, sizeHeight = 360;
         this.inputMultiplexer = new InputMultiplexer();
         this.regionHud = new RegionHud(game, sizeWidth, sizeHeight);
         this.mapSelect = new com.systemphoenix.edenalpha.Scenes.MapSelect(game, this, worldWidth, worldHeight);
@@ -50,7 +50,7 @@ public class MapScreen extends AbsoluteScreen {
         mapSprite.setSize(worldWidth, worldHeight);
         cam.setToOrtho(false, sizeWidth, sizeHeight);
 
-        this.viewport = new StretchViewport(sizeWidth, sizeHeight, cam);
+        this.viewport = new FitViewport(sizeWidth, sizeHeight, cam);
 
         fieldSelection.setCameraPosition(cam);
         cam.update();

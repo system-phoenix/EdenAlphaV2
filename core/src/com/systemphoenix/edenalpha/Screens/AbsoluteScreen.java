@@ -12,7 +12,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.systemphoenix.edenalpha.EdenAlpha;
 
 public class AbsoluteScreen implements Screen, GestureDetector.GestureListener {
-    protected final float screenWidth = Gdx.graphics.getWidth(), screenHeight = Gdx.graphics.getHeight();
+    protected final float screenWidth = 1280, screenHeight = 720;
     protected float worldWidth = screenWidth, worldHeight = screenHeight;
 
     protected EdenAlpha game;

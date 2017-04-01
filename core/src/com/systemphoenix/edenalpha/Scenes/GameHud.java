@@ -251,13 +251,11 @@ public class GameHud extends AbsoluteHud implements Disposable {
     
     public void setCheckButtonCanDraw(boolean canDraw) {
         if(checkButton == null) {
-            checkButton = new ButtonActor(ButtonCodex.CHECK, gameScreen, stage, gameScreen.getWorldWidth() - 160, 32, 128);
-            crossButton = new ButtonActor(ButtonCodex.CROSS, gameScreen, plantStage, 32, 32, 128);
+            checkButton = new ButtonActor(ButtonCodex.CHECK, gameScreen, stage, gameScreen.getWorldWidth() - 160, 32, 128, true, false);
+            crossButton = new ButtonActor(ButtonCodex.CROSS, gameScreen, plantStage, 32, 32, 128, true, false);
             plantStage.addActor(crossButton);
             crossButton.setCanDraw(canDraw);
             stage.addActor(checkButton);
-            gameScreen.addProcessor(crossButton);
-            gameScreen.addProcessor(checkButton);
         }
         this.checkButton.setCanDraw(canDraw);
     }

@@ -2,6 +2,7 @@ package com.systemphoenix.edenalpha.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -13,23 +14,31 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.systemphoenix.edenalpha.Codex.ButtonCodex;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.EdenAlpha;
 import com.systemphoenix.edenalpha.Region;
+import com.systemphoenix.edenalpha.Scenes.ButtonActor;
 import com.systemphoenix.edenalpha.Scenes.PlantActor;
+import com.systemphoenix.edenalpha.Scenes.PlantButton;
 
 public class PlantScreen extends AbsoluteScreen {
 
     private Stage stage;
     private Texture trees, plants;
-    private Sprite lowerHud, playButton, homeButton, plantScreenBG, rectangleSprite, plantHP, plantAS, plantDmg, checkButton, xButton;
-    private Sprite onPressPlay, onPressHome, onPressCross, onPressCheck;
+    private Sprite lowerHud, plantScreenBG, rectangleSprite, plantHP, plantAS, plantDmg;
     private Sprite[] sprites, actorSprites, renderedActorSprites;
-    private Rectangle rectangles[][], actorRectangles[], selectRectangle;
+    private Rectangle actorRectangles[], selectRectangle, rectangles[][];
+
+    private ButtonActor playButton, checkButton, crossButton, homeButton;
+
+    private Array<PlantButton> plantButtons;
 
     private SpriteBatch gameGraphics;
     private Label plantName, plantType, plantCost, plantGrowthTime;
@@ -39,8 +48,8 @@ public class PlantScreen extends AbsoluteScreen {
 
     private float sizeModifier = 10;
 
-    private int selectedIndeces[], currentSelectionIndex, index;
-    private boolean selected[], pressingPlay, pressingHome, pressingCross, pressingCheck;
+    private int selectedIndeces[], currentSelectionIndex, index, magicLength = 0;
+    private boolean selected[];
 
     public PlantScreen(EdenAlpha game, MapScreen mapScreen, Region region) {
         super(game);
@@ -65,6 +74,7 @@ public class PlantScreen extends AbsoluteScreen {
         this.sprites = new Sprite[20];
         this.actorSprites = new Sprite[20];
         this.renderedActorSprites = new Sprite[6];
+
         this.rectangles = new Rectangle[4][5];
         for(int i = 0; i < rectangles.length - 1; i++) {
             for(int j = 0; j < rectangles[i].length; j++) {
@@ -74,11 +84,7 @@ public class PlantScreen extends AbsoluteScreen {
 
         for(int j = 0; j < rectangles[rectangles.length - 1].length; j++) {
             if(j == 0 || j + 1 == rectangles[rectangles.length - 1].length) {
-                if(j == 0) {
-                    rectangles[rectangles.length - 1][j] = new Rectangle(32f, 32f, 128f, 128f);
-                } else {
-                    rectangles[rectangles.length - 1][j] = new Rectangle(worldWidth - 160f, 32f, 128f, 128f);
-                }
+                continue;
             } else {
                 rectangles[rectangles.length - 1][j] = new Rectangle((64 + (j * 144)) - (sizeModifier / 2), 176 - (sizeModifier / 2), 96f + sizeModifier, 96f + sizeModifier);
             }
@@ -89,56 +95,61 @@ public class PlantScreen extends AbsoluteScreen {
     }
 
     private void initialize() {
+        Viewport viewport = new FitViewport(1280, 720, cam);
+        stage = new Stage(viewport, gameGraphics);
+
         lowerHud = new Sprite(new Texture(Gdx.files.internal("misc/lowerHud.png")));
         plantScreenBG = new Sprite(new Texture(Gdx.files.internal("utilities/plantScreen.png")));
 
-        playButton = new Sprite(new Texture(Gdx.files.internal("utilities/beforePress_playButton.png")));
-        playButton.setBounds(worldWidth - 160f, 32f, 128f, 128f);
-        onPressPlay = new Sprite(new Texture(Gdx.files.internal("utilities/onPress_playButton.png")));
-        onPressPlay.setBounds(worldWidth - 160f, 32f, 128f, 128f);
-        pressingPlay = false;
+        playButton = new ButtonActor(ButtonCodex.PLAY, this, stage, worldWidth - 160f, 32f, 128, false, true);
+        homeButton = new ButtonActor(ButtonCodex.HOME, this, stage, 32f, 32f, 128, false, true);
+        checkButton = new ButtonActor(ButtonCodex.CHECK, this, stage, 878, 200, 128, false, true);
+        crossButton = new ButtonActor(ButtonCodex.CROSS, this, stage, 1022, 200, 128, false, true);
 
-        homeButton = new Sprite(new Texture(Gdx.files.internal("utilities/beforePress_homeButton.png")));
-        homeButton.setBounds(32f, 32f, 128f, 128f);
-        onPressHome = new Sprite(new Texture(Gdx.files.internal("utilities/onPress_homeButton.png")));
-        onPressHome.setBounds(32f, 32f, 128f, 128f);
-        pressingHome = false;
+        playButton.setCanDraw(true);
+        homeButton.setCanDraw(true);
+        checkButton.setCanDraw(true);
+        crossButton.setCanDraw(true);
 
-        checkButton = new Sprite(new Texture(Gdx.files.internal("utilities/beforePress_checkButton.png")));
-        checkButton.setBounds(950, 200, 128, 128);
-        onPressCheck = new Sprite(new Texture(Gdx.files.internal("utilities/onPress_checkButton.png")));
-        onPressCheck.setBounds(950, 200, 128, 128);
-        pressingCheck = false;
+        playButton.setCanPress(true);
+        homeButton.setCanPress(true);
+        checkButton.setCanPress(true);
+        crossButton.setCanPress(false);
 
-        xButton = new Sprite(new Texture(Gdx.files.internal("utilities/beforePress_crossButton.png")));
-        xButton.setBounds(950, 200, 128, 128);
-        onPressCross = new Sprite(new Texture(Gdx.files.internal("utilities/beforePress_crossButton.png")));
-        onPressCross.setBounds(950, 200, 128, 128);
-        pressingCross = false;
+        stage.addActor(playButton);
+        stage.addActor(homeButton);
+        stage.addActor(checkButton);
+        stage.addActor(crossButton);
 
         selectRectangle = new Rectangle(950, 200, 128, 128);
 
         rectangleSprite = new Sprite(new Texture(Gdx.files.internal("misc/0_PlantSquare.png")));
-        rectangleSprite.setBounds(rectangles[0][0].getX(), rectangles[0][0].getY(), rectangles[0][0].getWidth(), rectangles[0][0].getHeight());
+        plantButtons = new Array<PlantButton>();
 
         TextureRegion tempTrees[][], tempPlants[][];
         trees = new Texture(Gdx.files.internal("trees/trees.png"));
         tempTrees = TextureRegion.split(trees, 64, 64);
         plants = new Texture(Gdx.files.internal("trees/plants.png"));
         tempPlants = TextureRegion.split(plants, 32, 32);
-        for(int i = 0; i < rectangles.length - 1; i++) {
-            for(int j = 0; j < rectangles[i].length; j++) {
+        magicLength = tempTrees[0].length;
+        for(int i = 0; i < tempTrees.length; i++) {
+            for(int j = 0; j < tempTrees[i].length; j++) {
                 if((i == 0 && (j == 3 || j == 4)) || (i == 1 && j == 2)) {
                     sprites[(i * tempTrees[i].length) + j] = new Sprite(tempPlants[i][j]);
                     actorSprites[(i * tempTrees[i].length) + j] = new Sprite(tempPlants[i][j]);
+                } else if ((i == 3 && j == 0) || (i == 3 && j == 4)) {
+                    continue;
                 } else {
                     sprites[(i * tempTrees[i].length) + j] = new Sprite(tempTrees[i][j]);
                     actorSprites[(i * tempTrees[i].length) + j] = new Sprite(tempTrees[i][j]);
                 }
                 sprites[i * tempTrees[i].length + j].setBounds(rectangles[i][j].getX() + (sizeModifier / 2), rectangles[i][j].getY() + (sizeModifier / 2), rectangles[i][j].getWidth() - sizeModifier, rectangles[i][j].getHeight() - sizeModifier);
+//                plantButtons.add(new PlantButton(sprites[(i * tempTrees[i].length)], stage, rectangles[i][j].getX() + (sizeModifier / 2), rectangles[i][j].getY() + (sizeModifier / 2), rectangles[i][j].getWidth() - sizeModifier));
+                plantButtons.add(new PlantButton(sprites[i * tempTrees[i].length + j], stage, this, i * tempTrees[i].length + j));
                 actorSprites[(i * tempTrees[i].length) + j].setBounds(0, 64, 64, 64);
             }
         }
+        rectangleSprite.setBounds(rectangles[0][0].getX(), rectangles[0][0].getY(), rectangles[0][0].getWidth(), rectangles[0][0].getHeight());
 
         for(int i = 0; i < renderedActorSprites.length; i++) {
             renderedActorSprites[i] = new Sprite();
@@ -146,8 +157,6 @@ public class PlantScreen extends AbsoluteScreen {
             actorRectangles[i] = new Rectangle(PlantCodex.plantSelectorIndex[i], 64, 64, 64);
         }
 
-        Viewport viewport = new FitViewport(1280, 720, cam);
-        stage = new Stage(viewport, gameGraphics);
 
         Label tempLabel, spaceFiller;
         Table tempTable = new Table(), infoTable = new Table();
@@ -191,7 +200,7 @@ public class PlantScreen extends AbsoluteScreen {
         tempTable.row();
         infoTable.row();
 
-        float startY = worldHeight - 74, startX = 938;
+        float startY = worldHeight - 85, startX = 938;
 
         tempLabel = new Label("HP:", new Label.LabelStyle(font, fontColor));
         spaceFiller = new Label(" ", new Label.LabelStyle(font, fontColor));
@@ -251,16 +260,6 @@ public class PlantScreen extends AbsoluteScreen {
         gameGraphics.begin();
         gameGraphics.draw(plantScreenBG, 0, 0);
         gameGraphics.draw(lowerHud, 0, 32f);
-        if(pressingPlay) {
-            onPressPlay.draw(gameGraphics);
-        } else {
-            playButton.draw(gameGraphics);
-        }
-        if(pressingHome) {
-            onPressHome.draw(gameGraphics);
-        } else {
-            homeButton.draw(gameGraphics);
-        }
         for(int i = 0; i < sprites.length; i++) {
             if(sprites[i] != null) {
                 sprites[i].draw(gameGraphics);
@@ -272,17 +271,11 @@ public class PlantScreen extends AbsoluteScreen {
         plantAS.draw(gameGraphics);
         plantDmg.draw(gameGraphics);
         if(!selected[index]) {
-            if(pressingCheck) {
-                onPressCheck.draw(gameGraphics);
-            } else {
-                checkButton.draw(gameGraphics);
-            }
+            checkButton.setCanPress(true);
+            crossButton.setCanPress(false);
         } else {
-            if(pressingCross) {
-                onPressCross.draw(gameGraphics);
-            } else {
-                xButton.draw(gameGraphics);
-            }
+            checkButton.setCanPress(false);
+            crossButton.setCanPress(true);
         }
         for(int i = 0; i < currentSelectionIndex; i++) {
             renderedActorSprites[i].draw(gameGraphics);
@@ -290,81 +283,86 @@ public class PlantScreen extends AbsoluteScreen {
         gameGraphics.end();
 
         gameGraphics.setProjectionMatrix(stage.getCamera().combined);
+        stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
+    }
+
+    public void selectPlant() {
+        if(currentSelectionIndex <= selectedIndeces.length) {
+            selected[index] = !selected[index];
+            if(selected[index]) {
+                if(currentSelectionIndex < selectedIndeces.length) {
+                    selectedIndeces[currentSelectionIndex] = index;
+                    renderedActorSprites[currentSelectionIndex].set(actorSprites[index]);
+                    renderedActorSprites[currentSelectionIndex].setBounds(PlantCodex.plantSelectorIndex[currentSelectionIndex], 64, 64, 64);
+                    currentSelectionIndex++;
+                } else {
+                    selected[index] = !selected[index];
+                }
+            } else {
+                for(int i = 0; i < selectedIndeces.length; i++) {
+                    if(selectedIndeces[i] == index) {
+                        for(int j = i; j < selectedIndeces.length; j++) {
+                            if(j + 1 == selectedIndeces.length) {
+                                selectedIndeces[j] = -1;
+                                renderedActorSprites[j] = new Sprite();
+                            } else {
+                                selectedIndeces[j] = selectedIndeces[j + 1];
+                                renderedActorSprites[j] = renderedActorSprites[j + 1];
+                                renderedActorSprites[j].setBounds(PlantCodex.plantSelectorIndex[j], 64, 64, 64);
+                            }
+                        }
+                        break;
+                    }
+                }
+                currentSelectionIndex--;
+            }
+        }
+    }
+
+    public void createGameScreen() {
+        if(currentSelectionIndex > 0) {
+            PlantActor plantActor[] = new PlantActor[currentSelectionIndex];
+            for(int k = 0; k < plantActor.length; k++) {
+                plantActor[k] = new PlantActor(renderedActorSprites[k], rectangleSprite, selectedIndeces[k], k, 64);
+            }
+            game.setScreen(new GameScreen(game, mapScreen, this, region, plantActor));
+        } else {
+            Gdx.app.log("verbose", "You cannot start the game without plants!");
+        }
+    }
+
+    public void backToMapScreen() {
+        game.setScreen(mapScreen);
+        this.dispose();
     }
 
     @Override
     public boolean touchDown(float x, float y, int pointer, int button) {
-        Rectangle rect = new Rectangle(x - 16f, 720 - (y + 16f), 32f, 32f);
-
-        if(selectRectangle.overlaps(rect)) {
-            if(currentSelectionIndex <= selectedIndeces.length) {
-                selected[index] = !selected[index];
-                if(selected[index]) {
-                    if(currentSelectionIndex < selectedIndeces.length) {
-                        selectedIndeces[currentSelectionIndex] = index;
-                        renderedActorSprites[currentSelectionIndex].set(actorSprites[index]);
-                        renderedActorSprites[currentSelectionIndex].setBounds(PlantCodex.plantSelectorIndex[currentSelectionIndex], 64, 64, 64);
-                        currentSelectionIndex++;
-                    } else {
-                        selected[index] = !selected[index];
-                    }
-                } else {
-                    for(int i = 0; i < selectedIndeces.length; i++) {
-                        if(selectedIndeces[i] == index) {
-                            for(int j = i; j < selectedIndeces.length; j++) {
-                                if(j + 1 == selectedIndeces.length) {
-                                    selectedIndeces[j] = -1;
-                                    renderedActorSprites[j] = new Sprite();
-                                } else {
-                                    selectedIndeces[j] = selectedIndeces[j + 1];
-                                    renderedActorSprites[j] = renderedActorSprites[j + 1];
-                                    renderedActorSprites[j].setBounds(PlantCodex.plantSelectorIndex[j], 64, 64, 64);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    currentSelectionIndex--;
-                }
-            }
-        } else {
-            for(int i = 0; i < actorRectangles.length; i++) {
-                if(actorRectangles[i].overlaps(selectRectangle)) {
-                    Gdx.app.log("Verbose", "Touched on a plant icon" );
-                    setData(selectedIndeces[i]);
-                    return true;
-                }
-            }
-
-            for(int i = 0; i < rectangles.length; i++) {
-                for(int j = 0; j < rectangles[i].length; j++) {
-                    if(rect.overlaps(rectangles[i][j])) {
-                        if(i + 1 == rectangles.length && (j == 0 || j + 1 == rectangles[i].length)) {
-                            if(j == 0) {
-                                game.setScreen(mapScreen);
-                                this.dispose();
-                            } else {
-                                if(currentSelectionIndex > 0) {
-                                    PlantActor plantActor[] = new PlantActor[currentSelectionIndex];
-                                    for(int k = 0; k < plantActor.length; k++) {
-                                        plantActor[k] = new PlantActor(renderedActorSprites[k], rectangleSprite, selectedIndeces[k], k, 64);
-                                    }
-                                    game.setScreen(new GameScreen(game, mapScreen, this, region, plantActor));
-                                } else {
-                                    Gdx.app.log("verbose", "UYou cannot start the game without plants!");
-                                }
-                            }
-                        } else {
-                            rectangleSprite.setBounds(rectangles[i][j].getX(), rectangles[i][j].getY(), rectangles[i][j].getWidth(), rectangles[i][j].getHeight());
-                            if(i < rectangles.length - 1) {
-                                setData(i * rectangles[i].length + j);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+//        Rectangle rect = new Rectangle(x - 16f, 720 - (y + 16f), 32f, 32f);
+//
+//        if(selectRectangle.overlaps(rect)) {
+//        } else {
+//            for(int i = 0; i < rectangles.length; i++) {
+//                for(int j = 0; j < rectangles[i].length; j++) {
+//                    if(rect.overlaps(rectangles[i][j])) {
+//                        if(i + 1 == rectangles.length && (j == 0 || j + 1 == rectangles[i].length)) {
+//                            if(j == 0) {
+//                                game.setScreen(mapScreen);
+//                                this.dispose();
+//                            } else {
+//
+//                            }
+//                        } else {
+//                            rectangleSprite.setBounds(rectangles[i][j].getX(), rectangles[i][j].getY(), rectangles[i][j].getWidth(), rectangles[i][j].getHeight());
+//                            if(i < rectangles.length - 1) {
+//                                setData(i * rectangles[i].length + j);
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
         return true;
     }
 
@@ -444,66 +442,62 @@ public class PlantScreen extends AbsoluteScreen {
         return false;
     }
 
-    private void setData(int index) {
-        this.index = index;
-        float barSize = 260f;
-        plantName.setText(PlantCodex.plantName[index]);
-        String plantType = "";
-        switch(PlantCodex.typeBit[index]) {
-            case 1:
-                plantType = "         Land Plant        ";
-                break;
-            case 2:
-                plantType = "      Salt-water plant     ";
-                break;
-            case 4:
-                plantType = "     Fresh-water plant     ";
-                break;
-            case 1 | 2:
-                plantType = "   Land/salt-water plant   ";
-                break;
-            case 1 | 4:
-                plantType = "  Land/fresh-water plant   ";
-                break;
-            case 2 | 4:
-                plantType = "  Salt/fresh-water plant   ";
-                break;
-            case 1 | 2 | 4:
-                plantType = "Land/salt/fresh-water plant";
-                break;
+    public void setData(int index) {
+        if(index < 15) {
+            int i = index / 5, j = index % 5;
+            this.index = index;
+            float barSize = 260f;
+            plantName.setText(PlantCodex.plantName[index]);
+            rectangleSprite.setBounds(rectangles[i][j].getX(), rectangles[i][j].getY(), rectangles[i][j].getWidth(), rectangles[i][j].getHeight());
+            String plantType = "";
+            switch(PlantCodex.typeBit[index]) {
+                case 1:
+                    plantType = "         Land Plant        ";
+                    break;
+                case 2:
+                    plantType = "      Salt-water plant     ";
+                    break;
+                case 4:
+                    plantType = "     Fresh-water plant     ";
+                    break;
+                case 1 | 2:
+                    plantType = "   Land/salt-water plant   ";
+                    break;
+                case 1 | 4:
+                    plantType = "  Land/fresh-water plant   ";
+                    break;
+                case 2 | 4:
+                    plantType = "  Salt/fresh-water plant   ";
+                    break;
+                case 1 | 2 | 4:
+                    plantType = "Land/salt/fresh-water plant";
+                    break;
+            }
+            this.plantType.setText(plantType);
+            plantCost.setText("" + (int)(PlantCodex.cost[index]));
+            plantHP.setBounds(plantHP.getX(), plantHP.getY(), barSize * (PlantCodex.hpStats[PlantCodex.maxHP[index]] / PlantCodex.baseHP), plantHP.getHeight());
+            if(index != 13) {
+                plantAS.setBounds(plantAS.getX(), plantAS.getY(), barSize * ((float)PlantCodex.baseAS / (float)(PlantCodex.asStats[PlantCodex.AS[index]] * 3f)), plantAS.getHeight());
+            } else {
+                plantAS.setBounds(plantAS.getX(), plantAS.getY(), 0, plantAS.getHeight());
+            }
+            plantDmg.setBounds(plantDmg.getX(), plantDmg.getY(), barSize * ((((PlantCodex.dmgStats[PlantCodex.DMG[index]].x + PlantCodex.dmgStats[PlantCodex.DMG[index]].y)) / (((PlantCodex.baseDmg.x + PlantCodex.baseDmg.y))))), plantDmg.getHeight());
+            plantGrowthTime.setText("" + (int)(PlantCodex.growthTime[index]) + " seconds");
         }
-        this.plantType.setText(plantType);
-        plantCost.setText("" + (int)(PlantCodex.cost[index]));
-        plantHP.setBounds(plantHP.getX(), plantHP.getY(), barSize * (PlantCodex.hpStats[PlantCodex.maxHP[index]] / PlantCodex.baseHP), plantHP.getHeight());
-        if(index != 13) {
-            plantAS.setBounds(plantAS.getX(), plantAS.getY(), barSize * ((float)PlantCodex.baseAS / (float)(PlantCodex.asStats[PlantCodex.AS[index]] * 3f)), plantAS.getHeight());
-        } else {
-            plantAS.setBounds(plantAS.getX(), plantAS.getY(), 0, plantAS.getHeight());
-        }
-        plantDmg.setBounds(plantDmg.getX(), plantDmg.getY(), barSize * ((((PlantCodex.dmgStats[PlantCodex.DMG[index]].x + PlantCodex.dmgStats[PlantCodex.DMG[index]].y)) / (((PlantCodex.baseDmg.x + PlantCodex.baseDmg.y))))), plantDmg.getHeight());
-        plantGrowthTime.setText("" + (int)(PlantCodex.growthTime[index]) + " seconds");
     }
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(new GestureDetector(this));
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
     public void dispose() {
         lowerHud.getTexture().dispose();
-        playButton.getTexture().dispose();
-        homeButton.getTexture().dispose();
         plantScreenBG.getTexture().dispose();
         plantHP.getTexture().dispose();
         plantAS.getTexture().dispose();
         plantDmg.getTexture().dispose();
-        checkButton.getTexture().dispose();
-        xButton.getTexture().dispose();
-        onPressCross.getTexture().dispose();
-        onPressPlay.getTexture().dispose();
-        onPressCheck.getTexture().dispose();
-        onPressHome.getTexture().dispose();
         for(int i = 0; i < sprites.length; i++) {
             if(sprites[i] != null) {
                 sprites[i].getTexture().dispose();
