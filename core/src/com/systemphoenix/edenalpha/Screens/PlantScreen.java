@@ -2,7 +2,6 @@ package com.systemphoenix.edenalpha.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,13 +10,10 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
@@ -34,11 +30,9 @@ public class PlantScreen extends AbsoluteScreen {
     private Texture trees, plants;
     private Sprite lowerHud, plantScreenBG, rectangleSprite, plantHP, plantAS, plantDmg;
     private Sprite[] sprites, actorSprites, renderedActorSprites;
-    private Rectangle actorRectangles[], selectRectangle, rectangles[][];
+    private Rectangle actorRectangles[], rectangles[][];
 
     private ButtonActor playButton, checkButton, crossButton, homeButton;
-
-    private Array<PlantButton> plantButtons;
 
     private SpriteBatch gameGraphics;
     private Label plantName, plantType, plantCost, plantGrowthTime;
@@ -48,7 +42,7 @@ public class PlantScreen extends AbsoluteScreen {
 
     private float sizeModifier = 10;
 
-    private int selectedIndeces[], currentSelectionIndex, index, magicLength = 0;
+    private int selectedIndeces[], currentSelectionIndex, index;
     private boolean selected[];
 
     public PlantScreen(EdenAlpha game, MapScreen mapScreen, Region region) {
@@ -83,9 +77,7 @@ public class PlantScreen extends AbsoluteScreen {
         }
 
         for(int j = 0; j < rectangles[rectangles.length - 1].length; j++) {
-            if(j == 0 || j + 1 == rectangles[rectangles.length - 1].length) {
-                continue;
-            } else {
+            if(!(j == 0 || j + 1 == rectangles[rectangles.length - 1].length)) {
                 rectangles[rectangles.length - 1][j] = new Rectangle((64 + (j * 144)) - (sizeModifier / 2), 176 - (sizeModifier / 2), 96f + sizeModifier, 96f + sizeModifier);
             }
         }
@@ -121,17 +113,13 @@ public class PlantScreen extends AbsoluteScreen {
         stage.addActor(checkButton);
         stage.addActor(crossButton);
 
-        selectRectangle = new Rectangle(950, 200, 128, 128);
-
         rectangleSprite = new Sprite(new Texture(Gdx.files.internal("misc/0_PlantSquare.png")));
-        plantButtons = new Array<PlantButton>();
 
         TextureRegion tempTrees[][], tempPlants[][];
         trees = new Texture(Gdx.files.internal("trees/trees.png"));
         tempTrees = TextureRegion.split(trees, 64, 64);
         plants = new Texture(Gdx.files.internal("trees/plants.png"));
         tempPlants = TextureRegion.split(plants, 32, 32);
-        magicLength = tempTrees[0].length;
         for(int i = 0; i < tempTrees.length; i++) {
             for(int j = 0; j < tempTrees[i].length; j++) {
                 if((i == 0 && (j == 3 || j == 4)) || (i == 1 && j == 2)) {
@@ -145,7 +133,8 @@ public class PlantScreen extends AbsoluteScreen {
                 }
                 sprites[i * tempTrees[i].length + j].setBounds(rectangles[i][j].getX() + (sizeModifier / 2), rectangles[i][j].getY() + (sizeModifier / 2), rectangles[i][j].getWidth() - sizeModifier, rectangles[i][j].getHeight() - sizeModifier);
 //                plantButtons.add(new PlantButton(sprites[(i * tempTrees[i].length)], stage, rectangles[i][j].getX() + (sizeModifier / 2), rectangles[i][j].getY() + (sizeModifier / 2), rectangles[i][j].getWidth() - sizeModifier));
-                plantButtons.add(new PlantButton(sprites[i * tempTrees[i].length + j], stage, this, i * tempTrees[i].length + j));
+//                plantButtons.add(new PlantButton(sprites[i * tempTrees[i].length + j], stage, this, i * tempTrees[i].length + j));
+                stage.addActor(new PlantButton(sprites[i * tempTrees[i].length + j], stage, this, i * tempTrees[i].length + j));
                 actorSprites[(i * tempTrees[i].length) + j].setBounds(0, 64, 64, 64);
             }
         }
@@ -337,111 +326,6 @@ public class PlantScreen extends AbsoluteScreen {
         this.dispose();
     }
 
-    @Override
-    public boolean touchDown(float x, float y, int pointer, int button) {
-//        Rectangle rect = new Rectangle(x - 16f, 720 - (y + 16f), 32f, 32f);
-//
-//        if(selectRectangle.overlaps(rect)) {
-//        } else {
-//            for(int i = 0; i < rectangles.length; i++) {
-//                for(int j = 0; j < rectangles[i].length; j++) {
-//                    if(rect.overlaps(rectangles[i][j])) {
-//                        if(i + 1 == rectangles.length && (j == 0 || j + 1 == rectangles[i].length)) {
-//                            if(j == 0) {
-//                                game.setScreen(mapScreen);
-//                                this.dispose();
-//                            } else {
-//
-//                            }
-//                        } else {
-//                            rectangleSprite.setBounds(rectangles[i][j].getX(), rectangles[i][j].getY(), rectangles[i][j].getWidth(), rectangles[i][j].getHeight());
-//                            if(i < rectangles.length - 1) {
-//                                setData(i * rectangles[i].length + j);
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-        return true;
-    }
-
-    @Override
-    public boolean tap(float x, float y, int count, int button) {
-//        Rectangle rect = new Rectangle(x - 16f, 720 - (y + 16f), 32f, 32f);
-//
-//        if(selectRectangle.overlaps(rect)) {
-//            if(currentSelectionIndex <= selectedIndeces.length) {
-//                selected[index] = !selected[index];
-//                if(selected[index]) {
-//                    if(currentSelectionIndex < selectedIndeces.length) {
-//                        selectedIndeces[currentSelectionIndex] = index;
-//                        renderedActorSprites[currentSelectionIndex].set(actorSprites[index]);
-//                        renderedActorSprites[currentSelectionIndex].setBounds(PlantCodex.plantSelectorIndex[currentSelectionIndex], 64, 64, 64);
-//                        currentSelectionIndex++;
-//                    } else {
-//                        selected[index] = !selected[index];
-//                    }
-//                } else {
-//                    for(int i = 0; i < selectedIndeces.length; i++) {
-//                        if(selectedIndeces[i] == index) {
-//                            for(int j = i; j < selectedIndeces.length; j++) {
-//                                if(j + 1 == selectedIndeces.length) {
-//                                    selectedIndeces[j] = -1;
-//                                    renderedActorSprites[j] = new Sprite();
-//                                } else {
-//                                    selectedIndeces[j] = selectedIndeces[j + 1];
-//                                    renderedActorSprites[j] = renderedActorSprites[j + 1];
-//                                    renderedActorSprites[j].setBounds(PlantCodex.plantSelectorIndex[j], 64, 64, 64);
-//                                }
-//                            }
-//                            break;
-//                        }
-//                    }
-//                    currentSelectionIndex--;
-//                }
-//            }
-//        } else {
-//            for(int i = 0; i < actorRectangles.length; i++) {
-//                if(actorRectangles[i].overlaps(selectRectangle)) {
-//                    Gdx.app.log("Verbose", "Touched on a plant icon" );
-//                    setData(selectedIndeces[i]);
-//                    return true;
-//                }
-//            }
-//
-//            for(int i = 0; i < rectangles.length; i++) {
-//                for(int j = 0; j < rectangles[i].length; j++) {
-//                    if(rect.overlaps(rectangles[i][j])) {
-//                        if(i + 1 == rectangles.length && (j == 0 || j + 1 == rectangles[i].length)) {
-//                            if(j == 0) {
-//                                game.setScreen(mapScreen);
-//                                this.dispose();
-//                            } else {
-//                                if(currentSelectionIndex > 0) {
-//                                    PlantActor plantActor[] = new PlantActor[currentSelectionIndex];
-//                                    for(int k = 0; k < plantActor.length; k++) {
-//                                        plantActor[k] = new PlantActor(renderedActorSprites[k], rectangleSprite, selectedIndeces[k], k, 64);
-//                                    }
-//                                    game.setScreen(new GameScreen(game, mapScreen, this, region, plantActor));
-//                                } else {
-//                                    Gdx.app.log("verbose", "UYou cannot start the game without plants!");
-//                                }
-//                            }
-//                        } else {
-//                            rectangleSprite.setBounds(rectangles[i][j].getX(), rectangles[i][j].getY(), rectangles[i][j].getWidth(), rectangles[i][j].getHeight());
-//                            if(i < rectangles.length - 1) {
-//                                setData(i * rectangles[i].length + j);
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return true;
-        return false;
-    }
-
     public void setData(int index) {
         if(index < 15) {
             int i = index / 5, j = index % 5;
@@ -513,6 +397,10 @@ public class PlantScreen extends AbsoluteScreen {
         rectangleSprite.getTexture().dispose();
         trees.dispose();
         plants.dispose();
+        playButton.dispose();
+        homeButton.dispose();
+        crossButton.dispose();
+        checkButton.dispose();
         stage.dispose();
     }
 

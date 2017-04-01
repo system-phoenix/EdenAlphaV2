@@ -29,11 +29,11 @@ public class GameHud extends AbsoluteHud implements Disposable {
 
     private ButtonActor checkButton, crossButton;
 
-    private boolean canDraw, canDrawCheck;
-    private int index, drawable = 1;
+    private boolean canDraw;
+    private int index = -1, drawable = 1;
 
     private Label plantName, plantType, plantCost, plantGrowthTime;
-    private Sprite plantHP, plantAS, plantDmg, rectSprite;
+    private Sprite plantHP, plantAS, plantDmg;
 
     public GameHud(EdenAlpha game, GameScreen gameScreen, PlantActor[] plantActors) {
         super(game);
@@ -62,16 +62,11 @@ public class GameHud extends AbsoluteHud implements Disposable {
         stage.addActor(temp);
 
         Label tempLabel, spaceFiller;
-        Table tempTable = new Table(), infoTable = new Table(), renderTable;
+        Table tempTable = new Table(), infoTable = new Table();
         tempTable.setBounds(0, 0, 111, 140);
         infoTable.setBounds(111, 0, 200, 140);
-        renderTable = infoTable;
-
-        rectSprite = new Sprite(new Texture(Gdx.files.internal("misc/0_PlantSquare.png")));
-        rectSprite.setBounds(renderTable.getX(), renderTable.getY(), renderTable.getWidth(), renderTable.getHeight());
 
         Color border = Color.BLACK;
-//        Color fontColor = new Color(0.5f, 1f, 0.5f, 1f);
         Color fontColor = Color.WHITE;
         BitmapFont tempFont = font;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/neuropol.ttf"));
@@ -151,6 +146,11 @@ public class GameHud extends AbsoluteHud implements Disposable {
         generator.dispose();
         font = tempFont;
 
+        checkButton = new ButtonActor(ButtonCodex.CHECK, gameScreen, stage, gameScreen.getWorldWidth() - 160, 32, 128, true, false);
+        crossButton = new ButtonActor(ButtonCodex.CROSS, gameScreen, plantStage, 32, 32, 128, true, false);
+        plantStage.addActor(crossButton);
+        crossButton.setCanDraw(canDraw);
+        stage.addActor(checkButton);
     }
 
     public void draw(Batch batch) {
@@ -165,10 +165,12 @@ public class GameHud extends AbsoluteHud implements Disposable {
                     }
                     break;
                 default:
-                    if(PlantCodex.cost[index] < gameScreen.getSeeds()) {
-                        checkButton.setCanPress(true);
-                    } else {
-                        checkButton.setCanPress(false);
+                    if(index > -1 && index < 15) {
+                        if(PlantCodex.cost[index] < gameScreen.getSeeds()) {
+                            checkButton.setCanPress(true);
+                        } else {
+                            checkButton.setCanPress(false);
+                        }
                     }
                     crossButton.setCanPress(false);
                     batch.setProjectionMatrix(stage.getCamera().combined);
@@ -234,30 +236,18 @@ public class GameHud extends AbsoluteHud implements Disposable {
     public void setCanDraw(boolean canDraw) {
         this.canDraw = canDraw;
         plantSelector.setCanDraw(canDraw);
-        if(canDrawCheck) {
-            checkButton.setCanDraw(canDraw);
-            crossButton.setCanDraw(canDraw);
-            Plant.setSelectAllPlants(canDraw);
-        }
+        checkButton.setCanDraw(canDraw);
+        crossButton.setCanDraw(canDraw);
+        Plant.setSelectAllPlants(canDraw);
     }
 
-    public void setCanDraw() {
-        canDrawCheck = true;
+    public void setCanPress(boolean canPress) {
+        crossButton.setCanPress(canPress);
+        checkButton.setCanPress(canPress);
     }
 
     public void setDrawable(int drawable) {
         this.drawable = drawable;
-    }
-    
-    public void setCheckButtonCanDraw(boolean canDraw) {
-        if(checkButton == null) {
-            checkButton = new ButtonActor(ButtonCodex.CHECK, gameScreen, stage, gameScreen.getWorldWidth() - 160, 32, 128, true, false);
-            crossButton = new ButtonActor(ButtonCodex.CROSS, gameScreen, plantStage, 32, 32, 128, true, false);
-            plantStage.addActor(crossButton);
-            crossButton.setCanDraw(canDraw);
-            stage.addActor(checkButton);
-        }
-        this.checkButton.setCanDraw(canDraw);
     }
 
     public PlantActor[] getPlantActors() {
@@ -270,6 +260,10 @@ public class GameHud extends AbsoluteHud implements Disposable {
 
     public int getDrawable() {
         return drawable;
+    }
+
+    public Stage getPlantStage() {
+        return plantStage;
     }
 
 }

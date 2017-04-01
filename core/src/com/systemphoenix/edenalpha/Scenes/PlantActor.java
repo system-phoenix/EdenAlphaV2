@@ -1,18 +1,19 @@
 package com.systemphoenix.edenalpha.Scenes;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Actors.Plant;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
-public class PlantActor extends Actor implements InputProcessor, Disposable {
+public class PlantActor extends Actor implements Disposable {
 
     private static PlantActor recentlySelectedActor = null;
 
@@ -22,12 +23,7 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
     private float size, plantCost;
     private boolean canDraw, drawRectangle = false;
 
-    private String plantName;
-
     private Sprite sprite, rectangleSprite, maskSprite;
-
-    private Vector2 coord;
-    private int pastScreenX, pastScreenY;
 
     public PlantActor(Sprite textureRegion, Sprite rectangleSprite, int plantIndex, int index, float size) {
         this.gameScreen = null;
@@ -35,7 +31,6 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
         this.plantIndex = plantIndex;
         this.rectangleSprite = rectangleSprite;
 
-        this.plantName = PlantCodex.plantName[plantIndex];
         this.plantCost = PlantCodex.cost[plantIndex];
 
         this.maskSprite = new Sprite(new Texture(Gdx.files.internal("utilities/mask.png")));
@@ -44,10 +39,37 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
 
         this.size = size;
         this.canDraw = false;
+
+        this.setTouchable(Touchable.enabled);
+        this.addListener(new InputListener() {
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                return PlantActor.this.triggerAction();
+            }
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+            }
+        });
     }
 
     public void setGameScreen(GameScreen gameScreen) {
         this.gameScreen = gameScreen;
+    }
+
+    public boolean triggerAction() {
+        if(canDraw) {
+            setRectangleSpriteBounds();
+            if(recentlySelectedActor != null) recentlySelectedActor.setDrawRectangle(false);
+            recentlySelectedActor = this;
+            gameScreen.getGameHud().setData();
+            gameScreen.setPseudoPlant(plantIndex);
+            Plant.setSelectAllPlants(true);
+            return true;
+        }
+        return false;
+    }
+
+    public void setRectangleSpriteBounds() {
+        rectangleSprite.setBounds(this.getX() - 5, this.getY() - 5, this.getWidth() + 10, this.getHeight() + 10);
+        drawRectangle = true;
     }
 
     @Override
@@ -63,78 +85,6 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
                 maskSprite.draw(batch);
             }
         }
-    }
-
-    @Override
-    public boolean keyDown(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyUp(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if((pastScreenX == -1 && pastScreenY == -1) || !(pastScreenX == screenX && pastScreenY == screenY)) {
-            coord = gameScreen.getGameHud().getStage().screenToStageCoordinates(new Vector2((float)screenX, (float)screenY));
-            pastScreenX = screenX;
-            pastScreenY = screenY;
-        }
-        Actor hitActor = gameScreen.getGameHud().getStage().hit(coord.x, coord.y, true);
-
-        if(hitActor == this && canDraw) {
-//            gameScreen.plant(plantIndex, textureRegion);
-            rectangleSprite.setBounds(this.getX() - 5, this.getY() - 5, this.getWidth() + 10, this.getHeight() + 10);
-            if(recentlySelectedActor != null) recentlySelectedActor.setDrawRectangle(false);
-            drawRectangle = true;
-            recentlySelectedActor = this;
-            gameScreen.getGameHud().setData();
-            gameScreen.getGameHud().setCheckButtonCanDraw(true);
-            gameScreen.getGameHud().setCanDraw();
-            gameScreen.setPseudoPlant(plantIndex);
-            Plant.setSelectAllPlants(true);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        if((pastScreenX == -1 && pastScreenY == -1) || !(pastScreenX == screenX && pastScreenY == screenY)) {
-            coord = gameScreen.getGameHud().getStage().screenToStageCoordinates(new Vector2((float)screenX, (float)screenY));
-            pastScreenX = screenX;
-            pastScreenY = screenY;
-        }
-        if(gameScreen != null) {
-            Actor hitActor = gameScreen.getGameHud().getStage().hit(coord.x, coord.y, true);
-
-            if(hitActor == this && canDraw) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(int amount) {
-        return false;
     }
 
     @Override
@@ -164,5 +114,9 @@ public class PlantActor extends Actor implements InputProcessor, Disposable {
 
     public static PlantActor getRecentlySelectedActor() {
         return recentlySelectedActor;
+    }
+
+    public static void setRecentlySelectedActor(PlantActor plantActor) {
+        recentlySelectedActor = plantActor;
     }
 }

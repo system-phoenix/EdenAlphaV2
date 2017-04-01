@@ -354,7 +354,6 @@ public class GameScreen extends AbsoluteScreen {
                         topHud.createLabels();
                         topHud.setPauseButtonCanDraw(true);
                         topHud.setSeedStatMessage("" + (int)seeds);
-                        gameHud.setCheckButtonCanDraw(false);
 
                         bgMusic = Gdx.audio.newMusic(Gdx.files.internal("sfx/bg/" + region.getMusicFX()));
                         bgMusic.setLooping(true);
@@ -432,6 +431,8 @@ public class GameScreen extends AbsoluteScreen {
                 Gdx.app.log("Verbose", "Error rendering top hud: " + e.getMessage());
             }
             try {
+                gameGraphics.setProjectionMatrix(gameHud.getStage().getCamera().combined);
+                gameHud.getStage().act(Gdx.graphics.getDeltaTime());
                 gameHud.draw(gameGraphics);
             } catch (Exception e) {
                 Gdx.app.log("Verbose", "Error rendering game hud: " + e.getMessage());
@@ -462,10 +463,10 @@ public class GameScreen extends AbsoluteScreen {
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         if(inputProcessors == null) {
             inputProcessors = new Array<InputProcessor>();
-            PlantActor[] plantActors = gameHud.getPlantActors();
-            for(int i = 0; i < plantActors.length; i++) {
-                inputProcessors.add(plantActors[i]);
-            }
+            inputProcessors.add(this.gameStage);
+            inputProcessors.add(topHud.getStage());
+            inputProcessors.add(gameHud.getStage());
+            inputProcessors.add(gameHud.getPlantStage());
             inputProcessors.add(new GestureDetector(this));
         }
         inputMultiplexer.setProcessors(inputProcessors);
@@ -483,7 +484,7 @@ public class GameScreen extends AbsoluteScreen {
     }
 
     public void plant(int plantIndex, TextureRegion sprite) {
-        if(seeds - PlantCodex.cost[plantIndex] >= 0) {
+        if(seeds - PlantCodex.cost[plantIndex] >= 0 && (plantIndex > -1 && plantIndex < 15)) {
             seeds -= PlantCodex.cost[plantIndex];
             topHud.setSeedStatMessage("" + (int)seeds);
             switch(plantIndex) {
@@ -500,7 +501,6 @@ public class GameScreen extends AbsoluteScreen {
                     break;
             }
 //            plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f));
-            inputProcessors.insert(inputProcessors.size - 1, plants.peek());
             updateSeedRate();
 
             for(int i = selectedY - 1; i <= selectedY + 1; i++) {
@@ -704,11 +704,13 @@ public class GameScreen extends AbsoluteScreen {
     public void pauseGame() {
         paused = true;
         topHud.setPauseButtonCanDraw(false);
+        gameHud.setCanPress(false);
         timeGap = System.currentTimeMillis() - timer;
     }
 
     public void resumeGame() {
         topHud.setPauseButtonCanDraw(true);
+        gameHud.setCanDraw(true);
         paused = false;
         timer = System.currentTimeMillis() - timeGap;
         willPause = false;

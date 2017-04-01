@@ -58,6 +58,7 @@ public class ButtonActor extends Actor implements Disposable {
             switch (index) {
                 case ButtonCodex.PAUSE:
                     if(isGameScreen) {
+                        Gdx.app.log("Verbose", "touched PAUSE button");
                         ((GameScreen)screen).setWillPause(true);
                     }
                     break;
@@ -104,7 +105,18 @@ public class ButtonActor extends Actor implements Disposable {
     @Override
     public void act(float delta) {
         super.act(delta);
-        this.setBounds(beforePressSprite.getX(), beforePressSprite.getY(), beforePressSprite.getWidth(), beforePressSprite.getHeight());
+        switch(index) {
+            case ButtonCodex.CHECK:
+                if(isGameScreen) {
+                    canPress = PlantActor.getRecentlySelectedActor() != null;
+                }
+                break;
+            case ButtonCodex.CROSS:
+                if(isGameScreen) {
+                    canPress = Plant.getSelectedPlant() != null;
+                }
+                break;
+        }
     }
 
     @Override

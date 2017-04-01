@@ -15,18 +15,7 @@ import com.systemphoenix.edenalpha.Screens.PlantScreen;
 
 public class PlantButton extends Actor implements Disposable {
 
-    private PlantScreen plantScreen;
-    private Stage stage;
-    private Sprite sprite;
-
-    private int plantIndex;
-    private Vector2 coord;
-
     public PlantButton(Sprite sprite, Stage stage, final PlantScreen plantScreen, final int plantIndex) {
-        this.stage = stage;
-        this.sprite = sprite;
-        this.plantIndex = plantIndex;
-        this.plantScreen = plantScreen;
         this.setBounds(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
         this.setTouchable(Touchable.enabled);
 

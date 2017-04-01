@@ -13,28 +13,29 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.CollisionBit;
 import com.systemphoenix.edenalpha.PlantSquares.PlantSquare;
+import com.systemphoenix.edenalpha.Scenes.PlantActor;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Random;
 
-public class Plant extends Actor implements InputProcessor, Disposable {
+public class Plant extends Actor implements Disposable {
     private static Plant selectedPlant = null;
     private static boolean selectAllPlants = false;
 
     private GameScreen gameScreen;
 
     private Sound sound;
-
-    private Vector2 coord;
-    private int pastScreenX, pastScreenY;
 
     private Sprite sprite, rangeSprite, effectiveRangeSprite, redLifeBar, greenLifeBar;
     private Stage gameStage;
@@ -77,6 +78,14 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         this.greenLifeBar.setBounds(x + size / 2, y + size / 4 + size / 2, 1f, size / 16);
 
         this.setBounds(x, y, size * 2, size * 2);
+        this.setTouchable(Touchable.enabled);
+        this.addListener(new InputListener() {
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                return Plant.this.triggerAction();
+            }
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+            }
+        });
 
         initialize();
         this.targets = new Array<Enemy>();
@@ -136,7 +145,26 @@ public class Plant extends Actor implements InputProcessor, Disposable {
         body.createFixture(fixtureDef).setUserData(this);
 
         plantCollision = new PlantCollision(gameScreen, this, size, effectiveRange);
+        this.gameStage.addActor(this);
+    }
 
+    public boolean triggerAction() {
+        selected = !selected;
+        if(selected) {
+            if(selectedPlant != this && selectedPlant != null) {
+                selectedPlant.selected = false;
+                selectedPlant = this;
+            } else {
+                selectedPlant = this;
+            }
+            gameScreen.resetHud();
+            gameScreen.getGameHud().setDrawable(0);
+            gameScreen.getGameHud().setCanDraw(true);
+            selectAllPlants = false;
+        } else {
+            nullSelectedPlant();
+        }
+        return true;
     }
 
     public void acquireTarget(Enemy enemy) {
@@ -321,77 +349,6 @@ public class Plant extends Actor implements InputProcessor, Disposable {
                 hit = false;
             }
         }
-    }
-
-    @Override
-    public boolean keyDown(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyUp(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if((pastScreenX == -1 && pastScreenY == -1) || !(pastScreenX == screenX && pastScreenY == screenY)) {
-            coord = gameStage.screenToStageCoordinates(new Vector2((float)screenX, (float)screenY));
-            pastScreenX = screenX;
-            pastScreenY = screenY;
-        }
-        Actor hitActor = gameStage.hit(coord.x, coord.y, true);
-
-        if(hitActor == this) {
-            selected = !selected;
-            if(selected) {
-                if(selectedPlant != this && selectedPlant != null) {
-                    selectedPlant.selected = false;
-                    selectedPlant = this;
-                } else {
-                    selectedPlant = this;
-                }
-                gameScreen.resetHud();
-                gameScreen.getGameHud().setDrawable(0);
-                gameScreen.getGameHud().setCanDraw(true);
-                selectAllPlants = false;
-            } else {
-                nullSelectedPlant();
-            }
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        if((pastScreenX == -1 && pastScreenY == -1) || !(pastScreenX == screenX && pastScreenY == screenY)) {
-            coord = gameStage.screenToStageCoordinates(new Vector2((float)screenX, (float)screenY));
-            pastScreenX = screenX;
-            pastScreenY = screenY;
-        }
-        Actor hitActor = gameStage.hit(coord.x, coord.y, true);
-        return hitActor == this;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(int amount) {
-        return false;
     }
 
     @Override
