@@ -112,6 +112,7 @@ public class MapScreen extends AbsoluteScreen {
 
     public void createPlantScreen() {
         game.setSelectedMapIndex(fieldSelection.getIndex());
+        if(plantScreen != null) plantScreen.dispose();
         plantScreen = new PlantScreen(game, this, fieldSelection.getRegion());
         game.setScreen(plantScreen);
     }

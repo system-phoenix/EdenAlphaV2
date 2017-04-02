@@ -13,7 +13,7 @@ import com.systemphoenix.edenalpha.Actors.Plant;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
-public class PlantActor extends Actor implements Disposable {
+public class PlantActor extends Actor {
 
     private static PlantActor recentlySelectedActor = null;
 
@@ -85,11 +85,6 @@ public class PlantActor extends Actor implements Disposable {
                 maskSprite.draw(batch);
             }
         }
-    }
-
-    @Override
-    public void dispose() {
-        sprite.getTexture().dispose();
     }
 
     public void setCanDraw(boolean canDraw) {

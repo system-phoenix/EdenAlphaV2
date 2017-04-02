@@ -1,16 +1,13 @@
 package com.systemphoenix.edenalpha.Scenes;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Actors.Plant;
@@ -99,7 +96,7 @@ public class ButtonActor extends Actor implements Disposable {
                 break;
             case ButtonCodex.PLAY:
                 if(isGameScreen) {
-
+                    ((GameScreen)screen).tap();
                 } else if(isPlantScreen) {
                     ((PlantScreen)screen).createGameScreen();
                 } else if(isMapScreen) {
@@ -109,10 +106,13 @@ public class ButtonActor extends Actor implements Disposable {
             case ButtonCodex.FAST_FORWARD:
                 break;
             case ButtonCodex.RESTART:
+                if(isGameScreen) {
+                    ((GameScreen)screen).setWillRestart(true);
+                }
                 break;
             case ButtonCodex.HOME:
                 if(isGameScreen) {
-
+                    ((GameScreen)screen).setWillDispose(true);
                 } else if(isPlantScreen) {
                     ((PlantScreen)screen).backToMapScreen();
                 }

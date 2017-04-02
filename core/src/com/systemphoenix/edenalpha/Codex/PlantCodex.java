@@ -49,7 +49,7 @@ public class PlantCodex {
     };
 
     public static final int AS[] = {
-            LOW,       MOD,       LOWER,       LOW,           MOD,           MOD,            HIGH,         HIGH,       MOD,       HIGHEST,        HIGHEST,        ABS_LOWEST,       HIGHER,        VOID,          HIGHER,
+            HIGH,       MOD,       LOWER,       LOW,           MOD,           MOD,            HIGH,         HIGH,       MOD,       HIGHEST,        HIGHEST,        ABS_LOWEST,       HIGHER,        VOID,          HIGHER,
     };
 
     public static final long[] asStats = {
@@ -95,7 +95,7 @@ public class PlantCodex {
     };
 
     public static final int seedProduction[] = {
-            MOD,       HIGH,        LOWER,      VOID,           VOID,           VOID,           HIGH,        VOID,      VOID,       HIGHEST,    ABS_HIGHEST,VOID,       HIGHER,     VOID,       MOD
+            LOWEST,     HIGHEST,        LOWER,      VOID,           VOID,           VOID,           HIGH,        VOID,      VOID,    ABS_HIGHEST, HIGH,       VOID,       HIGHER,     VOID,       MOD
     };
 
     public static final float seedRateStats[] = {
@@ -117,7 +117,7 @@ public class PlantCodex {
 
     public static final int[] DMG = {
 //            new Vector2(25, 35),    new Vector2(25, 35),    new Vector2(35, 40),    new Vector2(0, 5),    new Vector2(15, 20),    new Vector2(15, 20),    new Vector2(20, 25),    new Vector2(25, 35),    new Vector2(35, 40),    new Vector2(0, 5),    new Vector2(0, 5),    new Vector2(45, 50),    new Vector2(15, 20),    new Vector2(0, 0),  new Vector2(35, 40)
-            MOD,        LOWER,      HIGH,       LOWEST,         LOWEST,         LOWEST,         LOW,          MOD,      HIGH,       LOWEST,     ABS_LOWEST, HIGHEST,    LOWEST,     VOID,       HIGH
+            HIGH,        LOWER,      HIGHER,       LOWEST,         LOWEST,         LOWEST,         LOW,          MOD,      HIGH,       ABS_LOWEST,ABS_LOWEST, HIGHEST,    LOWEST,     VOID,       HIGH
     };
 
     public static final String bulletFile[] = {

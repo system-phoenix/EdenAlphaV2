@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -27,10 +28,13 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.systemphoenix.edenalpha.Actors.Plant;
+import com.systemphoenix.edenalpha.Codex.ButtonCodex;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.CollisionBit;
 import com.systemphoenix.edenalpha.EdenAlpha;
@@ -38,6 +42,7 @@ import com.systemphoenix.edenalpha.EnemyUtils.Wave;
 import com.systemphoenix.edenalpha.PlantSquares.PlantSquare;
 import com.systemphoenix.edenalpha.PlantSquares.SquareType;
 import com.systemphoenix.edenalpha.Region;
+import com.systemphoenix.edenalpha.Scenes.ButtonActor;
 import com.systemphoenix.edenalpha.Scenes.GameHud;
 import com.systemphoenix.edenalpha.Scenes.PlantActor;
 import com.systemphoenix.edenalpha.Scenes.TopHud;
@@ -57,7 +62,9 @@ public class GameScreen extends AbsoluteScreen {
     private Sprite loseEndGame, winEndGame, pausedSprite;
     private Sprite redRangeSprite, greenRangeSprite;
 
-    private Stage gameStage;
+    private Stage gameStage, pauseStage;
+    private ButtonActor playButton, homeButton, restartButton;
+    private Label pauseStageLabel;
 
     private TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
@@ -74,9 +81,10 @@ public class GameScreen extends AbsoluteScreen {
 
     private PlantSquare[][] plantSquares, subSquares;
     private float pastZoomDistance, plantSquareSize, accumulator, seeds = 150, seedRate = 0.25f;
-    private int waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1, displaySquare = -3, pseudoPlantIndex = -1;
-    private long timer = 0, newWaveCountdown, timeGap, displaySquareTimer, seedTimer;
+    private int waveIndex = -1, waveLimit = 1, selectedX = -1, selectedY = -1, displaySquare = -3, pseudoPlantIndex = -1;
+    private long timer = 0, newWaveCountdown, timeGap, displaySquareTimer, seedTimer, waveDisplayTimer;
     private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, willPause = false, win = false, lose = false, running = false, canDisplaySquare, canPlant = false, firstCall = true;
+    private boolean willRestart = false, willDispose = false, waveDisplay = true;
 
     public GameScreen(EdenAlpha game, MapScreen mapScreen, PlantScreen plantScreen, Region region, PlantActor[] plantActors) {
         super(game);
@@ -89,6 +97,28 @@ public class GameScreen extends AbsoluteScreen {
 
         this.viewport = new FitViewport(screenWidth, screenHeight, cam);
         this.gameStage = new Stage(viewport, game.getGameGraphics());
+        this.pauseStage = new Stage(viewport, game.getGameGraphics());
+
+        playButton = new ButtonActor(ButtonCodex.PLAY, this, 576, screenHeight / 2 - 64, 128, true, false);
+        homeButton = new ButtonActor(ButtonCodex.HOME, this, 432, screenHeight / 2 - 64, 128, true, false);
+        restartButton = new ButtonActor(ButtonCodex.RESTART, this, 720, screenHeight / 2 - 64, 128, true, false);
+
+        playButton.setCanPress(false);
+        homeButton.setCanPress(false);
+        restartButton.setCanPress(false);
+
+        pauseStage.addActor(playButton);
+        pauseStage.addActor(homeButton);
+        pauseStage.addActor(restartButton);
+
+        Table temp = new Table();
+        pauseStageLabel = new Label("", new Label.LabelStyle(font, Color.WHITE));
+
+        temp.setBounds((screenWidth / 2) - (screenWidth / 4), screenHeight / 8, screenWidth / 2, 64);
+        temp.center().bottom().padBottom(64);
+        temp.add(pauseStageLabel).expandX();
+
+        pauseStage.addActor(temp);
 
         this.gameHud = new GameHud(game, this, plantActors);
         this.topHud = new TopHud(game, this);
@@ -97,11 +127,11 @@ public class GameScreen extends AbsoluteScreen {
             plantActors[i].setGameScreen(this);
         }
 
-        this.winEndGame = new Sprite(new Texture(Gdx.files.internal("misc/winEndGame.png")));
+        this.winEndGame = new Sprite(new Texture(Gdx.files.internal("bgScreen/winEndGame.png")));
         this.winEndGame.setBounds(0f, 0f, worldWidth, worldHeight);
-        this.loseEndGame = new Sprite(new Texture(Gdx.files.internal("misc/loseEndGame.png")));
+        this.loseEndGame = new Sprite(new Texture(Gdx.files.internal("bgScreen/loseEndGame.png")));
         this.loseEndGame.setBounds(0f, 0f, worldWidth, worldHeight);
-        this.pausedSprite = new Sprite(new Texture(Gdx.files.internal("misc/paused.png")));
+        this.pausedSprite = new Sprite(new Texture(Gdx.files.internal("bgScreen/paused.png")));
         this.pausedSprite.setBounds(0f, 0f, worldWidth, worldHeight);
 
         bulletSound = Gdx.audio.newSound(Gdx.files.internal("sfx/fx/Bullet.mp3"));
@@ -248,10 +278,6 @@ public class GameScreen extends AbsoluteScreen {
         }
     }
 
-    public void start() {
-
-    }
-
     public void update(float delta) {
         long sixtyMinuteMark = region.getTimeStart();
         cam.update();
@@ -300,9 +326,19 @@ public class GameScreen extends AbsoluteScreen {
                         win = true;
                         running = false;
                     }
+                    if(!win) {
+                        topHud.setReadyPlantMessage("WAVE " + (waveIndex + 1));
+                        waveDisplayTimer = System.currentTimeMillis();
+                        waveDisplay = true;
+                    }
                 }
 
                 topHud.setWaveStatMessage("" + (waveIndex + 1));
+            }
+
+            if(waveDisplay && System.currentTimeMillis() - waveDisplayTimer > 2000) {
+                waveDisplay = false;
+                topHud.setReadyPlantMessage("");
             }
 
             if(waveIndex >= 0 && !newWave) {
@@ -332,15 +368,21 @@ public class GameScreen extends AbsoluteScreen {
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0.05f, 0.05f, 0.05f, 1);
+        if(willDispose || Gdx.input.isKeyJustPressed(Input.Keys.BACK)) {
+            game.setScreen(mapScreen);
+            this.dispose();
+        } else if(willRestart) {
+            restart();
+            willRestart = false;
+        } else if(willPause) {
+            pauseGame();
+            willPause = false;
+        }
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         if(!paused) {
             if(running) {
                 update(delta);
                 renderer.render();
-                if(Gdx.input.isKeyJustPressed(Input.Keys.BACK)) {
-                    game.setScreen(mapScreen);
-                    this.dispose();
-                }
 //            debugRenderer.render(world, cam.combined);
             }
             else if(firstCall){
@@ -436,25 +478,42 @@ public class GameScreen extends AbsoluteScreen {
                 Gdx.app.log("Verbose", "Error rendering game hud: " + e.getMessage());
             }
 
-            if(willPause) {
-                pauseGame();
-            }
-
             if(win || lose) {
                 gameGraphics.begin();
                 if(win) {
-                    game.setLevelBounds(mapScreen.getLowLevelBound(), mapScreen.getHighLevelBound() + 1);
+                    if(mapScreen.getHighLevelBound() == region.getMapIndex()) {
+                        if(mapScreen.getHighLevelBound() < 16) {
+                            game.setLevelBounds(mapScreen.getLowLevelBound(), mapScreen.getHighLevelBound() + 1);
+                        }
+                        for(int i = 0; i < PlantCodex.level.length; i++) {
+                            if(PlantCodex.level[i] == game.getHighLevelBound()) {
+                                pauseStageLabel.setText("You unlocked " + PlantCodex.plantName[i]);
+                                break;
+                            }
+                        }
+                    }
                     winEndGame.draw(gameGraphics);
                 } else {
                     loseEndGame.draw(gameGraphics);
                 }
                 gameGraphics.end();
+
+                homeButton.setCanDraw(true);
+                homeButton.setCanPress(true);
+
+                restartButton.setCanPress(true);
+                restartButton.setCanDraw(true);
+
+                gameGraphics.setProjectionMatrix(pauseStage.getCamera().combined);
+                pauseStage.draw();
             }
 
         } else {
             gameGraphics.begin();
             pausedSprite.draw(gameGraphics);
             gameGraphics.end();
+            gameGraphics.setProjectionMatrix(pauseStage.getCamera().combined);
+            pauseStage.draw();
         }
     }
 
@@ -462,10 +521,11 @@ public class GameScreen extends AbsoluteScreen {
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         if(inputProcessors == null) {
             inputProcessors = new Array<InputProcessor>();
-            inputProcessors.add(this.gameStage);
-            inputProcessors.add(topHud.getStage());
             inputProcessors.add(gameHud.getStage());
             inputProcessors.add(gameHud.getPlantStage());
+            inputProcessors.add(topHud.getStage());
+            inputProcessors.add(this.gameStage);
+            inputProcessors.add(this.pauseStage);
             inputProcessors.add(new GestureDetector(this));
         }
         inputMultiplexer.setProcessors(inputProcessors);
@@ -514,37 +574,43 @@ public class GameScreen extends AbsoluteScreen {
     }
 
     public void unroot(Plant plant) {
-        for(int i = 0; i < plants.size; i++) {
-            if(plant.equals(plants.get(i))) {
-                plants.removeIndex(i);
-                break;
+        if(plant != null) {
+            for(int i = 0; i < plants.size; i++) {
+                if(plant.equals(plants.get(i))) {
+                    plants.removeIndex(i);
+                    break;
+                }
             }
-        }
-        for(int i = 0; i < inputProcessors.size; i++) {
-            if(plant.equals(inputProcessors.get(i))) {
-                inputProcessors.removeIndex(i);
-                break;
+
+            int x = (int)plant.getX() / 32, y = (int)plant.getY() / 32;
+            for(int i = y - 1; i <= y + 1; i++) {
+                for(int j = x - 1; j <= x + 1; j++) {
+                    plantSquares[i][j] = subSquares[i][j];
+                    subSquares[i][j] = null;
+                }
             }
+            world.destroyBody(plant.getBody());
+            plant.remove();
+            plant.dispose();
+            updateSeedRate();
+            resetHud();
+            gameHud.setDrawable(1);
         }
-        int x = (int)plant.getX() / 32, y = (int)plant.getY() / 32;
-        for(int i = y - 1; i <= y + 1; i++) {
-            for(int j = x - 1; j <= x + 1; j++) {
-                plantSquares[i][j] = subSquares[i][j];
-                subSquares[i][j] = null;
-            }
-        }
-        world.destroyBody(plant.getBody());
-        plant.remove();
-        plant.dispose();
-        updateSeedRate();
-        resetHud();
-        gameHud.setDrawable(1);
     }
 
     public void resetHud() {
         selectedX = selectedY = -1;
         gameHud.setMessage("");
         gameHud.setCanDraw(false);
+    }
+
+    public void tap() {
+        if(paused) {
+            resumeGame();
+        } else if(win || lose) {
+            game.setScreen(mapScreen);
+            this.dispose();
+        }
     }
 
 //  Touch methods
@@ -581,11 +647,6 @@ public class GameScreen extends AbsoluteScreen {
                     gameHud.setDrawable(-1);
                     Plant.nullSelectedPlant();
             }
-        } else if(paused) {
-            resumeGame();
-        } else {
-            game.setScreen(mapScreen);
-            this.dispose();
         }
         return true;
     }
@@ -695,21 +756,49 @@ public class GameScreen extends AbsoluteScreen {
 
         world.dispose();
         debugRenderer.dispose();
-        plantScreen.dispose();
         greenRangeSprite.getTexture().dispose();
         redRangeSprite.getTexture().dispose();
+
+        playButton.dispose();
+        homeButton.dispose();
+        restartButton.dispose();
+
+        pauseStage.dispose();
+    }
+
+    public void restart() {
+        plantScreen.createGameScreen();
+        this.dispose();
     }
 
     public void pauseGame() {
         paused = true;
         topHud.setPauseButtonCanDraw(false);
         gameHud.setCanPress(false);
+
+        playButton.setCanDraw(true);
+        homeButton.setCanDraw(true);
+        restartButton.setCanDraw(true);
+
+        playButton.setCanPress(true);
+        homeButton.setCanPress(true);
+        restartButton.setCanPress(true);
+
         timeGap = System.currentTimeMillis() - timer;
     }
 
     public void resumeGame() {
         topHud.setPauseButtonCanDraw(true);
         gameHud.setCanDraw(true);
+
+        playButton.setCanDraw(false);
+        homeButton.setCanDraw(false);
+        restartButton.setCanDraw(false);
+
+        playButton.setCanPress(false);
+        homeButton.setCanPress(false);
+        restartButton.setCanPress(false);
+
         paused = false;
         timer = System.currentTimeMillis() - timeGap;
         willPause = false;
@@ -772,6 +861,14 @@ public class GameScreen extends AbsoluteScreen {
 
     public void setWillPause(boolean willPause) {
         this.willPause = willPause;
+    }
+
+    public void setWillRestart(boolean willRestart) {
+        this.willRestart = willRestart;
+    }
+
+    public void setWillDispose(boolean willDispose) {
+        this.willDispose = willDispose;
     }
 
     public void setPseudoPlant(int plantIndex) {

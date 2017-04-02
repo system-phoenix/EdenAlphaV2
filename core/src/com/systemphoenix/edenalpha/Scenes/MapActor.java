@@ -45,6 +45,7 @@ public class MapActor extends Actor implements Disposable {
             }
 
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                isPressed = false;
             }
         });
     }

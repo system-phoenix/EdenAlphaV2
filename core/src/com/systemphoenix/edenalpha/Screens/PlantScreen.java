@@ -91,7 +91,7 @@ public class PlantScreen extends AbsoluteScreen {
         stage = new Stage(viewport, gameGraphics);
 
         lowerHud = new Sprite(new Texture(Gdx.files.internal("misc/lowerHud.png")));
-        plantScreenBG = new Sprite(new Texture(Gdx.files.internal("utilities/plantScreen.png")));
+        plantScreenBG = new Sprite(new Texture(Gdx.files.internal("bgScreen/plantScreen.png")));
 
         playButton = new ButtonActor(ButtonCodex.PLAY, this, worldWidth - 160f, 32f, 128, false, true);
         homeButton = new ButtonActor(ButtonCodex.HOME, this, 32f, 32f, 128, false, true);

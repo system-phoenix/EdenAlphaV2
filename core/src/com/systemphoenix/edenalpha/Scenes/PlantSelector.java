@@ -31,9 +31,6 @@ public class PlantSelector extends Actor implements Disposable {
     @Override
     public void dispose() {
         sprite.getTexture().dispose();
-        for(int i = 0; i < plantActors.length; i++) {
-            plantActors[i].dispose();
-        }
         exSprite.getTexture().dispose();
     }
 
