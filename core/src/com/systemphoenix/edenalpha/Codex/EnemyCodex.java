@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 public class EnemyCodex {
 
     public static int getHP(int index, int wave, int regionIndex) {
-        return HP[index] + ((wave + 1) * regionIndex) * 10;
+        return HP[index] + ((wave + 1) * regionIndex);
     }
 
     public static final int HP[] = {

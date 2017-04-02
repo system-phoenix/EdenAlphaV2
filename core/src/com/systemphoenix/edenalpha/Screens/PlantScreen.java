@@ -93,10 +93,10 @@ public class PlantScreen extends AbsoluteScreen {
         lowerHud = new Sprite(new Texture(Gdx.files.internal("misc/lowerHud.png")));
         plantScreenBG = new Sprite(new Texture(Gdx.files.internal("utilities/plantScreen.png")));
 
-        playButton = new ButtonActor(ButtonCodex.PLAY, this, stage, worldWidth - 160f, 32f, 128, false, true);
-        homeButton = new ButtonActor(ButtonCodex.HOME, this, stage, 32f, 32f, 128, false, true);
-        checkButton = new ButtonActor(ButtonCodex.CHECK, this, stage, 878, 200, 128, false, true);
-        crossButton = new ButtonActor(ButtonCodex.CROSS, this, stage, 1022, 200, 128, false, true);
+        playButton = new ButtonActor(ButtonCodex.PLAY, this, worldWidth - 160f, 32f, 128, false, true);
+        homeButton = new ButtonActor(ButtonCodex.HOME, this, 32f, 32f, 128, false, true);
+        checkButton = new ButtonActor(ButtonCodex.CHECK, this, 878, 200, 128, false, true);
+        crossButton = new ButtonActor(ButtonCodex.CROSS, this, 1022, 200, 128, false, true);
 
         playButton.setCanDraw(true);
         homeButton.setCanDraw(true);
@@ -122,20 +122,22 @@ public class PlantScreen extends AbsoluteScreen {
         tempPlants = TextureRegion.split(plants, 32, 32);
         for(int i = 0; i < tempTrees.length; i++) {
             for(int j = 0; j < tempTrees[i].length; j++) {
-                if((i == 0 && (j == 3 || j == 4)) || (i == 1 && j == 2)) {
-                    sprites[(i * tempTrees[i].length) + j] = new Sprite(tempPlants[i][j]);
-                    actorSprites[(i * tempTrees[i].length) + j] = new Sprite(tempPlants[i][j]);
-                } else if ((i == 3 && j == 0) || (i == 3 && j == 4)) {
-                    continue;
-                } else {
-                    sprites[(i * tempTrees[i].length) + j] = new Sprite(tempTrees[i][j]);
-                    actorSprites[(i * tempTrees[i].length) + j] = new Sprite(tempTrees[i][j]);
+                if((i * tempTrees[i].length + j >= mapScreen.getLowLevelBound() && i * tempTrees[i].length + j <= mapScreen.getHighLevelBound()) || (i * tempTrees[i].length + j < 15 && PlantCodex.level[i * tempTrees[i].length + j] <= mapScreen.getHighLevelBound())) {
+                    if((i == 0 && (j == 3 || j == 4)) || (i == 1 && j == 2)) {
+                        sprites[(i * tempTrees[i].length) + j] = new Sprite(tempPlants[i][j]);
+                        actorSprites[(i * tempTrees[i].length) + j] = new Sprite(tempPlants[i][j]);
+                    } else if ((i == 3 && j == 0) || (i == 3 && j == 4)) {
+                        continue;
+                    } else {
+                        sprites[(i * tempTrees[i].length) + j] = new Sprite(tempTrees[i][j]);
+                        actorSprites[(i * tempTrees[i].length) + j] = new Sprite(tempTrees[i][j]);
+                    }
+                    sprites[i * tempTrees[i].length + j].setBounds(rectangles[i][j].getX() + (sizeModifier / 2), rectangles[i][j].getY() + (sizeModifier / 2), rectangles[i][j].getWidth() - sizeModifier, rectangles[i][j].getHeight() - sizeModifier);
+    //                plantButtons.add(new PlantButton(sprites[(i * tempTrees[i].length)], stage, rectangles[i][j].getX() + (sizeModifier / 2), rectangles[i][j].getY() + (sizeModifier / 2), rectangles[i][j].getWidth() - sizeModifier));
+    //                plantButtons.add(new PlantButton(sprites[i * tempTrees[i].length + j], stage, this, i * tempTrees[i].length + j));
+                    stage.addActor(new PlantButton(sprites[i * tempTrees[i].length + j], stage, this, i * tempTrees[i].length + j));
+                    actorSprites[(i * tempTrees[i].length) + j].setBounds(0, 64, 64, 64);
                 }
-                sprites[i * tempTrees[i].length + j].setBounds(rectangles[i][j].getX() + (sizeModifier / 2), rectangles[i][j].getY() + (sizeModifier / 2), rectangles[i][j].getWidth() - sizeModifier, rectangles[i][j].getHeight() - sizeModifier);
-//                plantButtons.add(new PlantButton(sprites[(i * tempTrees[i].length)], stage, rectangles[i][j].getX() + (sizeModifier / 2), rectangles[i][j].getY() + (sizeModifier / 2), rectangles[i][j].getWidth() - sizeModifier));
-//                plantButtons.add(new PlantButton(sprites[i * tempTrees[i].length + j], stage, this, i * tempTrees[i].length + j));
-                stage.addActor(new PlantButton(sprites[i * tempTrees[i].length + j], stage, this, i * tempTrees[i].length + j));
-                actorSprites[(i * tempTrees[i].length) + j].setBounds(0, 64, 64, 64);
             }
         }
         rectangleSprite.setBounds(rectangles[0][0].getX(), rectangles[0][0].getY(), rectangles[0][0].getWidth(), rectangles[0][0].getHeight());
@@ -327,7 +329,7 @@ public class PlantScreen extends AbsoluteScreen {
     }
 
     public void setData(int index) {
-        if(index < 15) {
+        if((index >= mapScreen.getLowLevelBound() && index <= mapScreen.getHighLevelBound()) || (index < 15 && PlantCodex.level[index] <= mapScreen.getHighLevelBound())) {
             int i = index / 5, j = index % 5;
             this.index = index;
             float barSize = 260f;

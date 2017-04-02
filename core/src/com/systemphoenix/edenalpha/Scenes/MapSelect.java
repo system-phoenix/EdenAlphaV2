@@ -2,25 +2,38 @@ package com.systemphoenix.edenalpha.Scenes;
 
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Disposable;
+import com.systemphoenix.edenalpha.Codex.ButtonCodex;
 import com.systemphoenix.edenalpha.EdenAlpha;
 import com.systemphoenix.edenalpha.Screens.MapScreen;
 
 public class MapSelect extends AbsoluteHud implements Disposable {
 
     private MapActor left, right;
+    private ButtonActor playButton;
 
-    public MapSelect(EdenAlpha game, MapScreen mapScreen, float worldWidth, float worldHeight) {
+    public MapSelect(EdenAlpha game, MapScreen mapScreen) {
         super(game);
-        left = new MapActor(mapScreen, this, worldWidth, worldHeight, true);
-        right = new MapActor(mapScreen, this, worldWidth, worldHeight, false);
+        left = new MapActor(mapScreen, worldWidth, worldHeight, true);
+        right = new MapActor(mapScreen, worldWidth, worldHeight, false);
 
+        playButton = new ButtonActor(ButtonCodex.PLAY, mapScreen, worldWidth / 2 - 64, 64, 128);
         stage.addActor(left);
         stage.addActor(right);
+        stage.addActor(playButton);
+        playButton.setCanDraw(true);
     }
 
     public void setCanDraw(boolean left, boolean right) {
         this.left.setCanDraw(left);
         this.right.setCanDraw(right);
+    }
+
+    public void setLeftCanDraw(boolean canDraw) {
+        this.left.setCanDraw(canDraw);
+    }
+
+    public void setRightCanDraw(boolean canDraw) {
+        this.right.setCanDraw(canDraw);
     }
 
     public Stage getStage() {
@@ -40,6 +53,7 @@ public class MapSelect extends AbsoluteHud implements Disposable {
         stage.dispose();
         left.dispose();
         right.dispose();
+        playButton.dispose();
     }
 
 }

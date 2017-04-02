@@ -146,8 +146,8 @@ public class GameHud extends AbsoluteHud implements Disposable {
         generator.dispose();
         font = tempFont;
 
-        checkButton = new ButtonActor(ButtonCodex.CHECK, gameScreen, stage, gameScreen.getWorldWidth() - 160, 32, 128, true, false);
-        crossButton = new ButtonActor(ButtonCodex.CROSS, gameScreen, plantStage, 32, 32, 128, true, false);
+        checkButton = new ButtonActor(ButtonCodex.CHECK, gameScreen, gameScreen.getWorldWidth() - 160, 32, 128, true, false);
+        crossButton = new ButtonActor(ButtonCodex.CROSS, gameScreen, 32, 32, 128, true, false);
         plantStage.addActor(crossButton);
         crossButton.setCanDraw(canDraw);
         stage.addActor(checkButton);

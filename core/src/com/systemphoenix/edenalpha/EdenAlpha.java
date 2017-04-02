@@ -17,7 +17,7 @@ public class EdenAlpha extends Game {
 
 	private com.systemphoenix.edenalpha.Screens.MapScreen mapScreen;
 	private com.systemphoenix.edenalpha.Screens.MainScreen mainScreen;
-	private int selectedMapIndex = 0;
+	private int selectedMapIndex = 0, lowLevelBound = 0, highLevelBound = 0;
 	
 	@Override
 	public void create () {
@@ -36,14 +36,32 @@ public class EdenAlpha extends Game {
         }
 
 		this.levelPrefs = Gdx.app.getPreferences("Level");
-		try {
-			this.selectedMapIndex = this.levelPrefs.getInteger("SelectedMapIndex");
-		} catch(Exception e) {
-			this.selectedMapIndex = 0;
-		}
+
+        if(!levelPrefs.contains("SelectedMapIndex")) {
+            this.selectedMapIndex = 0;
+            levelPrefs.putInteger("SelectedMapIndex", selectedMapIndex);
+        } else {
+            this.selectedMapIndex = levelPrefs.getInteger("SelectedMapIndex");
+        }
+
+        if(!levelPrefs.contains("LowLevelBound")) {
+            this.lowLevelBound = 0;
+            levelPrefs.putInteger("LowLevelBound", lowLevelBound);
+        } else {
+            this.lowLevelBound = levelPrefs.getInteger("LowLevelBound");
+        }
+
+        if(!levelPrefs.contains("HighLevelBound")) {
+            this.highLevelBound = 0;
+            levelPrefs.putInteger("HighLevelBound", highLevelBound);
+        } else {
+            this.highLevelBound = levelPrefs.getInteger("HighLevelBound");
+        }
 
 		this.mainScreen = new com.systemphoenix.edenalpha.Screens.MainScreen(this);
 		this.mapScreen = new com.systemphoenix.edenalpha.Screens.MapScreen(this);
+
+        Gdx.app.log("Verbose", "LowLevelBound: " + lowLevelBound + ", HighLevelBound: " + highLevelBound);
 	}
 
 	public void render() {
@@ -79,11 +97,29 @@ public class EdenAlpha extends Game {
 		return selectedMapIndex;
 	}
 
+    public int getLowLevelBound() {
+        return lowLevelBound;
+    }
+
+    public int getHighLevelBound() {
+        return highLevelBound;
+    }
+
 	public void setSelectedMapIndex(int selectedMapIndex) {
 		this.selectedMapIndex = selectedMapIndex;
 		levelPrefs.putInteger("SelectedMapIndex", this.selectedMapIndex);
 		levelPrefs.flush();
 	}
+
+    public void setLevelBounds(int lowLevelBound, int highLevelBound) {
+        this.lowLevelBound = lowLevelBound;
+        levelPrefs.putInteger("LowLevelBound", lowLevelBound);
+
+        this.highLevelBound = highLevelBound;
+        levelPrefs.putInteger("HighLevelBound", this.highLevelBound);
+
+        levelPrefs.flush();
+    }
 
 	public MapScreen getMapScreen() {
 		return this.mapScreen;

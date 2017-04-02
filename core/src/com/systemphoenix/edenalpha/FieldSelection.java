@@ -3,23 +3,28 @@ package com.systemphoenix.edenalpha;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
+import com.systemphoenix.edenalpha.Screens.MapScreen;
 
 public class FieldSelection {
+
+    private MapScreen mapScreen;
 
     private Texture[] phMaps;
     private Sprite[] mapSprites;
     private Region[] regions;
 
     private boolean flinging = false, xAligned = false, yAligned = false, firstCall = true;
-    private int index = 0, counter = 0;
+    private int index = 0, counter = 0, lowLevelBound, highLevelBound;
     private float velX, velY;
 
-    public FieldSelection(int index) {
+    public FieldSelection(MapScreen mapScreen, int index, int lowLevelBound, int highLevelBound) {
         this.index = index;
+        this.mapScreen = mapScreen;
+        this.lowLevelBound = lowLevelBound;
+        this.highLevelBound = highLevelBound;
 
         phMaps = new Texture[17];
         mapSprites = new Sprite[17];
@@ -45,6 +50,7 @@ public class FieldSelection {
 
     public void render(SpriteBatch gameGraphics) {
         mapSprites[regions[index].getMapIndex()].draw(gameGraphics);
+        this.highLevelBound = mapScreen.getHighLevelBound();
     }
 
     public void setCameraPosition(OrthographicCamera cam) {
@@ -74,7 +80,6 @@ public class FieldSelection {
                 velX = velY = 0;
                 counter = 0;
             }
-//            Gdx.app.log("Verbose", "xAligned: " + xAligned + ", yAligned: " + yAligned);
         }
         cam.position.set(x, y, 0);
     }
@@ -83,11 +88,13 @@ public class FieldSelection {
         if(!flinging) {
             int pastIndex = index;
             index += update;
-            if (index < 0) {
-                index = 0;
-            } else if (index >= mapSprites.length) {
-                index = mapSprites.length - 1;
+            if (index < lowLevelBound) {
+                index = lowLevelBound;
+            } else if (index > highLevelBound) {
+                index = highLevelBound;
             }
+
+            Gdx.app.log("Verbose", "Index: " + index);
 
             this.velX = (regions[index].getX() - regions[pastIndex].getX()) / 10;
             this.velY = (regions[index].getY() - regions[pastIndex].getY()) / 10;

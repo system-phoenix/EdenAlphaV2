@@ -7,48 +7,59 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Screens.MapScreen;
 
-public class MapActor extends Actor implements InputProcessor, Disposable {
+public class MapActor extends Actor implements Disposable {
 
     private MapScreen mapScreen;
-    private MapSelect mapSelect;
-
-    private Vector2 coord;
 
     private Sprite sprite;
-    private boolean canDraw, left;
-    private int pastScreenX = -1, pastScreenY = -1;
-    private float flingLimit;
+    private boolean canDraw, left, isPressed;
 
-    public MapActor(MapScreen mapScreen, MapSelect mapSelect, float worldWidth, float worldHeight, boolean left) {
+    public MapActor(MapScreen mapScreen, float worldWidth, float worldHeight, boolean left) {
         this.mapScreen = mapScreen;
-        this.mapSelect = mapSelect;
         this.left = left;
+        float x = 0;
         try {
             if(left) {
                 sprite = new Sprite(new Texture(Gdx.files.internal("misc/leftSelect.png")));
-                this.setX(worldHeight / 16);
+                x = worldWidth / 16;
             } else {
                 sprite = new Sprite(new Texture(Gdx.files.internal("misc/rightSelect.png")));
-                this.setX(worldWidth - (worldWidth / 16) - 64);
+                x = worldWidth - (worldWidth / 8);
             }
         } catch(Exception e) {
             Gdx.app.log("Verbose", "Error loading texture in MapActor: " + e.getMessage());
         }
 
-        this.setY(worldHeight / 4);
+        sprite.setBounds(x, (worldHeight / 2) - (worldHeight / 4), 96, 384);
+        this.setBounds(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
+        this.setTouchable(Touchable.enabled);
+        this.addListener(new InputListener() {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                return MapActor.this.triggerAction();
+            }
 
-        this.setBounds(this.getX(), this.getY(), sprite.getWidth(), sprite.getHeight());
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+            }
+        });
+    }
+
+    public boolean triggerAction() {
+        isPressed = true;
+        return true;
     }
 
     @Override
     public void draw(Batch batch, float alpha){
         if(canDraw) {
-            batch.draw(sprite, this.getX(), this.getY());
-            if(flingLimit != 0) {
-                mapScreen.fling(flingLimit, 0, 0);
+            sprite.draw(batch);
+            if(isPressed) {
+                mapScreen.getFieldSelection().setIndex(left ? -1 : 1);
             }
         }
     }
@@ -56,58 +67,6 @@ public class MapActor extends Actor implements InputProcessor, Disposable {
     @Override
     public void dispose() {
         sprite.getTexture().dispose();
-    }
-
-    @Override
-    public boolean keyDown(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyUp(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if((pastScreenX == -1 && pastScreenY == -1) || !(pastScreenX == screenX && pastScreenY == screenY)) {
-            coord = mapSelect.getStage().screenToStageCoordinates(new Vector2((float)screenX, (float)screenY));
-            pastScreenX = screenX;
-            pastScreenY = screenY;
-        }
-        Actor hitActor = mapSelect.getStage().hit(coord.x, coord.y, true);
-
-        if(hitActor == this) {
-            flingLimit = left ? 8 : -8;
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        flingLimit = 0;
-        return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return true;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(int amount) {
-        return false;
     }
 
     public void setCanDraw(boolean canDraw) {

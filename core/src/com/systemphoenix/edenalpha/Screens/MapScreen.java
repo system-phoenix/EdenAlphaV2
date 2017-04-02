@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.systemphoenix.edenalpha.EdenAlpha;
@@ -29,14 +30,18 @@ public class MapScreen extends AbsoluteScreen {
     private GameScreen gameScreen = null;
     private Viewport viewport;
 
+    private int lowLevelBound, highLevelBound;
+
     public MapScreen(EdenAlpha game) {
         super(game);
         float sizeWidth = 640, sizeHeight = 360;
         this.inputMultiplexer = new InputMultiplexer();
         this.regionHud = new RegionHud(game, sizeWidth, sizeHeight);
-        this.mapSelect = new com.systemphoenix.edenalpha.Scenes.MapSelect(game, this, worldWidth, worldHeight);
+        this.mapSelect = new com.systemphoenix.edenalpha.Scenes.MapSelect(game, this);
         this.game.getMainScreen().setLoadingMessage("Creating field...");
-        this.fieldSelection = new FieldSelection(game.getSelectedMapIndex());
+        this.lowLevelBound = game.getLowLevelBound();
+        this.highLevelBound = game.getHighLevelBound();
+        this.fieldSelection = new FieldSelection(this, game.getSelectedMapIndex(), lowLevelBound, highLevelBound);
 
         this.game.getMainScreen().setLoadingMessage("Setting up camera...");
         worldHeight = worldWidth = 1403;
@@ -80,21 +85,23 @@ public class MapScreen extends AbsoluteScreen {
 
         Region currentRegion = fieldSelection.getRegion();
         mapSelect.setCanDraw(true, true);
-        if(fieldSelection.getIndex() - 1 >= 0) {
+        if(fieldSelection.getIndex() - 1 >= lowLevelBound) {
             regionHud.setLeftRegionCode(fieldSelection.getRegionByIndex(fieldSelection.getIndex() - 1).getCode());
         } else {
-            mapSelect.setCanDraw(false, true);
+            mapSelect.setLeftCanDraw(false);
             regionHud.setLeftRegionCode("            ");
         }
-        if(fieldSelection.getIndex() + 1 < fieldSelection.getRegions().length) {
+        if(fieldSelection.getIndex() + 1 <= highLevelBound) {
             regionHud.setRightRegionCode(fieldSelection.getRegionByIndex(fieldSelection.getIndex() + 1).getCode());
         } else {
-            mapSelect.setCanDraw(true, false);
+            mapSelect.setRightCanDraw(false);
             regionHud.setRightRegionCode("            ");
         }
         regionHud.setRegionCode(currentRegion.getCode());
         regionHud.setRegionName(currentRegion.getName());
         regionHud.setRegionForestPercentage("" + currentRegion.getLifePercentage());
+
+        highLevelBound = game.getHighLevelBound();
 
         gameGraphics.setProjectionMatrix(mapSelect.getStage().getCamera().combined);
         mapSelect.getStage().draw();
@@ -103,22 +110,22 @@ public class MapScreen extends AbsoluteScreen {
         regionHud.getStage().draw();
     }
 
+    public void createPlantScreen() {
+        game.setSelectedMapIndex(fieldSelection.getIndex());
+        plantScreen = new PlantScreen(game, this, fieldSelection.getRegion());
+        game.setScreen(plantScreen);
+    }
+
 //    Gesture listener methods
     @Override
     public boolean tap(float x, float y, int count, int button) {
-//        if(flingDisabled) flingDisabled = false;
-//        else flingDisabled = true;
         Vector3 touchPos = new Vector3();
         touchPos.set(x, y, 0);
         cam.unproject(touchPos);
 
-        game.setSelectedMapIndex(fieldSelection.getIndex());
-        plantScreen = new PlantScreen(game, this, fieldSelection.getRegion());
-        game.setScreen(plantScreen);
-//        if(gameScreen != null) gameScreen.dispose();
-//        gameScreen = new GameScreen(game, this, fieldSelection.getRegionByIndex(game.getSelectedMapIndex()));
-//        game.setScreen(gameScreen);
-//        game.getLoadingScreen().createGameScreen(game, fieldSelection.getRegionByIndex(game.getSelectedMapIndex()));
+//        game.setSelectedMapIndex(fieldSelection.getIndex());
+//        plantScreen = new PlantScreen(game, this, fieldSelection.getRegion());
+//        game.setScreen(plantScreen);
         return true;
     }
 
@@ -161,9 +168,20 @@ public class MapScreen extends AbsoluteScreen {
 
     @Override
     public void show() {
-        this.inputMultiplexer.addProcessor(mapSelect.getLeft());
-        this.inputMultiplexer.addProcessor(mapSelect.getRight());
+        this.inputMultiplexer.addProcessor(mapSelect.getStage());
         this.inputMultiplexer.addProcessor(new GestureDetector(this));
         Gdx.input.setInputProcessor(inputMultiplexer);
+    }
+
+    public int getLowLevelBound() {
+        return lowLevelBound;
+    }
+
+    public int getHighLevelBound() {
+        return highLevelBound;
+    }
+
+    public FieldSelection getFieldSelection() {
+        return fieldSelection;
     }
 }

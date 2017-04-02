@@ -16,23 +16,23 @@ import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Actors.Plant;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
+import com.systemphoenix.edenalpha.Screens.MapScreen;
 import com.systemphoenix.edenalpha.Screens.PlantScreen;
 
 public class ButtonActor extends Actor implements Disposable {
 
     private Screen screen;
-    private Stage stage;
 
     private int index;
     private Sprite beforePressSprite, onPressSprite, voidPressSprite;
-    private boolean canDraw = false, canPress = true, isPressed, isGameScreen, isPlantScreen;
+    private boolean canDraw = false, canPress = true, isPressed, isGameScreen, isPlantScreen, isMapScreen;
 
-    public ButtonActor(final int index, Screen screen, Stage stage, float x, float y, int size, final boolean isGameScreen, final boolean isPlantScreen) {
+    public ButtonActor(final int index, Screen screen, float x, float y, int size, final boolean isGameScreen, final boolean isPlantScreen) {
         this.index = index;
-        this.stage = stage;
         this.screen = screen;
         this.isGameScreen = isGameScreen;
         this.isPlantScreen = isPlantScreen;
+        this.isMapScreen = false;
         beforePressSprite = new Sprite(new Texture(Gdx.files.internal("utilities/" + ButtonCodex.beforePress[index])));
         beforePressSprite.setBounds(x, y, size, size);
         onPressSprite = new Sprite(new Texture(Gdx.files.internal("utilities/" + ButtonCodex.onPress[index])));
@@ -47,59 +47,95 @@ public class ButtonActor extends Actor implements Disposable {
                 return ButtonActor.this.triggerAction();
             }
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                isPressed = false;
+                Gdx.app.log("Verbose", "touched up!");
+                actionTriggered();
             }
         });
+        Gdx.app.log("Verbose", "MapScreen: " + isMapScreen + ", PlantScreen: " + isPlantScreen + ", GameScreen: " + isGameScreen);
+    }
+
+    public ButtonActor(final int index, Screen screen, float x, float y, int size) {
+        this.index = index;
+        this.screen = screen;
+        this.isGameScreen = false;
+        this.isPlantScreen = false;
+        this.isMapScreen = true;
+        beforePressSprite = new Sprite(new Texture(Gdx.files.internal("utilities/" + ButtonCodex.beforePress[index])));
+        beforePressSprite.setBounds(x, y, size, size);
+        onPressSprite = new Sprite(new Texture(Gdx.files.internal("utilities/" + ButtonCodex.onPress[index])));
+        onPressSprite.setBounds(x, y, size, size);
+        voidPressSprite = new Sprite(new Texture(Gdx.files.internal("utilities/" + ButtonCodex.voidPress[index])));
+        voidPressSprite.setBounds(x, y, size, size);
+
+        this.setBounds(beforePressSprite.getX(), beforePressSprite.getY(), beforePressSprite.getWidth(), beforePressSprite.getHeight());
+        this.setTouchable(Touchable.enabled);
+        this.addListener(new InputListener() {
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                return ButtonActor.this.triggerAction();
+            }
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                Gdx.app.log("Verbose", "touched up!");
+                actionTriggered();
+            }
+        });
+        Gdx.app.log("Verbose", "MapScreen: " + isMapScreen + ", PlantScreen: " + isPlantScreen + ", GameScreen: " + isGameScreen);
     }
 
     public boolean triggerAction() {
         if(canPress) {
             isPressed = true;
-            switch (index) {
-                case ButtonCodex.PAUSE:
-                    if(isGameScreen) {
-                        Gdx.app.log("Verbose", "touched PAUSE button");
-                        ((GameScreen)screen).setWillPause(true);
-                    }
-                    break;
-                case ButtonCodex.PLAY:
-                    if(isGameScreen) {
-
-                    } else if(isPlantScreen) {
-                        ((PlantScreen)screen).createGameScreen();
-                    }
-                    break;
-                case ButtonCodex.FAST_FORWARD:
-                    break;
-                case ButtonCodex.RESTART:
-                    break;
-                case ButtonCodex.HOME:
-                    if(isGameScreen) {
-
-                    } else if(isPlantScreen) {
-                        ((PlantScreen)screen).backToMapScreen();
-                    }
-                    break;
-                case ButtonCodex.CHECK:
-                    if(isGameScreen) {
-                        PlantActor plantActor = PlantActor.getRecentlySelectedActor();
-                        ((GameScreen)screen).plant(plantActor.getPlantIndex(), plantActor.getSprite());
-                        Plant.setSelectAllPlants(false);
-                    } else if(isPlantScreen) {
-                        ((PlantScreen)screen).selectPlant();
-                    }
-                    break;
-                case ButtonCodex.CROSS:
-                    if(isGameScreen) {
-                        ((GameScreen)screen).unroot(Plant.getSelectedPlant());
-                    } else if(isPlantScreen) {
-                        ((PlantScreen)screen).selectPlant();
-                    }
-                    break;
-            }
             return true;
         }
         return false;
+    }
+
+    public void actionTriggered() {
+        Gdx.app.log("Verbose", "Action Triggered!");
+        switch (index) {
+            case ButtonCodex.PAUSE:
+                if(isGameScreen) {
+                    ((GameScreen)screen).setWillPause(true);
+                }
+                break;
+            case ButtonCodex.PLAY:
+                if(isGameScreen) {
+
+                } else if(isPlantScreen) {
+                    ((PlantScreen)screen).createGameScreen();
+                } else if(isMapScreen) {
+                    ((MapScreen)screen).createPlantScreen();
+                }
+                break;
+            case ButtonCodex.FAST_FORWARD:
+                break;
+            case ButtonCodex.RESTART:
+                break;
+            case ButtonCodex.HOME:
+                if(isGameScreen) {
+
+                } else if(isPlantScreen) {
+                    ((PlantScreen)screen).backToMapScreen();
+                }
+                break;
+            case ButtonCodex.CHECK:
+                if(isGameScreen) {
+                    PlantActor plantActor = PlantActor.getRecentlySelectedActor();
+                    ((GameScreen)screen).plant(plantActor.getPlantIndex(), plantActor.getSprite());
+                    Plant.setSelectAllPlants(false);
+                } else if(isPlantScreen) {
+                    Gdx.app.log("Verbose", "Selecting Plant...");
+                    ((PlantScreen)screen).selectPlant();
+                }
+                break;
+            case ButtonCodex.CROSS:
+                if(isGameScreen) {
+                    ((GameScreen)screen).unroot(Plant.getSelectedPlant());
+                } else if(isPlantScreen) {
+                    ((PlantScreen)screen).selectPlant();
+                }
+                break;
+        }
+        isPressed = false;
     }
 
     @Override

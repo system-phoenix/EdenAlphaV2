@@ -68,14 +68,13 @@ public class GameScreen extends AbsoluteScreen {
     private Music bgMusic;
     private Sound bulletSound, pulseSound, slashSound;
 
-    private Array<Body> spawnPoints, endPoints, pathBounds;
     private Array<Wave> waves;
     private Array<Plant> plants;
     private Array<InputProcessor> inputProcessors;
 
     private PlantSquare[][] plantSquares, subSquares;
-    private float pastZoomDistance, plantSquareSize, accumulator, seeds = 50, seedRate = 0.25f;
-    private int enemyLimit = 10, waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1, displaySquare = -3, pseudoPlantIndex = -1;
+    private float pastZoomDistance, plantSquareSize, accumulator, seeds = 150, seedRate = 0.25f;
+    private int waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1, displaySquare = -3, pseudoPlantIndex = -1;
     private long timer = 0, newWaveCountdown, timeGap, displaySquareTimer, seedTimer;
     private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, willPause = false, win = false, lose = false, running = false, canDisplaySquare, canPlant = false, firstCall = true;
 
@@ -122,7 +121,6 @@ public class GameScreen extends AbsoluteScreen {
         mapLoader = new TmxMapLoader();
         map = mapLoader.load("levels/" + region.getMapIndex() + ".tmx");
         renderer = new OrthogonalTiledMapRenderer(map);
-        Gdx.app.log("Verbose", "Successfully loaded level: " + worldWidth + " x " + worldHeight);
 
         topHud.setLoadingMessage("Loading world...");
         createWorld();
@@ -154,8 +152,7 @@ public class GameScreen extends AbsoluteScreen {
 
         int[][] temp = region.getWaves();
 
-        Gdx.app.log("Verbose", "Variable temp: length = " + temp.length + ", temp[index].length = " + temp[0].length);
-
+        int enemyLimit = 10;
         for(int i = 0; i < waveLimit; i++) {
             if((i + 1) % 5 == 0) {
                 limit = enemyLimit * 2;
@@ -163,11 +160,12 @@ public class GameScreen extends AbsoluteScreen {
                 limit = enemyLimit;
             }
             waves.add(new Wave(this, spawnPoints, i, limit, temp[i]));
-            Gdx.app.log("Verbose", "Created waves!");
         }
     }
 
     private void createWorld() {
+        Array<Body> spawnPoints, endPoints, pathBounds;
+
         world = new World(new Vector2(0, 0), true);
         world.setContactListener(new WorldContactListener());
         debugRenderer = new Box2DDebugRenderer();
@@ -445,6 +443,7 @@ public class GameScreen extends AbsoluteScreen {
             if(win || lose) {
                 gameGraphics.begin();
                 if(win) {
+                    game.setLevelBounds(mapScreen.getLowLevelBound(), mapScreen.getHighLevelBound() + 1);
                     winEndGame.draw(gameGraphics);
                 } else {
                     loseEndGame.draw(gameGraphics);
@@ -484,7 +483,7 @@ public class GameScreen extends AbsoluteScreen {
     }
 
     public void plant(int plantIndex, TextureRegion sprite) {
-        if(seeds - PlantCodex.cost[plantIndex] >= 0 && (plantIndex > -1 && plantIndex < 15)) {
+        if(seeds - PlantCodex.cost[plantIndex] >= 0 && (plantIndex > -1 && plantIndex < 15) && (selectedX > -1 && selectedY > -1)) {
             seeds -= PlantCodex.cost[plantIndex];
             topHud.setSeedStatMessage("" + (int)seeds);
             switch(plantIndex) {
@@ -773,13 +772,10 @@ public class GameScreen extends AbsoluteScreen {
 
     public void setWillPause(boolean willPause) {
         this.willPause = willPause;
-        Gdx.app.log("Verbose", "willPause = " + willPause);
     }
 
     public void setPseudoPlant(int plantIndex) {
         this.pseudoPlantIndex = plantIndex;
-//        .setBounds(this.getX() - (32f * actualRange), this.getY() - (32f * actualRange), (32f * actualRange * 2) + this.getWidth(), (32f * actualRange * 2) + this.getHeight());
-//        redRangeSprite.setBounds(gameScreen.getSelectedXY().x, gameScreen.getSelectedXY().y, 64, 64);
         if(plantIndex >= 0 && plantIndex < 15) {
             float actualRange = PlantCodex.rangeStats[PlantCodex.range[plantIndex]];
             float effectiveRange = PlantCodex.effectiveRange[plantIndex];
