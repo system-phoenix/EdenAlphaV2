@@ -18,6 +18,8 @@ public class EdenAlpha extends Game {
 	private com.systemphoenix.edenalpha.Screens.MapScreen mapScreen;
 	private com.systemphoenix.edenalpha.Screens.MainScreen mainScreen;
 	private int selectedMapIndex = 0, lowLevelBound = 0, highLevelBound = 0;
+
+    private float seedCount;
 	
 	@Override
 	public void create () {
@@ -56,6 +58,13 @@ public class EdenAlpha extends Game {
             levelPrefs.putInteger("HighLevelBound", highLevelBound);
         } else {
             this.highLevelBound = levelPrefs.getInteger("HighLevelBound");
+        }
+
+        if(!levelPrefs.contains("SeedCount")) {
+            this.seedCount = 150;
+            levelPrefs.putFloat("SeedCount", seedCount);
+        } else {
+            this.seedCount = levelPrefs.getFloat("SeedCount");
         }
 
 		this.mainScreen = new com.systemphoenix.edenalpha.Screens.MainScreen(this);
@@ -105,11 +114,21 @@ public class EdenAlpha extends Game {
         return highLevelBound;
     }
 
+    public float getSeedCount() {
+        return seedCount;
+    }
+
 	public void setSelectedMapIndex(int selectedMapIndex) {
 		this.selectedMapIndex = selectedMapIndex;
 		levelPrefs.putInteger("SelectedMapIndex", this.selectedMapIndex);
 		levelPrefs.flush();
 	}
+
+    public void setSeedCount(float seedCount) {
+        this.seedCount = seedCount;
+        levelPrefs.putFloat("SeedCount", this.seedCount);
+        levelPrefs.flush();
+    }
 
     public void setLevelBounds(int lowLevelBound, int highLevelBound) {
         this.lowLevelBound = lowLevelBound;

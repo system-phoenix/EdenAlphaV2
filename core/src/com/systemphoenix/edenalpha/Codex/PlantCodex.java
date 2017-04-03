@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class PlantCodex {
 
-    public static final float baseHP = 500;
+    public static final float baseHP = 500, baseRange = 5, baseSeedRate = 1;
     public static final long baseAS = 1000;
     public static final Vector2 baseDmg = new Vector2(90, 95);
 
@@ -49,7 +49,7 @@ public class PlantCodex {
     };
 
     public static final int AS[] = {
-            HIGH,       MOD,       LOWER,       LOW,           MOD,           MOD,            HIGH,         HIGH,       MOD,       HIGHEST,        HIGHEST,        ABS_LOWEST,       HIGHER,        VOID,          HIGHER,
+            MOD,       MOD,       LOWER,       LOW,           MOD,           MOD,            HIGH,         HIGH,       MOD,       HIGHEST,        HIGHEST,        ABS_LOWEST,       HIGHER,        VOID,          HIGHER,
     };
 
     public static final long[] asStats = {
@@ -66,7 +66,7 @@ public class PlantCodex {
     };
 
     public static final int range[] = {
-            LOW,       LOWER,      ABS_LOWEST, ABS_LOWEST,      ABS_LOWEST,      LOWEST,      LOWER,           LOWER,     MOD,       LOW,       ABS_HIGHEST,  MOD,       MOD,        ABS_LOWEST, MOD
+            LOW,       LOWER,      LOWEST, ABS_LOWEST,      ABS_LOWEST,      LOWEST,      LOWER,           LOWER,     MOD,       LOW,       ABS_HIGHEST,  MOD,       MOD,        ABS_LOWEST, MOD
     };
 
     public static final float rangeStats[] = {
@@ -117,7 +117,7 @@ public class PlantCodex {
 
     public static final int[] DMG = {
 //            new Vector2(25, 35),    new Vector2(25, 35),    new Vector2(35, 40),    new Vector2(0, 5),    new Vector2(15, 20),    new Vector2(15, 20),    new Vector2(20, 25),    new Vector2(25, 35),    new Vector2(35, 40),    new Vector2(0, 5),    new Vector2(0, 5),    new Vector2(45, 50),    new Vector2(15, 20),    new Vector2(0, 0),  new Vector2(35, 40)
-            HIGH,        LOWER,      HIGHER,       LOWEST,         LOWEST,         LOWEST,         LOW,          MOD,      HIGH,       ABS_LOWEST,ABS_LOWEST, HIGHEST,    LOWEST,     VOID,       HIGH
+            MOD,        LOWER,      HIGHER,       LOWEST,         LOWEST,         LOWEST,         LOW,          MOD,      HIGH,       ABS_LOWEST,ABS_LOWEST, HIGHEST,    LOWEST,     VOID,       HIGH
     };
 
     public static final String bulletFile[] = {

@@ -95,8 +95,8 @@ public class PlantScreen extends AbsoluteScreen {
 
         playButton = new ButtonActor(ButtonCodex.PLAY, this, worldWidth - 160f, 32f, 128, false, true);
         homeButton = new ButtonActor(ButtonCodex.HOME, this, 32f, 32f, 128, false, true);
-        checkButton = new ButtonActor(ButtonCodex.CHECK, this, 878, 200, 128, false, true);
-        crossButton = new ButtonActor(ButtonCodex.CROSS, this, 1022, 200, 128, false, true);
+        checkButton = new ButtonActor(ButtonCodex.CHECK, this, 1022, 200, 128, false, true);
+        crossButton = new ButtonActor(ButtonCodex.CROSS, this, 878, 200, 128, false, true);
 
         playButton.setCanDraw(true);
         homeButton.setCanDraw(true);
@@ -159,7 +159,7 @@ public class PlantScreen extends AbsoluteScreen {
         BitmapFont tempFont = font;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/neuropol.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 14;
+        parameter.size = 15;
         parameter.borderColor = border;
         parameter.borderWidth = 0;
         font = generator.generateFont(parameter);
@@ -191,7 +191,7 @@ public class PlantScreen extends AbsoluteScreen {
         tempTable.row();
         infoTable.row();
 
-        float startY = worldHeight - 85, startX = 938;
+        float startY = worldHeight - 89, startX = 938;
 
         tempLabel = new Label("HP:", new Label.LabelStyle(font, fontColor));
         spaceFiller = new Label(" ", new Label.LabelStyle(font, fontColor));

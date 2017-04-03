@@ -27,13 +27,13 @@ public class GameHud extends AbsoluteHud implements Disposable {
     private PlantSelector plantSelector;
     private PlantActor[] plantActors;
 
-    private ButtonActor checkButton, crossButton;
+    private ButtonActor checkButton, crossButton, upgradeButton;
 
     private boolean canDraw;
     private int index = -1, drawable = 1;
 
-    private Label plantName, plantType, plantCost, plantGrowthTime;
-    private Sprite plantHP, plantAS, plantDmg;
+    private Label plantName, plantType, plantCost, plantGrowthTime, plantStatsName;
+    private Sprite plantHP, plantAS, plantDmg, plantStatsSprite, plantStatsHP, plantStatsAS, plantStatsDmg, plantStatsRange, plantStatsSeedRate;
 
     public GameHud(EdenAlpha game, GameScreen gameScreen, PlantActor[] plantActors) {
         super(game);
@@ -45,6 +45,8 @@ public class GameHud extends AbsoluteHud implements Disposable {
         this.plantActors = plantActors;
 
         plantSelector = new PlantSelector(plantActors);
+
+        plantStatsSprite = new Sprite((new Texture(Gdx.files.internal("bgScreen/lowerPlantHud.png"))));
 
         Table temp = new Table();
         temp.bottom();
@@ -61,17 +63,36 @@ public class GameHud extends AbsoluteHud implements Disposable {
 
         stage.addActor(temp);
 
-        Label tempLabel, spaceFiller;
-        Table tempTable = new Table(), infoTable = new Table();
+        Table tempTable = new Table(), infoTable = new Table(), plantStatsTemp = new Table();
         tempTable.setBounds(0, 0, 111, 140);
         infoTable.setBounds(111, 0, 200, 140);
 
+        populateTable(stage, tempTable, infoTable, false);
+
+        tempTable = new Table();
+        tempTable.setBounds(484, 0, 111, 140);
+        plantStatsTemp.setBounds(596, 0, 200, 140);
+
+        populateTable(plantStage, tempTable, plantStatsTemp, true);
+
+        plantStage.addActor(plantStatsTemp);
+
+        checkButton = new ButtonActor(ButtonCodex.CHECK, gameScreen, gameScreen.getWorldWidth() - 160, 32, 128, true, false);
+        crossButton = new ButtonActor(ButtonCodex.CROSS, gameScreen, 32, 32, 128, true, false);
+        upgradeButton = new ButtonActor(ButtonCodex.UPGRADE, gameScreen, worldWidth - 160, 32, 128, true, false);
+        plantStage.addActor(crossButton);
+        plantStage.addActor(upgradeButton);
+        crossButton.setCanDraw(canDraw);
+        stage.addActor(checkButton);
+    }
+
+    private void populateTable(Stage stage, Table tempTable, Table infoTable, boolean plantStatsTable) {
         Color border = Color.BLACK;
         Color fontColor = Color.WHITE;
         BitmapFont tempFont = font;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/neuropol.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 14;
+        parameter.size = 15;
         parameter.borderColor = border;
         parameter.borderWidth = 0;
         font = generator.generateFont(parameter);
@@ -79,36 +100,62 @@ public class GameHud extends AbsoluteHud implements Disposable {
         tempTable.top().padTop(15);
         infoTable.top().padTop(15);
 
+        Label tempLabel, spaceFiller;
+
+        if(!plantStatsTable) {
+            float startY = 81, startX = 111;
+            plantName = new Label("--", new Label.LabelStyle(font, fontColor));
+            plantType = new Label("--", new Label.LabelStyle(font, fontColor));
+            plantCost = new Label("--", new Label.LabelStyle(font, fontColor));
+            plantHP = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
+            plantHP.setBounds(startX, startY - 16, 32, 8);
+            plantAS = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
+            plantAS.setBounds(startX, startY - 32, 32, 8);
+            plantDmg = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
+            plantDmg.setBounds(startX, startY - 48, 32, 8);
+            plantGrowthTime = new Label("--", new Label.LabelStyle(font, fontColor));
+
+            tempLabel = new Label("Type:", new Label.LabelStyle(font, fontColor));
+
+            tempTable.add(tempLabel);
+            tempTable.row();
+
+            tempLabel = new Label("Cost:", new Label.LabelStyle(font, fontColor));
+
+            tempTable.add(tempLabel);
+            tempTable.row();
+
+            infoTable.add(plantName);
+            infoTable.row();
+            infoTable.add(plantType);
+            infoTable.row();
+            infoTable.add(plantCost);
+            infoTable.row();
+        } else {
+            float startY = 113, startX = 596;
+            plantStatsName = new Label("--", new Label.LabelStyle(font, fontColor));
+            plantStatsHP = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
+            plantStatsHP.setBounds(startX, startY - 16, 32, 8);
+            plantStatsAS = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
+            plantStatsAS.setBounds(startX, startY - 32, 32, 8);
+            plantStatsDmg = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
+            plantStatsDmg.setBounds(startX, startY - 48, 32, 8);
+            plantStatsSeedRate = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
+            plantStatsSeedRate.setBounds(startX, startY - 64, 32, 8);
+            plantStatsRange = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
+            plantStatsRange.setBounds(startX, startY - 80, 32, 8);
+
+
+            infoTable.add(plantStatsName);
+            infoTable.row();
+        }
+
         tempLabel = new Label("Name:", new Label.LabelStyle(font, fontColor));
-        plantName = new Label("--", new Label.LabelStyle(font, fontColor));
-
         tempTable.add(tempLabel);
-        infoTable.add(plantName);
         tempTable.row();
-        infoTable.row();
-
-        tempLabel = new Label("Type:", new Label.LabelStyle(font, fontColor));
-        plantType = new Label("--", new Label.LabelStyle(font, fontColor));
-
-        tempTable.add(tempLabel);
-        infoTable.add(plantType);
-        tempTable.row();
-        infoTable.row();
-
-        tempLabel = new Label("Cost:", new Label.LabelStyle(font, fontColor));
-        plantCost = new Label("--", new Label.LabelStyle(font, fontColor));
-
-        tempTable.add(tempLabel);
-        infoTable.add(plantCost);
-        tempTable.row();
-        infoTable.row();
-
-        float startY = 85, startX = 111;
 
         tempLabel = new Label("HP:", new Label.LabelStyle(font, fontColor));
         spaceFiller = new Label(" ", new Label.LabelStyle(font, fontColor));
-        plantHP = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
-        plantHP.setBounds(startX, startY - 16, 32, 8);
 
         tempTable.add(tempLabel);
         infoTable.add(spaceFiller);
@@ -116,8 +163,6 @@ public class GameHud extends AbsoluteHud implements Disposable {
         infoTable.row();
 
         tempLabel = new Label("Atk Spd:", new Label.LabelStyle(font, fontColor));
-        plantAS = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
-        plantAS.setBounds(startX, startY - 32, 32, 8);
 
         tempTable.add(tempLabel);
         infoTable.add(spaceFiller);
@@ -125,32 +170,33 @@ public class GameHud extends AbsoluteHud implements Disposable {
         infoTable.row();
 
         tempLabel = new Label("Damage:", new Label.LabelStyle(font, fontColor));
-        plantDmg = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
-        plantDmg.setBounds(startX, startY - 48, 32, 8);
 
         tempTable.add(tempLabel);
         infoTable.add(spaceFiller);
         tempTable.row();
         infoTable.row();
 
-        tempLabel = new Label("Growth:", new Label.LabelStyle(font, fontColor));
-        plantGrowthTime = new Label("--", new Label.LabelStyle(font, fontColor));
+        if(!plantStatsTable) {
+            tempLabel = new Label("Growth:", new Label.LabelStyle(font, fontColor));
 
-        tempTable.add(tempLabel);
-        infoTable.add(plantGrowthTime);
-        tempTable.row();
-        infoTable.row();
+            tempTable.add(tempLabel);
+            infoTable.add(plantGrowthTime);
+            tempTable.row();
+            infoTable.row();
+        } else {
+            tempLabel = new Label("Seed Rate:", new Label.LabelStyle(font, fontColor));
+            tempTable.add(tempLabel);
+            tempTable.row();
+
+            tempLabel = new Label("Range:", new Label.LabelStyle(font, fontColor));
+            tempTable.add(tempLabel);
+            tempTable.row();
+        }
 
         stage.addActor(tempTable);
         stage.addActor(infoTable);
         generator.dispose();
         font = tempFont;
-
-        checkButton = new ButtonActor(ButtonCodex.CHECK, gameScreen, gameScreen.getWorldWidth() - 160, 32, 128, true, false);
-        crossButton = new ButtonActor(ButtonCodex.CROSS, gameScreen, 32, 32, 128, true, false);
-        plantStage.addActor(crossButton);
-        crossButton.setCanDraw(canDraw);
-        stage.addActor(checkButton);
     }
 
     public void draw(Batch batch) {
@@ -160,7 +206,20 @@ public class GameHud extends AbsoluteHud implements Disposable {
                     if(Plant.getSelectedPlant() != null) {
                         checkButton.setCanPress(false);
                         crossButton.setCanPress(true);
+                        if(Plant.getSelectedPlant().getUpgradeIndex() < 3 && gameScreen.getSeeds() - Plant.getSelectedPlant().getUpgradeCost() >= 0 && !Plant.getSelectedPlant().isGrowing()) {
+                            upgradeButton.setCanPress(true);
+                        } else {
+                            upgradeButton.setCanPress(false);
+                        }
                         batch.setProjectionMatrix(plantStage.getCamera().combined);
+                        batch.begin();
+                        plantStatsSprite.draw(batch);
+                        plantStatsHP.draw(batch);
+                        plantStatsAS.draw(batch);
+                        plantStatsDmg.draw(batch);
+                        plantStatsSeedRate.draw(batch);
+                        plantStatsRange.draw(batch);
+                        batch.end();
                         plantStage.draw();
                     }
                     break;
@@ -173,6 +232,7 @@ public class GameHud extends AbsoluteHud implements Disposable {
                         }
                     }
                     crossButton.setCanPress(false);
+                    upgradeButton.setCanPress(false);
                     batch.setProjectionMatrix(stage.getCamera().combined);
                     stage.draw();
                     batch.begin();
@@ -186,11 +246,23 @@ public class GameHud extends AbsoluteHud implements Disposable {
 
     @Override
     public void dispose() {
+        checkButton.dispose();
+        crossButton.dispose();
+        upgradeButton.dispose();
         stage.dispose();
+        plantStage.dispose();
+
         plantSelector.dispose();
         plantHP.getTexture().dispose();
         plantAS.getTexture().dispose();
         plantDmg.getTexture().dispose();
+
+        plantStatsSprite.getTexture().dispose();
+        plantStatsHP.getTexture().dispose();
+        plantStatsAS.getTexture().dispose();
+        plantStatsDmg.getTexture().dispose();
+        plantStatsSeedRate.getTexture().dispose();
+        plantStatsRange.getTexture().dispose();
     }
 
     public void setData() {
@@ -233,17 +305,35 @@ public class GameHud extends AbsoluteHud implements Disposable {
         plantGrowthTime.setText("" + (int)(PlantCodex.growthTime[index]) + " seconds");
     }
 
+    public void setPlantStatsData() {
+        Plant plant = Plant.getSelectedPlant();
+        this.index = plant.getPlantIndex();
+        float barSize = 200f;
+        plantStatsName.setText(PlantCodex.plantName[index]);
+        plantStatsHP.setBounds(plantStatsHP.getX(), plantStatsHP.getY(), barSize * (plant.getTargetHp() / PlantCodex.baseHP), plantStatsHP.getHeight());
+        if(index != 13) {
+            plantStatsAS.setBounds(plantStatsAS.getX(), plantStatsAS.getY(), barSize * ((float)PlantCodex.baseAS / (float)(plant.getAttackSpeed() * 3f)), plantStatsAS.getHeight());
+        } else {
+            plantStatsAS.setBounds(plantStatsAS.getX(), plantStatsAS.getY(), 0, plantStatsAS.getHeight());
+        }
+        plantStatsDmg.setBounds(plantStatsDmg.getX(), plantStatsDmg.getY(), barSize * ((((plant.getDamage().x + plant.getDamage().y)) / (((PlantCodex.baseDmg.x + PlantCodex.baseDmg.y))))), plantStatsDmg.getHeight());
+        plantStatsSeedRate.setBounds(plantStatsSeedRate.getX(), plantStatsSeedRate.getY(), barSize * (plant.getSeedRate() / PlantCodex.baseSeedRate), plantStatsSeedRate.getHeight());
+        plantStatsRange.setBounds(plantStatsRange.getX(), plantStatsRange.getY(), barSize * (plant.getRange() / PlantCodex.baseRange), plantStatsRange.getHeight());
+    }
+
     public void setCanDraw(boolean canDraw) {
         this.canDraw = canDraw;
         plantSelector.setCanDraw(canDraw);
         checkButton.setCanDraw(canDraw);
         crossButton.setCanDraw(canDraw);
+        upgradeButton.setCanDraw(canDraw);
         Plant.setSelectAllPlants(canDraw);
     }
 
     public void setCanPress(boolean canPress) {
         crossButton.setCanPress(canPress);
         checkButton.setCanPress(canPress);
+        upgradeButton.setCanPress(canPress);
     }
 
     public void setDrawable(int drawable) {

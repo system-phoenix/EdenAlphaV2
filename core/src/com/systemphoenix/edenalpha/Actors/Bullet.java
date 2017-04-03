@@ -99,7 +99,7 @@ public class Bullet implements Disposable{
 
     public void hitTarget(Enemy enemy) {
         enemy.receiveDamage(damage);
-        canDispose = true;
+        drawBlank = true;
     }
 
     @Override

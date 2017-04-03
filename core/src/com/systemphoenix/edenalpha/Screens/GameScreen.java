@@ -36,6 +36,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.systemphoenix.edenalpha.Actors.Plant;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
+import com.systemphoenix.edenalpha.Codex.RegionCodex;
 import com.systemphoenix.edenalpha.CollisionBit;
 import com.systemphoenix.edenalpha.EdenAlpha;
 import com.systemphoenix.edenalpha.EnemyUtils.Wave;
@@ -81,16 +82,18 @@ public class GameScreen extends AbsoluteScreen {
 
     private PlantSquare[][] plantSquares, subSquares;
     private float pastZoomDistance, plantSquareSize, accumulator, seeds = 150, seedRate = 0.25f;
-    private int waveIndex = -1, waveLimit = 1, selectedX = -1, selectedY = -1, displaySquare = -3, pseudoPlantIndex = -1;
+    private int waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1, displaySquare = -3, pseudoPlantIndex = -1;
     private long timer = 0, newWaveCountdown, timeGap, displaySquareTimer, seedTimer, waveDisplayTimer;
     private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, willPause = false, win = false, lose = false, running = false, canDisplaySquare, canPlant = false, firstCall = true;
-    private boolean willRestart = false, willDispose = false, waveDisplay = true;
+    private boolean willRestart = false, willDispose = false, waveDisplay = true, forestDamaged = false;
 
     public GameScreen(EdenAlpha game, MapScreen mapScreen, PlantScreen plantScreen, Region region, PlantActor[] plantActors) {
         super(game);
         this.region = region;
         this.mapScreen = mapScreen;
         this.plantScreen = plantScreen;
+
+        this.seeds = game.getSeedCount() > 150 ? game.getSeedCount() : 150;
 
         worldHeight = region.getWorldHeight();
         worldWidth = region.getWorldWidth();
@@ -310,6 +313,8 @@ public class GameScreen extends AbsoluteScreen {
                 } else if(currentSec == 63) {
                     displaySquareTimer = System.currentTimeMillis();
                     canDisplaySquare = true;
+                } else if(!canDisplaySquare && currentSec < 60) {
+                    canPlant = true;
                 }
             }
 
@@ -368,13 +373,13 @@ public class GameScreen extends AbsoluteScreen {
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0.05f, 0.05f, 0.05f, 1);
-        if(willDispose || Gdx.input.isKeyJustPressed(Input.Keys.BACK)) {
+        if(willDispose) {
             game.setScreen(mapScreen);
             this.dispose();
         } else if(willRestart) {
             restart();
             willRestart = false;
-        } else if(willPause) {
+        } else if(willPause || Gdx.input.isKeyJustPressed(Input.Keys.BACK)) {
             pauseGame();
             willPause = false;
         }
@@ -485,11 +490,17 @@ public class GameScreen extends AbsoluteScreen {
                         if(mapScreen.getHighLevelBound() < 16) {
                             game.setLevelBounds(mapScreen.getLowLevelBound(), mapScreen.getHighLevelBound() + 1);
                         }
+
+                        boolean stringSet = false;
                         for(int i = 0; i < PlantCodex.level.length; i++) {
                             if(PlantCodex.level[i] == game.getHighLevelBound()) {
-                                pauseStageLabel.setText("You unlocked " + PlantCodex.plantName[i]);
+                                pauseStageLabel.setText("You unlocked " + RegionCodex.names[region.getMapIndex() + 1] + "and " + PlantCodex.plantName[i] + "!");
+                                stringSet = true;
                                 break;
                             }
+                        }
+                        if(!stringSet) {
+                            pauseStageLabel.setText("You unlocked " + RegionCodex.names[region.getMapIndex() + 1] + "!");
                         }
                     }
                     winEndGame.draw(gameGraphics);
@@ -506,6 +517,8 @@ public class GameScreen extends AbsoluteScreen {
 
                 gameGraphics.setProjectionMatrix(pauseStage.getCamera().combined);
                 pauseStage.draw();
+
+                game.setSeedCount(seeds);
             }
 
         } else {
@@ -773,6 +786,8 @@ public class GameScreen extends AbsoluteScreen {
 
     public void pauseGame() {
         paused = true;
+        cam.zoom = worldWidth/screenWidth;
+        boundCamera();
         topHud.setPauseButtonCanDraw(false);
         gameHud.setCanPress(false);
 
@@ -789,7 +804,7 @@ public class GameScreen extends AbsoluteScreen {
 
     public void resumeGame() {
         topHud.setPauseButtonCanDraw(true);
-        gameHud.setCanDraw(true);
+//        gameHud.setCanDraw(true);
 
         playButton.setCanDraw(false);
         homeButton.setCanDraw(false);
@@ -883,6 +898,11 @@ public class GameScreen extends AbsoluteScreen {
 
     public void incrementSeeds(float value) {
         this.seeds += value;
+        topHud.setSeedStatMessage("" + (int)seeds);
+    }
+
+    public void decrementSeeds(float value) {
+        this.seeds -= value;
         topHud.setSeedStatMessage("" + (int)seeds);
     }
 }

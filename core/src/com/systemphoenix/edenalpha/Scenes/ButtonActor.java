@@ -30,25 +30,7 @@ public class ButtonActor extends Actor implements Disposable {
         this.isGameScreen = isGameScreen;
         this.isPlantScreen = isPlantScreen;
         this.isMapScreen = false;
-        beforePressSprite = new Sprite(new Texture(Gdx.files.internal("utilities/" + ButtonCodex.beforePress[index])));
-        beforePressSprite.setBounds(x, y, size, size);
-        onPressSprite = new Sprite(new Texture(Gdx.files.internal("utilities/" + ButtonCodex.onPress[index])));
-        onPressSprite.setBounds(x, y, size, size);
-        voidPressSprite = new Sprite(new Texture(Gdx.files.internal("utilities/" + ButtonCodex.voidPress[index])));
-        voidPressSprite.setBounds(x, y, size, size);
-
-        this.setBounds(beforePressSprite.getX(), beforePressSprite.getY(), beforePressSprite.getWidth(), beforePressSprite.getHeight());
-        this.setTouchable(Touchable.enabled);
-        this.addListener(new InputListener() {
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                return ButtonActor.this.triggerAction();
-            }
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                Gdx.app.log("Verbose", "touched up!");
-                actionTriggered();
-            }
-        });
-        Gdx.app.log("Verbose", "MapScreen: " + isMapScreen + ", PlantScreen: " + isPlantScreen + ", GameScreen: " + isGameScreen);
+        initialize(x, y, size);
     }
 
     public ButtonActor(final int index, Screen screen, float x, float y, int size) {
@@ -57,6 +39,10 @@ public class ButtonActor extends Actor implements Disposable {
         this.isGameScreen = false;
         this.isPlantScreen = false;
         this.isMapScreen = true;
+        initialize(x, y, size);
+    }
+
+    private void initialize(float x, float y, float size) {
         beforePressSprite = new Sprite(new Texture(Gdx.files.internal("utilities/" + ButtonCodex.beforePress[index])));
         beforePressSprite.setBounds(x, y, size, size);
         onPressSprite = new Sprite(new Texture(Gdx.files.internal("utilities/" + ButtonCodex.onPress[index])));
@@ -71,11 +57,9 @@ public class ButtonActor extends Actor implements Disposable {
                 return ButtonActor.this.triggerAction();
             }
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                Gdx.app.log("Verbose", "touched up!");
                 actionTriggered();
             }
         });
-        Gdx.app.log("Verbose", "MapScreen: " + isMapScreen + ", PlantScreen: " + isPlantScreen + ", GameScreen: " + isGameScreen);
     }
 
     public boolean triggerAction() {
@@ -87,7 +71,6 @@ public class ButtonActor extends Actor implements Disposable {
     }
 
     public void actionTriggered() {
-        Gdx.app.log("Verbose", "Action Triggered!");
         switch (index) {
             case ButtonCodex.PAUSE:
                 if(isGameScreen) {
@@ -123,7 +106,6 @@ public class ButtonActor extends Actor implements Disposable {
                     ((GameScreen)screen).plant(plantActor.getPlantIndex(), plantActor.getSprite());
                     Plant.setSelectAllPlants(false);
                 } else if(isPlantScreen) {
-                    Gdx.app.log("Verbose", "Selecting Plant...");
                     ((PlantScreen)screen).selectPlant();
                 }
                 break;
@@ -132,6 +114,11 @@ public class ButtonActor extends Actor implements Disposable {
                     ((GameScreen)screen).unroot(Plant.getSelectedPlant());
                 } else if(isPlantScreen) {
                     ((PlantScreen)screen).selectPlant();
+                }
+                break;
+            case ButtonCodex.UPGRADE:
+                if(isGameScreen) {
+                    Plant.getSelectedPlant().upgrade();
                 }
                 break;
         }

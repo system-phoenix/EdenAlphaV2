@@ -15,7 +15,7 @@ public class PlantCollision implements Disposable{
 
     private Body body;
 
-    public PlantCollision(GameScreen gameScreen, Plant plant, float size, float effectiveRange) {
+    public PlantCollision(GameScreen gameScreen, Plant plant, float size) {
         this.gameScreen = gameScreen;
         this.plant = plant;
 
@@ -29,14 +29,18 @@ public class PlantCollision implements Disposable{
         body = gameScreen.getWorld().createBody(bodyDef);
 
         circleShape = new CircleShape();
-        circleShape.setRadius(size + 32f * effectiveRange);
+        circleShape.setRadius(size - 0.1f);
 
         fixtureDef.shape = circleShape;
-        fixtureDef.filter.categoryBits = CollisionBit.EFFECTIVERANGE;
-        fixtureDef.filter.maskBits = CollisionBit.PLANT;
+        fixtureDef.filter.categoryBits = CollisionBit.PLANT;
+        fixtureDef.filter.maskBits = CollisionBit.EFFECTIVERANGE | CollisionBit.ENEMY;
         fixtureDef.isSensor = true;
 
         body.createFixture(fixtureDef).setUserData(this);
+    }
+
+    public boolean isGrowing() {
+        return plant.isGrowing();
     }
 
     public void applyImpulse() {
@@ -45,7 +49,7 @@ public class PlantCollision implements Disposable{
 
     public boolean checkCollision(Plant plant) {
         if(!this.plant.equals(plant)) {
-            plant.downGrade(-1);
+            this.plant.downGrade(-1);
             return true;
         }
         return false;
@@ -53,7 +57,7 @@ public class PlantCollision implements Disposable{
 
     public boolean removeCollision(Plant plant) {
         if(!this.plant.equals(plant)) {
-            plant.downGrade(1);
+            this.plant.downGrade(1);
             return true;
         }
 

@@ -39,7 +39,7 @@ public class WorldContactListener implements ContactListener {
                 }
                 break;
             case CollisionBit.EFFECTIVERANGE | CollisionBit.PLANT:
-                if(a.getFilterData().categoryBits == CollisionBit.EFFECTIVERANGE) {
+                if(a.getFilterData().categoryBits == CollisionBit.PLANT) {
                     if(((PlantCollision) a.getUserData()).checkCollision((Plant) b.getUserData())) {
                         ((Plant) b.getUserData()).getPlantCollision().applyImpulse();
                     }
@@ -51,12 +51,12 @@ public class WorldContactListener implements ContactListener {
                 break;
             case CollisionBit.ENEMY | CollisionBit.PLANT:
                 if(a.getFilterData().categoryBits == CollisionBit.PLANT) {
-                    if(!((Plant) a.getUserData()).isGrowing()) {
-                        ((Plant) a.getUserData()).acquireAttacker((Enemy) b.getUserData());
+                    if(!((PlantCollision) a.getUserData()).isGrowing()) {
+                        ((PlantCollision) a.getUserData()).getPlant().acquireAttacker((Enemy) b.getUserData());
                     }
                 } else {
-                    if(!((Plant) b.getUserData()).isGrowing()) {
-                        ((Plant) b.getUserData()).acquireAttacker((Enemy) a.getUserData());
+                    if(!((PlantCollision) b.getUserData()).isGrowing()) {
+                        ((PlantCollision) b.getUserData()).getPlant().acquireAttacker((Enemy) a.getUserData());
                     }
                 }
                 break;
@@ -85,7 +85,7 @@ public class WorldContactListener implements ContactListener {
                 }
                 break;
             case CollisionBit.EFFECTIVERANGE | CollisionBit.PLANT:
-                if(a.getFilterData().categoryBits == CollisionBit.EFFECTIVERANGE) {
+                if(a.getFilterData().categoryBits == CollisionBit.PLANT) {
                     if(((PlantCollision) a.getUserData()).removeCollision((Plant) b.getUserData())) {
                         ((Plant) b.getUserData()).getPlantCollision().applyImpulse();
                     }

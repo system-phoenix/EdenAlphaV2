@@ -1,7 +1,6 @@
 package com.systemphoenix.edenalpha.Actors;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -22,7 +21,6 @@ import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.CollisionBit;
 import com.systemphoenix.edenalpha.PlantSquares.PlantSquare;
-import com.systemphoenix.edenalpha.Scenes.PlantActor;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 import java.io.PrintWriter;
@@ -37,8 +35,7 @@ public class Plant extends Actor implements Disposable {
 
     private Sound sound;
 
-    private Sprite sprite, rangeSprite, effectiveRangeSprite, redLifeBar, greenLifeBar;
-    private Stage gameStage;
+    private Sprite sprite, rangeSprite = null, effectiveRangeSprite = null, redLifeBar, greenLifeBar, downgradeSprite, upgradeSprite;
 
     private Body body;
     private Array<Enemy> targets, attackers;
@@ -49,12 +46,12 @@ public class Plant extends Actor implements Disposable {
 
     private PlantCollision plantCollision;
 
-    private boolean selected, growing, canDispose = false, hit = false;
+    private boolean selected, growing, canDispose = false, hit = false, damaged = false;
 
     private Vector2 damage;
     private long attackSpeed, lastAttackTime, growthTimer, lastHitTime;
     private int plantIndex, upgradeIndex = 0, downGradeIndex = 0;
-    private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1, seedRate, effectiveRange;
+    private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1, seedRate, effectiveRange, upgradeCost, actualRange;
     private boolean hasTarget = false;
 
     private Random rand = new Random();
@@ -62,7 +59,6 @@ public class Plant extends Actor implements Disposable {
     public Plant(GameScreen gameScreen, Stage gameStage, TextureRegion sprite, PlantSquare square, int plantIndex, float x, float y, Sound sound) {
         this.plantIndex = plantIndex;
         this.gameScreen = gameScreen;
-        this.gameStage = gameStage;
         this.sprite = new Sprite(sprite);
         this.damage = PlantCodex.dmgStats[PlantCodex.DMG[plantIndex]];
         this.attackSpeed = PlantCodex.asStats[PlantCodex.AS[plantIndex]];
@@ -70,12 +66,19 @@ public class Plant extends Actor implements Disposable {
         this.growthRate = targetHp / (PlantCodex.growthTime[plantIndex] * 5);
         this.seedRate = PlantCodex.seedRateStats[PlantCodex.seedProduction[plantIndex]];
 
+        this.upgradeCost = PlantCodex.cost[plantIndex];
+
         this.sound = sound;
 
         this.redLifeBar = new Sprite(new Texture(Gdx.files.internal("utilities/redLife.png")));
         this.redLifeBar.setBounds(x + size / 2, y + size / 4 + size / 2, size, size / 16);
         this.greenLifeBar = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
         this.greenLifeBar.setBounds(x + size / 2, y + size / 4 + size / 2, 1f, size / 16);
+
+        this.downgradeSprite = new Sprite(new Texture(Gdx.files.internal("misc/rank0.png")));
+        this.downgradeSprite.setBounds(x, y, size * 2, size * 2);
+        this.upgradeSprite = new Sprite(new Texture(Gdx.files.internal("misc/rank0.png")));
+        this.upgradeSprite.setBounds(x, y, size * 2, size * 2);
 
         this.setBounds(x, y, size * 2, size * 2);
         this.setTouchable(Touchable.enabled);
@@ -87,6 +90,8 @@ public class Plant extends Actor implements Disposable {
             }
         });
 
+        rangeSprite = new Sprite(new Texture(Gdx.files.internal("plantRange/rangeSprite.png")));
+        effectiveRangeSprite = new Sprite(new Texture(Gdx.files.internal("plantRange/effectiveRangeSprite.png")));
         initialize();
         this.targets = new Array<Enemy>();
         this.attackers = new Array<Enemy>();
@@ -103,6 +108,7 @@ public class Plant extends Actor implements Disposable {
         if((square.getType() & PlantCodex.typeBit[plantIndex]) != 0) {
             downGrade(-1);
         }
+        plantCollision = new PlantCollision(gameScreen, this, size);
     }
 
     public void initialize() {
@@ -115,13 +121,10 @@ public class Plant extends Actor implements Disposable {
         body = gameScreen.getWorld().createBody(bodyDef);
 
         CircleShape circleShape = new CircleShape();
-        float actualRange = PlantCodex.rangeStats[PlantCodex.range[plantIndex]];
+        actualRange = PlantCodex.rangeStats[PlantCodex.range[plantIndex] + downGradeIndex + upgradeIndex];
         float computedRange = size + 32f * actualRange;
         effectiveRange = PlantCodex.effectiveRange[plantIndex];
         circleShape.setRadius(computedRange);
-
-        rangeSprite = new Sprite(new Texture(Gdx.files.internal("plantRange/rangeSprite.png")));
-        effectiveRangeSprite = new Sprite(new Texture(Gdx.files.internal("plantRange/effectiveRangeSprite.png")));
 
         sprite.setBounds(this.getX(), this.getY(), this.getWidth(), this.getHeight());
         rangeSprite.setBounds(this.getX() - (32f * actualRange), this.getY() - (32f * actualRange), (32f * actualRange * 2) + this.getWidth(), (32f * actualRange * 2) + this.getHeight());
@@ -135,17 +138,14 @@ public class Plant extends Actor implements Disposable {
         body.createFixture(fixtureDef).setUserData(this);
 
         circleShape = new CircleShape();
-        circleShape.setRadius(size - 0.1f);
+        circleShape.setRadius(size + 32f * effectiveRange);
 
         fixtureDef.shape = circleShape;
-        fixtureDef.filter.categoryBits = CollisionBit.PLANT;
-        fixtureDef.filter.maskBits = CollisionBit.EFFECTIVERANGE | CollisionBit.ENEMY;
+        fixtureDef.filter.categoryBits = CollisionBit.EFFECTIVERANGE;
+        fixtureDef.filter.maskBits = CollisionBit.PLANT | CollisionBit.ENEMY;
         fixtureDef.isSensor = true;
 
         body.createFixture(fixtureDef).setUserData(this);
-
-        plantCollision = new PlantCollision(gameScreen, this, size, effectiveRange);
-        this.gameStage.addActor(this);
     }
 
     public boolean triggerAction() {
@@ -159,6 +159,7 @@ public class Plant extends Actor implements Disposable {
             }
             gameScreen.resetHud();
             gameScreen.getGameHud().setDrawable(0);
+            gameScreen.getGameHud().setPlantStatsData();
             gameScreen.getGameHud().setCanDraw(true);
             selectAllPlants = false;
         } else {
@@ -186,42 +187,147 @@ public class Plant extends Actor implements Disposable {
     }
 
     public void upgrade() {
-        upgradeIndex++;
-        switch (plantIndex) {
-            case 0:
-            case 4:
-            case 5:
-            case 6:
-            case 7:
-            case 8:
-                targetHp = PlantCodex.hpStats[PlantCodex.maxHP[plantIndex] + upgradeIndex + downGradeIndex];
-                attackSpeed = PlantCodex.asStats[PlantCodex.AS[plantIndex] + upgradeIndex + downGradeIndex];
-                damage = PlantCodex.dmgStats[PlantCodex.DMG[plantIndex] + upgradeIndex + downGradeIndex];
-                break;
-            case 1:
+        if(upgradeIndex < 3) {
+            upgradeIndex++;
+            gameScreen.decrementSeeds(upgradeCost);
+            upgradeCost *= 2;
+            upgradeSprite.getTexture().dispose();
+            upgradeSprite = new Sprite(new Texture(Gdx.files.internal("misc/uprank" + upgradeIndex + ".png")));
+            upgradeSprite.setBounds(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            switch (plantIndex) {
+                case 0:
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                case 8:
+                    if(PlantCodex.maxHP[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        targetHp = PlantCodex.hpStats[PlantCodex.maxHP[plantIndex] + upgradeIndex + downGradeIndex];
+                        damaged = true;
+                    }
+                    if(PlantCodex.AS[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        attackSpeed = PlantCodex.asStats[PlantCodex.AS[plantIndex] + upgradeIndex + downGradeIndex];
+                    }
+                    if(PlantCodex.DMG[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        damage = PlantCodex.dmgStats[PlantCodex.DMG[plantIndex] + upgradeIndex + downGradeIndex];
+                    }
+                    break;
+                case 1:
+                    if(PlantCodex.maxHP[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        targetHp = PlantCodex.hpStats[PlantCodex.maxHP[plantIndex] + upgradeIndex + downGradeIndex];
+                        damaged = true;
+                    }
+                    if(PlantCodex.AS[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        attackSpeed = PlantCodex.asStats[PlantCodex.AS[plantIndex] + upgradeIndex + downGradeIndex];
+                    }
+                    if(PlantCodex.seedProduction[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        seedRate = PlantCodex.seedRateStats[PlantCodex.seedProduction[plantIndex] + upgradeIndex + downGradeIndex];
+                        gameScreen.updateSeedRate();
+                    }
+                    break;
+                case 2:
+                case 12:
+                    if(PlantCodex.maxHP[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        targetHp = PlantCodex.hpStats[PlantCodex.maxHP[plantIndex] + upgradeIndex + downGradeIndex];
+                        damaged = true;
+                    }
+                    if(PlantCodex.DMG[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        damage = PlantCodex.dmgStats[PlantCodex.DMG[plantIndex] + upgradeIndex + downGradeIndex];
+                    }
+                    if(PlantCodex.seedProduction[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        seedRate = PlantCodex.seedRateStats[PlantCodex.seedProduction[plantIndex] + upgradeIndex + downGradeIndex];
+                        gameScreen.updateSeedRate();
+                    }
+                    break;
+                case 3:
+                    if(PlantCodex.AS[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        attackSpeed = PlantCodex.asStats[PlantCodex.AS[plantIndex] + upgradeIndex + downGradeIndex];
+                    }
+                    if(PlantCodex.DMG[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        damage = PlantCodex.dmgStats[PlantCodex.DMG[plantIndex] + upgradeIndex + downGradeIndex];
+                    }
+                    if(PlantCodex.range[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        gameScreen.getWorld().destroyBody(body);
+                        initialize();
+                    }
+                    break;
+                case 9:
+                    if(PlantCodex.maxHP[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        targetHp = PlantCodex.hpStats[PlantCodex.maxHP[plantIndex] + upgradeIndex + downGradeIndex];
+                        damaged = true;
+                    }
+                    if(PlantCodex.DMG[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        damage = PlantCodex.dmgStats[PlantCodex.DMG[plantIndex] + upgradeIndex + downGradeIndex];
+                    }
+                    if(PlantCodex.range[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        gameScreen.getWorld().destroyBody(body);
+                        initialize();
+                    }
+                    break;
+                case 10:
+                    if(PlantCodex.DMG[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        damage = PlantCodex.dmgStats[PlantCodex.DMG[plantIndex] + upgradeIndex + downGradeIndex];
+                    }
+                    break;
+                case 11:
+                    if(PlantCodex.AS[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        attackSpeed = PlantCodex.asStats[PlantCodex.AS[plantIndex] + upgradeIndex + downGradeIndex];
+                    }
+                    break;
+                case 13:
+                    if(PlantCodex.maxHP[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        targetHp = PlantCodex.hpStats[PlantCodex.maxHP[plantIndex] + upgradeIndex + downGradeIndex];
+                        damaged = true;
+                    }
+                    if(PlantCodex.range[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        gameScreen.getWorld().destroyBody(body);
+                        initialize();
+                    }
+                    break;
+                case 14:
+                    if(PlantCodex.AS[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        attackSpeed = PlantCodex.asStats[PlantCodex.AS[plantIndex] + upgradeIndex + downGradeIndex];
+                    }
+                    if(PlantCodex.DMG[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        damage = PlantCodex.dmgStats[PlantCodex.DMG[plantIndex] + upgradeIndex + downGradeIndex];
+                    }
+                    if(PlantCodex.seedProduction[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+                        seedRate = PlantCodex.seedRateStats[PlantCodex.seedProduction[plantIndex] + upgradeIndex + downGradeIndex];
+                        gameScreen.updateSeedRate();
+                    }
 
+            }
+            gameScreen.getGameHud().setPlantStatsData();
         }
     }
 
 
     public void downGrade(float update) {
-        downGradeIndex += update;
-        Gdx.app.log("Verbose", "Plant downgraded! Index: " + downGradeIndex);
+        if(downGradeIndex <= 0 && downGradeIndex >= -3) {
+            downGradeIndex += update;
 
-        if(PlantCodex.DMG[plantIndex] + downGradeIndex + upgradeIndex >= 0) {
-            damage = PlantCodex.dmgStats[PlantCodex.DMG[plantIndex] + downGradeIndex + upgradeIndex];
-        }
+            downgradeSprite.getTexture().dispose();
+            if(downGradeIndex == 0) {
+                downgradeSprite = new Sprite(new Texture(Gdx.files.internal("misc/rank0.png")));
+            } else {
+                downgradeSprite = new Sprite(new Texture(Gdx.files.internal("misc/downrank" + (int)Math.abs(downGradeIndex) + ".png")));
+            }
+            downgradeSprite.setBounds(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 
-        if(PlantCodex.AS[plantIndex] + downGradeIndex + upgradeIndex> 0) {
-            attackSpeed = PlantCodex.asStats[PlantCodex.AS[plantIndex] + downGradeIndex + upgradeIndex];
-        }
+            if(PlantCodex.DMG[plantIndex] + downGradeIndex + upgradeIndex >= 0) {
+                damage = PlantCodex.dmgStats[PlantCodex.DMG[plantIndex] + downGradeIndex + upgradeIndex];
+            }
 
-        if(update < 0) {
-            seedRate /= 2;
-        } else {
-            seedRate *= 2;
+            if(PlantCodex.AS[plantIndex] + downGradeIndex + upgradeIndex > 0) {
+                attackSpeed = PlantCodex.asStats[PlantCodex.AS[plantIndex] + downGradeIndex + upgradeIndex];
+            }
+
+            if(PlantCodex.seedProduction[plantIndex] + upgradeIndex + downGradeIndex > 0) {
+                seedRate = PlantCodex.seedRateStats[PlantCodex.seedProduction[plantIndex] + upgradeIndex + downGradeIndex];
+                gameScreen.updateSeedRate();
+            }
+
         }
-        gameScreen.updateSeedRate();
     }
 
     public void update() {
@@ -261,6 +367,18 @@ public class Plant extends Actor implements Disposable {
                 }
             }
 
+            if(damaged) {
+                if(System.currentTimeMillis() - growthTimer >= 200) {
+                    hp += growthRate;
+                    float multiplier = hp / targetHp;
+                    greenLifeBar.setBounds(greenLifeBar.getX(), greenLifeBar.getY(), size * multiplier, size / 16);
+                    if(hp >= targetHp) {
+                        damaged = false;
+                    }
+                    growthTimer = System.currentTimeMillis();
+                }
+            }
+
             for(int i = 0; i < targets.size; i++) {
                 if(targets.get(i).getLife() <= 0) {
                     targets.removeIndex(i);
@@ -272,10 +390,14 @@ public class Plant extends Actor implements Disposable {
                 float multiplier = hp / targetHp;
                 greenLifeBar.setBounds(greenLifeBar.getX(), greenLifeBar.getY(), size * multiplier, size / 16);
                 if(hp >= targetHp) {
-                    lastAttackTime = System.currentTimeMillis();
-                    growing = false;
-                    redLifeBar.setY(redLifeBar.getY() - size / 2);
-                    greenLifeBar.setY(greenLifeBar.getY() - size / 2);
+                    if(growing) {
+                        growing = false;
+                        redLifeBar.setY(redLifeBar.getY() - size / 2);
+                        greenLifeBar.setY(greenLifeBar.getY() - size / 2);
+                        lastAttackTime = System.currentTimeMillis();
+                    } else if(damaged) {
+                        damaged = false;
+                    }
                 }
                 growthTimer = System.currentTimeMillis();
             }
@@ -296,6 +418,8 @@ public class Plant extends Actor implements Disposable {
             }
             if(!growing) {
                 sprite.draw(batch);
+                upgradeSprite.draw(batch);
+
                 for(int i = 0; i < bullets.size; i++) {
                     bullets.get(i).render(batch);
                 }
@@ -345,9 +469,12 @@ public class Plant extends Actor implements Disposable {
                 greenLifeBar.draw(batch);
             }
 
-            if(hit && System.currentTimeMillis() - lastHitTime > 3000) {
+            if(hit && System.currentTimeMillis() - lastHitTime > 5000) {
                 hit = false;
+                damaged = true;
             }
+
+            downgradeSprite.draw(batch);
         }
     }
 
@@ -356,6 +483,9 @@ public class Plant extends Actor implements Disposable {
         nullSelectedPlant();
         rangeSprite.getTexture().dispose();
         effectiveRangeSprite.getTexture().dispose();
+
+        downgradeSprite.getTexture().dispose();
+        upgradeSprite.getTexture().dispose();
 
         redLifeBar.getTexture().dispose();
         greenLifeBar.getTexture().dispose();
@@ -414,6 +544,18 @@ public class Plant extends Actor implements Disposable {
         return effectiveRange;
     }
 
+    public float getRange() {
+        return actualRange;
+    }
+
+    public float getUpgradeCost() {
+        return upgradeCost;
+    }
+
+    public float getTargetHp() {
+        return targetHp;
+    }
+
     public boolean isGrowing() {
         return growing;
     }
@@ -434,6 +576,18 @@ public class Plant extends Actor implements Disposable {
         return body;
     }
 
+    public int getUpgradeIndex() {
+        return upgradeIndex;
+    }
+
+    public long getAttackSpeed() {
+        return attackSpeed;
+    }
+
+    public Vector2 getDamage() {
+        return damage;
+    }
+
     public void setPlantCollision(PlantCollision plantCollision) {
         this.plantCollision = plantCollision;
     }
@@ -447,6 +601,7 @@ public class Plant extends Actor implements Disposable {
         float multiplier = hp / targetHp;
         greenLifeBar.setBounds(greenLifeBar.getX(), greenLifeBar.getY(), size * multiplier, greenLifeBar.getHeight());
         hit = true;
+        damaged = false;
         lastHitTime = System.currentTimeMillis();
     }
 
