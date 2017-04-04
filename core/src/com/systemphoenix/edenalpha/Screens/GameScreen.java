@@ -561,9 +561,9 @@ public class GameScreen extends AbsoluteScreen {
     }
 
     public void plant(int plantIndex, TextureRegion sprite) {
-        if(seeds - PlantCodex.cost[plantIndex] >= 0 && (plantIndex > -1 && plantIndex < 15) && (selectedX > -1 && selectedY > -1)) {
-            seeds -= PlantCodex.cost[plantIndex];
-            water -= PlantCodex.cost[plantIndex] / 2;
+        if(seeds - PlantCodex.cost[plantIndex] / 2 >= 0 && water - PlantCodex.cost[plantIndex] >= 0 && (plantIndex > -1 && plantIndex < 15) && (selectedX > -1 && selectedY > -1)) {
+            seeds -= PlantCodex.cost[plantIndex] / 2;
+            water -= PlantCodex.cost[plantIndex];
             topHud.setSeedStatMessage("" + (int)seeds);
             topHud.setWaterStatMessage("" + (int)water);
             switch(plantIndex) {

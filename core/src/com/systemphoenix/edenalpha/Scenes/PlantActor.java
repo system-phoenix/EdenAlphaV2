@@ -81,7 +81,7 @@ public class PlantActor extends Actor {
                 rectangleSprite.draw(batch);
             }
 
-            if(plantCost > gameScreen.getSeeds()) {
+            if(plantCost / 2 > gameScreen.getSeeds() && plantCost > gameScreen.getWater()) {
                 maskSprite.draw(batch);
             }
         }
