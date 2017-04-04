@@ -81,11 +81,11 @@ public class GameScreen extends AbsoluteScreen {
     private Array<InputProcessor> inputProcessors;
 
     private PlantSquare[][] plantSquares, subSquares;
-    private float pastZoomDistance, plantSquareSize, accumulator, seeds = 150, seedRate = 0.25f;
+    private float pastZoomDistance, plantSquareSize, accumulator, seeds = 75, seedRate = 0.25f, sunlight, water = 150;
     private int waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1, displaySquare = -3, pseudoPlantIndex = -1;
     private long timer = 0, newWaveCountdown, timeGap, displaySquareTimer, seedTimer, waveDisplayTimer;
     private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, willPause = false, win = false, lose = false, running = false, canDisplaySquare, canPlant = false, firstCall = true;
-    private boolean willRestart = false, willDispose = false, waveDisplay = true, forestDamaged = false;
+    private boolean willRestart = false, willDispose = false, waveDisplay = true;
 
     public GameScreen(EdenAlpha game, MapScreen mapScreen, PlantScreen plantScreen, Region region, PlantActor[] plantActors) {
         super(game);
@@ -93,7 +93,9 @@ public class GameScreen extends AbsoluteScreen {
         this.mapScreen = mapScreen;
         this.plantScreen = plantScreen;
 
-        this.seeds = game.getSeedCount() > 150 ? game.getSeedCount() : 150;
+//        this.seeds = game.getSeedCount() > 150 ? game.getSeedCount() : 150;
+//        this.seeds = 150;
+        this.sunlight = region.getSunlight();
 
         worldHeight = region.getWorldHeight();
         worldWidth = region.getWorldWidth();
@@ -322,6 +324,9 @@ public class GameScreen extends AbsoluteScreen {
                 seedTimer = System.currentTimeMillis();
                 seeds += seedRate;
                 topHud.setSeedStatMessage("" + (int)seeds);
+
+                water++;
+                topHud.setWaterStatMessage("" + (int)water);
             }
             if(newWave) {
                 if(System.currentTimeMillis() - newWaveCountdown >= 5000) {
@@ -470,7 +475,7 @@ public class GameScreen extends AbsoluteScreen {
             }
             try {
                 gameGraphics.setProjectionMatrix(topHud.getStage().getCamera().combined);
-                topHud.draw(gameGraphics);
+                topHud.update();
                 topHud.getStage().draw();
             } catch(Exception e) {
                 Gdx.app.log("Verbose", "Error rendering top hud: " + e.getMessage());
@@ -558,21 +563,22 @@ public class GameScreen extends AbsoluteScreen {
     public void plant(int plantIndex, TextureRegion sprite) {
         if(seeds - PlantCodex.cost[plantIndex] >= 0 && (plantIndex > -1 && plantIndex < 15) && (selectedX > -1 && selectedY > -1)) {
             seeds -= PlantCodex.cost[plantIndex];
+            water -= PlantCodex.cost[plantIndex] / 2;
             topHud.setSeedStatMessage("" + (int)seeds);
+            topHud.setWaterStatMessage("" + (int)water);
             switch(plantIndex) {
                 case 4:
-                    plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f, pulseSound));
+                    plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f, sunlight, pulseSound));
                     break;
                 case 5:
                 case 11:
                 case 13:
-                    plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f, slashSound));
+                    plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f, sunlight, slashSound));
                     break;
                 default:
-                    plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f, bulletSound));
+                    plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f, sunlight, bulletSound));
                     break;
             }
-//            plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f));
             updateSeedRate();
 
             for(int i = selectedY - 1; i <= selectedY + 1; i++) {
@@ -863,6 +869,10 @@ public class GameScreen extends AbsoluteScreen {
         return seeds;
     }
 
+    public float getWater() {
+        return water;
+    }
+
     public Array<Plant> getPlants() {
         return plants;
     }
@@ -896,13 +906,13 @@ public class GameScreen extends AbsoluteScreen {
         }
     }
 
-    public void incrementSeeds(float value) {
+    public void updateSeeds(float value) {
         this.seeds += value;
         topHud.setSeedStatMessage("" + (int)seeds);
     }
 
-    public void decrementSeeds(float value) {
-        this.seeds -= value;
-        topHud.setSeedStatMessage("" + (int)seeds);
+    public void updateWater(float value) {
+        this.water += value;
+        topHud.setWaterStatMessage("" + (int)water);
     }
 }

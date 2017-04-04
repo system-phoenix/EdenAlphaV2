@@ -24,8 +24,8 @@ public class EnemyCodex {
             1000,   1000,   1500,   3000,   750,    500,    1500,   1000
     };
 
-    public static final float seedDrop[] = {
-            0.25f,  0.5f,   0.75f,  1,      1.25f,  1.5f,   1.75f,  2
+    public static final float waterDrop[] = {
+            1,      2,      3,      4,      5,      6,      7,      8
     };
 
     public static Vector2[] getSpriteLocation(int index) {

@@ -360,7 +360,7 @@ public class PlantScreen extends AbsoluteScreen {
                     break;
             }
             this.plantType.setText(plantType);
-            plantCost.setText("" + (int)(PlantCodex.cost[index]));
+            plantCost.setText("" + (int)(PlantCodex.cost[index] / 2) + " seeds, " + (int)(PlantCodex.cost[index]) + " water");
             plantHP.setBounds(plantHP.getX(), plantHP.getY(), barSize * (PlantCodex.hpStats[PlantCodex.maxHP[index]] / PlantCodex.baseHP), plantHP.getHeight());
             if(index != 13) {
                 plantAS.setBounds(plantAS.getX(), plantAS.getY(), barSize * ((float)PlantCodex.baseAS / (float)(PlantCodex.asStats[PlantCodex.AS[index]] * 3f)), plantAS.getHeight());

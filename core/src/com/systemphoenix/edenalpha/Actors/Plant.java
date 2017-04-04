@@ -49,14 +49,14 @@ public class Plant extends Actor implements Disposable {
     private boolean selected, growing, canDispose = false, hit = false, damaged = false;
 
     private Vector2 damage;
-    private long attackSpeed, lastAttackTime, growthTimer, lastHitTime;
+    private long attackSpeed, lastAttackTime, growthTimer, lastHitTime, lastAcquisition;
     private int plantIndex, upgradeIndex = 0, downGradeIndex = 0;
-    private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1, seedRate, effectiveRange, upgradeCost, actualRange;
-    private boolean hasTarget = false;
+    private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1, seedRate, effectiveRange, upgradeCostSunlight, upgradeCostWater, actualRange, sunlightAccumulation, sunlight;
+    private boolean hasTarget = false, upgradable = false;
 
     private Random rand = new Random();
 
-    public Plant(GameScreen gameScreen, Stage gameStage, TextureRegion sprite, PlantSquare square, int plantIndex, float x, float y, Sound sound) {
+    public Plant(GameScreen gameScreen, Stage gameStage, TextureRegion sprite, PlantSquare square, int plantIndex, float x, float y, float sunlightAccumulation, Sound sound) {
         this.plantIndex = plantIndex;
         this.gameScreen = gameScreen;
         this.sprite = new Sprite(sprite);
@@ -66,7 +66,10 @@ public class Plant extends Actor implements Disposable {
         this.growthRate = targetHp / (PlantCodex.growthTime[plantIndex] * 5);
         this.seedRate = PlantCodex.seedRateStats[PlantCodex.seedProduction[plantIndex]];
 
-        this.upgradeCost = PlantCodex.cost[plantIndex];
+        this.sunlightAccumulation = sunlightAccumulation;
+
+        this.upgradeCostSunlight = PlantCodex.cost[plantIndex];
+        this.upgradeCostWater = PlantCodex.cost[plantIndex] / 2;
 
         this.sound = sound;
 
@@ -102,6 +105,7 @@ public class Plant extends Actor implements Disposable {
 
         gameStage.addActor(this);
         lastAttackTime = System.currentTimeMillis();
+        lastAcquisition = System.currentTimeMillis();
         growthTimer = System.currentTimeMillis();
         growing = true;
 
@@ -189,8 +193,10 @@ public class Plant extends Actor implements Disposable {
     public void upgrade() {
         if(upgradeIndex < 3) {
             upgradeIndex++;
-            gameScreen.decrementSeeds(upgradeCost);
-            upgradeCost *= 2;
+            sunlight -= upgradeCostSunlight;
+            upgradeCostSunlight *= 2;
+            gameScreen.updateWater(-upgradeCostWater);
+            upgradeCostWater *= 2;
             upgradeSprite.getTexture().dispose();
             upgradeSprite = new Sprite(new Texture(Gdx.files.internal("misc/uprank" + upgradeIndex + ".png")));
             upgradeSprite.setBounds(this.getX(), this.getY(), this.getWidth(), this.getHeight());
@@ -327,6 +333,11 @@ public class Plant extends Actor implements Disposable {
                 gameScreen.updateSeedRate();
             }
 
+            if(update < 0) {
+                sunlightAccumulation /= 2;
+            } else if(update > 0) {
+                sunlightAccumulation *= 2;
+            }
         }
     }
 
@@ -384,6 +395,8 @@ public class Plant extends Actor implements Disposable {
                     targets.removeIndex(i);
                 }
             }
+
+            upgradable = (gameScreen.getWater() - upgradeCostWater >= 0 && sunlight - upgradeCostSunlight >= 0);
         } else {
             if(System.currentTimeMillis() - growthTimer >= 200) {
                 hp += growthRate;
@@ -401,6 +414,10 @@ public class Plant extends Actor implements Disposable {
                 }
                 growthTimer = System.currentTimeMillis();
             }
+        }
+        if(System.currentTimeMillis() - lastAcquisition > 1000) {
+            lastAcquisition = System.currentTimeMillis();
+            sunlight += sunlightAccumulation;
         }
     }
 
@@ -548,12 +565,24 @@ public class Plant extends Actor implements Disposable {
         return actualRange;
     }
 
-    public float getUpgradeCost() {
-        return upgradeCost;
+    public float getSunlight() {
+        return sunlight;
+    }
+
+    public float getUpgradeCostSunlight() {
+        return upgradeCostSunlight;
+    }
+
+    public float getUpgradeCostWater() {
+        return upgradeCostWater;
     }
 
     public float getTargetHp() {
         return targetHp;
+    }
+
+    public boolean isUpgradable() {
+        return upgradable;
     }
 
     public boolean isGrowing() {

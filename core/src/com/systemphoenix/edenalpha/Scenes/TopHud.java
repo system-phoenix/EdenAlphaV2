@@ -10,13 +10,14 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Disposable;
+import com.systemphoenix.edenalpha.Actors.Plant;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
 import com.systemphoenix.edenalpha.EdenAlpha;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class TopHud extends AbsoluteHud implements Disposable {
 
-    private Label waveStats, timeStats, readyPlant, loadingMessage, seedStats;
+    private Label waveStats, timeStats, readyPlant, loadingMessage, seedStats, waterStats, sunlightStats;
     private ButtonActor pauseButton = null;
     private HudBackground hudBg;
     private GameScreen gameScreen;
@@ -56,6 +57,8 @@ public class TopHud extends AbsoluteHud implements Disposable {
         timeStats = new Label("", new Label.LabelStyle(font, fontColor));
         waveStats = new Label("", new Label.LabelStyle(font, fontColor));
         seedStats = new Label("", new Label.LabelStyle(font, fontColor));
+        waterStats = new Label("", new Label.LabelStyle(font, fontColor));
+        sunlightStats = new Label("--", new Label.LabelStyle(font, fontColor));
         loadingMessage = new Label("Loading...", new Label.LabelStyle(font, fontColor));
 
         temp.top();
@@ -71,6 +74,10 @@ public class TopHud extends AbsoluteHud implements Disposable {
         temp.setBounds(gameScreen.getWorldWidth() - paramX - paramW, paramY, paramW, paramH);
         temp.top();
         temp.add(seedStats);
+        temp.row();
+        temp.add(waterStats);
+        temp.row();
+        temp.add(sunlightStats);
 
         stage.addActor(temp);
 
@@ -87,10 +94,12 @@ public class TopHud extends AbsoluteHud implements Disposable {
         hudBg.dispose();
     }
 
-    public void draw(Batch batch) {
-        batch.begin();
-
-        batch.end();
+    public void update() {
+        if(Plant.getSelectedPlant() != null) {
+            sunlightStats.setText("" + (int)Plant.getSelectedPlant().getSunlight());
+        } else {
+            sunlightStats.setText("--");
+        }
     }
 
     public void setTimeStats(String timeStats) {
@@ -107,6 +116,10 @@ public class TopHud extends AbsoluteHud implements Disposable {
 
     public void setSeedStatMessage(String message) {
         seedStats.setText(message);
+    }
+
+    public void setWaterStatMessage(String message) {
+        waterStats.setText(message);
     }
 
     public void setLoadingMessage(String message) {
@@ -148,6 +161,12 @@ public class TopHud extends AbsoluteHud implements Disposable {
         temp.setBounds(gameScreen.getWorldWidth() - paramX - 200, paramY, paramW, paramH);
         temp.top();
         tempLabel = new Label("Seeds:", new Label.LabelStyle(font, fontColor));
+        temp.add(tempLabel);
+        temp.row();
+        tempLabel = new Label("Water:", new Label.LabelStyle(font, fontColor));
+        temp.add(tempLabel);
+        temp.row();
+        tempLabel = new Label("Sunlight:", new Label.LabelStyle(font, fontColor));
         temp.add(tempLabel);
 
         stage.addActor(temp);

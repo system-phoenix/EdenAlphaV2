@@ -20,7 +20,7 @@ import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class Enemy extends Sprite implements Disposable {
     protected float size, velX, velY, damage;
-    protected float stateTime, speed = 30, maxSpeed, seedDrop, stackSlowRate = 0;
+    protected float stateTime, speed = 30, maxSpeed, waterDrop, stackSlowRate = 0;
     protected int level = 0, id, life, maxLife;
     protected long lastDirectionChange, deathTimer, damageTimer, slowTimer, stunLimit, stunTimer, attackSpeed, lastAttackTime;
     protected boolean spawned = false, moving = true, canDraw = false, canDispose = false, directionSquares[][], drawHpBar, slowed = false, dead, stunned, attacking;
@@ -48,7 +48,7 @@ public class Enemy extends Sprite implements Disposable {
         this.damage = EnemyCodex.damage[level];
         this.speed = this.maxSpeed = EnemyCodex.speed[level];
         this.life = this.maxLife = EnemyCodex.getHP(level, waveIndex, gameScreen.getRegion().getMapIndex());
-        this.seedDrop = EnemyCodex.seedDrop[level];
+        this.waterDrop = EnemyCodex.waterDrop[level];
         this.attackSpeed = EnemyCodex.attackSpeed[level];
         this.directionSquares = new boolean[screen.getDirectionSquares().length][screen.getDirectionSquares()[0].length];
         this.setBounds(x, y, 32f, 32f);
@@ -127,7 +127,7 @@ public class Enemy extends Sprite implements Disposable {
     public void update(float delta) {
         if((dead && System.currentTimeMillis() - deathTimer >= 100) || life <= 0) {
             canDispose = true;
-            gameScreen.incrementSeeds(seedDrop);
+            gameScreen.updateWater(waterDrop);
         }
         stateTime += delta;
         if(moving) {
@@ -238,7 +238,6 @@ public class Enemy extends Sprite implements Disposable {
     public void slow(float percentage) {
         if(!slowed) {
             speed -= maxSpeed * percentage;
-//            if(speed <= 10) speed = 10;
         }
         slowed = true;
         slowTimer = System.currentTimeMillis();
@@ -276,8 +275,7 @@ public class Enemy extends Sprite implements Disposable {
             boolean loopBreak = false;
             for (int i = -1; i <= 1 && !loopBreak; i++) {
                 for (int j = -1; j <= 1 && !loopBreak; j++) {
-                    if (i == j || i + j == 0);
-                    else {
+                    if(!(i == j && i + j == 0)) {
                         if (directionSquares[(int) body.getPosition().y / 32 + i][(int) body.getPosition().x / 32 + j]) {
                             if (i == -1 && j == 0) {
                                 this.direction = Direction.SOUTH;

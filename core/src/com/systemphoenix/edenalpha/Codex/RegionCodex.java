@@ -1,7 +1,5 @@
 package com.systemphoenix.edenalpha.Codex;
 
-import com.badlogic.gdx.math.Vector2;
-
 public class RegionCodex {
 
     public static final String[]
@@ -23,24 +21,44 @@ public class RegionCodex {
             " Region XIII",
             "    ARMM    ",
             "     NCR    "
-        }, names = {
-            "  Cordillera Administrative Region  ",
-            "                Ilocos              ",
-            "            Cagayan Valley          ",
-            "            Central  Luzon          ",
-            "              CALABARZON            ",
-            "               MIMAROPA             ",
-            "                Bicol               ",
-            "           Western Visayas          ",
-            "           Central Visayas          ",
-            "           Eastern Visayas          ",
-            "         Zamboanga Peninsula        ",
-            "          Northern Mindanao         ",
-            "                Davao               ",
-            "             SOCCSKSARGEN           ",
-            "                Caraga              ",
+        },
+//            names = {
+//            "  Cordillera Administrative Region  ",
+//            "                Ilocos              ",
+//            "            Cagayan Valley          ",
+//            "            Central  Luzon          ",
+//            "              CALABARZON            ",
+//            "               MIMAROPA             ",
+//            "                Bicol               ",
+//            "           Western Visayas          ",
+//            "           Central Visayas          ",
+//            "           Eastern Visayas          ",
+//            "         Zamboanga Peninsula        ",
+//            "          Northern Mindanao         ",
+//            "                Davao               ",
+//            "             SOCCSKSARGEN           ",
+//            "                Caraga              ",
+//            "Autonomous Region in Muslim Mindanao",
+//            "       National Capital Region      "
+//        };
+        names = {
+            "Cordillera Administrative Region",
+            "Ilocos",
+            "Cagayan Valley",
+            "Central Luzon",
+            "CALABARZON",
+            "MIMAROPA",
+            "Bicol",
+            "Western Visayas",
+            "Central Visayas",
+            "Eastern Visayas",
+            "Zamboanga Peninsula",
+            "Northern Mindanao",
+            "Davao",
+            "SOCCSKSARGEN",
+            "Caraga",
             "Autonomous Region in Muslim Mindanao",
-            "       National Capital Region      "
+            "National Capital Region"
         };
 
 
@@ -61,6 +79,10 @@ public class RegionCodex {
 
     public static final int timeStart[] = {
             64, 64, 64, 64, 64, 64, 64, 64, 65, 64, 64, 64, 66, 65, 64, 64, 65
+        };
+
+    public static final float sunlight[] = {
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.5f
         };
 
     public static final int waves[][][] = {{
