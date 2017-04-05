@@ -42,6 +42,17 @@ public class PlantSquare extends Sprite {
         this.type = (short) type;
         try {
             this.square = new Texture(Gdx.files.internal("misc/" + this.type + "_PlantSquare.png"));
+            switch (this.type) {
+                case 0:
+                    this.type = 1;
+                    break;
+                case 1:
+                    this.type = 2;
+                    break;
+                case 2:
+                    this.type = 4;
+                    break;
+            }
         } catch(Exception e) {
             Gdx.app.log("Verbose", "Plant square: " + e.getMessage());
         }

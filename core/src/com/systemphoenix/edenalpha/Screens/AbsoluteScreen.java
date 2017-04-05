@@ -21,6 +21,8 @@ public class AbsoluteScreen implements Screen, GestureDetector.GestureListener {
     protected BitmapFont font;
     protected OrthographicCamera cam;
 
+    protected boolean willDispose = false;
+
     public AbsoluteScreen(EdenAlpha game) {
         this.game = game;
         this.gameGraphics = game.getGameGraphics();
@@ -132,5 +134,9 @@ public class AbsoluteScreen implements Screen, GestureDetector.GestureListener {
     @Override
     public void dispose() {
 
+    }
+
+    public void setWillDispose(boolean willDispose) {
+        this.willDispose = willDispose;
     }
 }

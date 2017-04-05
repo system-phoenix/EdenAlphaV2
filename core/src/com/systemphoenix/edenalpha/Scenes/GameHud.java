@@ -102,6 +102,10 @@ public class GameHud extends AbsoluteHud implements Disposable {
 
         Label tempLabel, spaceFiller;
 
+        tempLabel = new Label("Name:", new Label.LabelStyle(font, fontColor));
+        tempTable.add(tempLabel);
+        tempTable.row();
+
         if(!plantStatsTable) {
             float startY = 81, startX = 111;
             plantName = new Label("--", new Label.LabelStyle(font, fontColor));
@@ -149,10 +153,6 @@ public class GameHud extends AbsoluteHud implements Disposable {
             infoTable.row();
         }
 
-        tempLabel = new Label("Name:", new Label.LabelStyle(font, fontColor));
-        tempTable.add(tempLabel);
-        tempTable.row();
-
         tempLabel = new Label("HP:", new Label.LabelStyle(font, fontColor));
         spaceFiller = new Label(" ", new Label.LabelStyle(font, fontColor));
 
@@ -195,11 +195,9 @@ public class GameHud extends AbsoluteHud implements Disposable {
             tempTable.row();
             infoTable.row();
 
-            tempLabel = new Label("Cost:", new Label.LabelStyle(font, fontColor));
+            tempLabel = new Label("Upgrade:", new Label.LabelStyle(font, fontColor));
             tempTable.add(tempLabel);
-            infoTable.add(spaceFiller);
             tempTable.row();
-            infoTable.row();
 
             plantStatsCost = new Label("--", new Label.LabelStyle(font, fontColor));
             infoTable.add(plantStatsCost);

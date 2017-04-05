@@ -1,36 +1,37 @@
 package com.systemphoenix.edenalpha.Scenes;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Screens.MapScreen;
+import com.systemphoenix.edenalpha.Screens.TutorialMapScreen;
 
 public class MapActor extends Actor implements Disposable {
 
-    private MapScreen mapScreen;
+    private Screen screen;
 
     private Sprite sprite;
-    private boolean canDraw, left, isPressed;
+    private boolean canDraw, left, isPressed, tutorial;
 
-    public MapActor(MapScreen mapScreen, float worldWidth, float worldHeight, boolean left) {
-        this.mapScreen = mapScreen;
+    public MapActor(Screen screen, float worldWidth, float worldHeight, boolean left, boolean tutorial) {
+        this.screen = screen;
         this.left = left;
+        this.tutorial = tutorial;
         float x = 0;
         try {
             if(left) {
                 sprite = new Sprite(new Texture(Gdx.files.internal("misc/leftSelect.png")));
-                x = worldWidth / 16;
+                x = 16;
             } else {
                 sprite = new Sprite(new Texture(Gdx.files.internal("misc/rightSelect.png")));
-                x = worldWidth - (worldWidth / 8);
+                x = worldWidth - 112;
             }
         } catch(Exception e) {
             Gdx.app.log("Verbose", "Error loading texture in MapActor: " + e.getMessage());
@@ -51,16 +52,24 @@ public class MapActor extends Actor implements Disposable {
     }
 
     public boolean triggerAction() {
-        isPressed = true;
-        return true;
+        if(canDraw) {
+            if(!tutorial) {
+                isPressed = true;
+            } else {
+                int update = left ? -1 : 1;
+                ((TutorialMapScreen)screen).updateIndex(update);
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override
     public void draw(Batch batch, float alpha){
         if(canDraw) {
             sprite.draw(batch);
-            if(isPressed) {
-                mapScreen.getFieldSelection().setIndex(left ? -1 : 1);
+            if(isPressed && !tutorial) {
+                ((MapScreen)screen).getFieldSelection().setIndex(left ? -1 : 1);
             }
         }
     }

@@ -85,7 +85,7 @@ public class GameScreen extends AbsoluteScreen {
     private int waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1, displaySquare = -3, pseudoPlantIndex = -1;
     private long timer = 0, newWaveCountdown, timeGap, displaySquareTimer, seedTimer, waveDisplayTimer;
     private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, willPause = false, win = false, lose = false, running = false, canDisplaySquare, canPlant = false, firstCall = true;
-    private boolean willRestart = false, willDispose = false, waveDisplay = true;
+    private boolean willRestart = false, waveDisplay = true;
 
     public GameScreen(EdenAlpha game, MapScreen mapScreen, PlantScreen plantScreen, Region region, PlantActor[] plantActors) {
         super(game);
@@ -655,7 +655,7 @@ public class GameScreen extends AbsoluteScreen {
                         selectedX = (int) touchPos.x / (int)plantSquareSize;
                         selectedY = (int) touchPos.y / (int)plantSquareSize;
 
-                        gameHud.setMessage("(" + selectedX + ", " + selectedY +")");
+//                        gameHud.setMessage("(" + selectedX + ", " + selectedY +")");
                         gameHud.setCanDraw(true);
                         if(PlantActor.getRecentlySelectedActor() != null) {
                             setPseudoPlant(pseudoPlantIndex);
@@ -890,10 +890,6 @@ public class GameScreen extends AbsoluteScreen {
 
     public void setWillRestart(boolean willRestart) {
         this.willRestart = willRestart;
-    }
-
-    public void setWillDispose(boolean willDispose) {
-        this.willDispose = willDispose;
     }
 
     public void setPseudoPlant(int plantIndex) {

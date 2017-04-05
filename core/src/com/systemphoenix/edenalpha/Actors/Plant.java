@@ -109,7 +109,7 @@ public class Plant extends Actor implements Disposable {
         growthTimer = System.currentTimeMillis();
         growing = true;
 
-        if((square.getType() & PlantCodex.typeBit[plantIndex]) != 0) {
+        if((square.getType() & PlantCodex.typeBit[plantIndex]) == 0) {
             downGrade(-1);
         }
         plantCollision = new PlantCollision(gameScreen, this, size);

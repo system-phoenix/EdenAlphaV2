@@ -19,6 +19,7 @@ public class EdenAlpha extends Game {
 	private com.systemphoenix.edenalpha.Screens.MainScreen mainScreen;
 	private int selectedMapIndex = 0, lowLevelBound = 0, highLevelBound = 0;
 
+    private boolean firstTimePlaying = false;
     private float seedCount;
 	
 	@Override
@@ -66,6 +67,15 @@ public class EdenAlpha extends Game {
         } else {
             this.seedCount = levelPrefs.getFloat("SeedCount");
         }
+
+        if(!levelPrefs.contains("FirstTimePlaying")) {
+            firstTimePlaying = !firstTimePlaying;
+            levelPrefs.putBoolean("FirstTimePlaying", firstTimePlaying);
+        } else {
+            firstTimePlaying = levelPrefs.getBoolean("FirstTimePlaying");
+        }
+
+        levelPrefs.flush();
 
 		this.mainScreen = new com.systemphoenix.edenalpha.Screens.MainScreen(this);
 		this.mapScreen = new com.systemphoenix.edenalpha.Screens.MapScreen(this);
@@ -118,6 +128,10 @@ public class EdenAlpha extends Game {
         return seedCount;
     }
 
+    public boolean isFirstTimePlaying() {
+        return firstTimePlaying;
+    }
+
 	public void setSelectedMapIndex(int selectedMapIndex) {
 		this.selectedMapIndex = selectedMapIndex;
 		levelPrefs.putInteger("SelectedMapIndex", this.selectedMapIndex);
@@ -136,6 +150,13 @@ public class EdenAlpha extends Game {
 
         this.highLevelBound = highLevelBound;
         levelPrefs.putInteger("HighLevelBound", this.highLevelBound);
+
+        levelPrefs.flush();
+    }
+
+    public void setFirstTimePlaying(boolean firstTimePlaying) {
+        this.firstTimePlaying = firstTimePlaying;
+        levelPrefs.putBoolean("FirstTimePlaying", firstTimePlaying);
 
         levelPrefs.flush();
     }

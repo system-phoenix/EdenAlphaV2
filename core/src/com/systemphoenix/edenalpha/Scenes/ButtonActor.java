@@ -12,33 +12,36 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Actors.Plant;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
+import com.systemphoenix.edenalpha.Screens.AbsoluteScreen;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 import com.systemphoenix.edenalpha.Screens.MapScreen;
 import com.systemphoenix.edenalpha.Screens.PlantScreen;
+import com.systemphoenix.edenalpha.Screens.TutorialMapScreen;
 
 public class ButtonActor extends Actor implements Disposable {
 
-    private Screen screen;
+    private AbsoluteScreen screen;
 
     private int index;
     private Sprite beforePressSprite, onPressSprite, voidPressSprite;
-    private boolean canDraw = false, canPress = true, isPressed, isGameScreen, isPlantScreen, isMapScreen;
+    private boolean canDraw = false, canPress = true, isPressed, isGameScreen, isPlantScreen, isMapScreen, isTutorialScreen;
 
-    public ButtonActor(final int index, Screen screen, float x, float y, int size, final boolean isGameScreen, final boolean isPlantScreen) {
+    public ButtonActor(final int index, AbsoluteScreen screen, float x, float y, int size, final boolean isGameScreen, final boolean isPlantScreen) {
         this.index = index;
         this.screen = screen;
         this.isGameScreen = isGameScreen;
         this.isPlantScreen = isPlantScreen;
-        this.isMapScreen = false;
+        this.isTutorialScreen = this.isMapScreen = false;
         initialize(x, y, size);
     }
 
-    public ButtonActor(final int index, Screen screen, float x, float y, int size) {
+    public ButtonActor(final int index, AbsoluteScreen screen, float x, float y, int size, final boolean isMapScreen) {
         this.index = index;
         this.screen = screen;
         this.isGameScreen = false;
         this.isPlantScreen = false;
-        this.isMapScreen = true;
+        this.isMapScreen = isMapScreen;
+        this.isTutorialScreen = !isMapScreen;
         initialize(x, y, size);
     }
 
@@ -84,6 +87,8 @@ public class ButtonActor extends Actor implements Disposable {
                     ((PlantScreen)screen).createGameScreen();
                 } else if(isMapScreen) {
                     ((MapScreen)screen).createPlantScreen();
+                } else if(isTutorialScreen) {
+                    ((TutorialMapScreen)screen).createMapScreen();
                 }
                 break;
             case ButtonCodex.FAST_FORWARD:
@@ -94,8 +99,8 @@ public class ButtonActor extends Actor implements Disposable {
                 }
                 break;
             case ButtonCodex.HOME:
-                if(isGameScreen) {
-                    ((GameScreen)screen).setWillDispose(true);
+                if(isGameScreen || isTutorialScreen) {
+                    (screen).setWillDispose(true);
                 } else if(isPlantScreen) {
                     ((PlantScreen)screen).backToMapScreen();
                 }
