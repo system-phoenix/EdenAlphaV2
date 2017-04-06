@@ -49,7 +49,7 @@ public class PlantCodex {
     };
 
     public static final int AS[] = {
-            MOD,       MOD,       LOWER,       LOW,           MOD,           MOD,            HIGH,         HIGH,       MOD,       HIGHEST,        HIGHEST,        ABS_LOWEST,       HIGHER,        VOID,          HIGHER,
+            MOD,       LOWER,       LOWER,       LOW,           MOD,           MOD,            HIGH,         HIGH,       MOD,       LOWEST,        HIGHEST,        ABS_LOWEST,       HIGHER,        VOID,          HIGHER,
     };
 
     public static final long[] asStats = {
@@ -95,7 +95,7 @@ public class PlantCodex {
     };
 
     public static final int seedProduction[] = {
-            LOWEST,     HIGHEST,        LOWER,      VOID,           VOID,           VOID,           HIGH,        VOID,      VOID,    ABS_HIGHEST, HIGH,       VOID,       HIGHER,     VOID,       MOD
+            LOWEST,     HIGHER,        HIGH,      VOID,           VOID,           VOID,           LOW,        VOID,      LOWER,    HIGHEST, ABS_HIGHEST,       VOID,       HIGH,     VOID,       MOD
     };
 
     public static final float seedRateStats[] = {
@@ -116,16 +116,21 @@ public class PlantCodex {
     };
 
     public static final int[] DMG = {
-//            new Vector2(25, 35),    new Vector2(25, 35),    new Vector2(35, 40),    new Vector2(0, 5),    new Vector2(15, 20),    new Vector2(15, 20),    new Vector2(20, 25),    new Vector2(25, 35),    new Vector2(35, 40),    new Vector2(0, 5),    new Vector2(0, 5),    new Vector2(45, 50),    new Vector2(15, 20),    new Vector2(0, 0),  new Vector2(35, 40)
-            MOD,        LOWER,      HIGHER,       LOWEST,         LOWEST,         LOWEST,         LOW,          MOD,      HIGH,       ABS_LOWEST,ABS_LOWEST, HIGHEST,    LOWEST,     VOID,       HIGH
-    };
-
-    public static final String bulletFile[] = {
-            "brown",    "yellow",   "brown",    "blue",         "--",           "--",           "brown",    "green",    "brown",   "purple",   "blue",     "--",        "green",    "--",       "purple"
-    };
-
-    public static final float[] plantSelectorIndex = {
-            368f, 464f, 560f, 656f, 752f, 848f
+            MOD,        //pine
+            MOD,        //mango
+            HIGHER,     //coconut
+            LOWEST,     //mushroom
+            LOWEST,     //rafflesia
+            LOWEST,     //mangrove
+            LOW,        //acacia
+            MOD,        //anahaw
+            HIGH,       //santol
+            ABS_LOWEST, //duhat
+            ABS_LOWEST, //kapok
+            ABS_HIGHEST,//bamboo
+            LOWEST,     //narra
+            VOID,       //balete
+            HIGH        //pili
     };
 
     public static final Vector2[] dmgStats = {
@@ -149,6 +154,93 @@ public class PlantCodex {
 //            new Vector2(40, 45),    //higher
 //            new Vector2(45, 50),    //highest
 //            new Vector2(55, 60),    //abs highest
+    };
+
+    public static final String bulletFile[] = {
+            "brown",    "yellow",   "brown",    "blue",         "--",           "--",           "brown",    "green",    "brown",   "purple",   "blue",     "--",        "green",    "--",       "purple"
+    };
+
+    public static final float[] plantSelectorIndex = {
+            368f, 464f, 560f, 656f, 752f, 848f
+    };
+
+    public static final String[][] description = {
+            {//pine
+                    "Mostly associated with cool climates",
+                    "but some species can grow on shores.",
+                    "Grows up to 30 - 40 meters with 140",
+                    "cm diameter."
+            }, {//mango
+                    "The tree can reach 15 to 18 meters",
+                    "in height, has round canopy, and ",
+                    "is large spreading. Blooms flowers",
+                    "that may cause allergic reactions."
+            }, {//coconut
+                    "Grows up to 30 meters and the leaves",
+                    "have a length of 4 - 6 meters. Belongs",
+                    "to the family of cherries and peaches.",
+                    "The fruit weighs up to 1.44 kilos."
+            }, {//mushroom
+                    "Fungal plants that can grow almost",
+                    "anywhere. Many are edible but some",
+                    "contains toxins that cause various",
+                    "complications."
+            }, {//Rafflesia
+                    "Named after Sir Stanford Raffles and",
+                    "Dr. James Arnold, it is the largest flower",
+                    "that weighs up to 11 kilos and blooms up",
+                    "to 107 centimeters. Smells like rotten meat."
+            }, {//Mangrove
+                    "A.k.a. \"rainforest of the sea.\" Protects",
+                    "coastal communities from storm surges",
+                    "and stabilizes coastline through",
+                    "corrosion reduction."
+            }, {//acacia
+                    "Has rapid growth rate and tolerance",
+                    "for poor soils, it can grow up to 30 meters.",
+                    "",
+                    ""
+            }, {//anahaw
+                    "The Philippine national leaf, it has",
+                    "many uses and can be transformed",
+                    "into many things.Its tree can grow up",
+                    "to 24 meters, with a very thin trunk."
+            }, {//santol
+                    "Fast-growing tree that is up to",
+                    "15-45 meters tall. It has compound",
+                    "leaves, composed of 3 leaflets.",
+                    "The fruit is oblate with wrinkles."
+            }, {//duhat
+                    "About 8-14 meters high with white",
+                    "branches and reddish young shoots.",
+                    "The fruit is oval, 1-2 cm long,",
+                    "ranging from purple to black"
+            }, {//kapok
+                    "Grows in tropical rainforests, it can",
+                    "conquer new or deforested areas.",
+                    "The tree can grow up to 70 meters.",
+                    "The branches are covered with thorns."
+            }, {//bamboo
+                    "\"Grass of hope,\" it is a plant with high",
+                    "versatility, thanks to its pliant",
+                    "characteristic and tensile strength.",
+                    ""
+            }, {//narra
+                    "The Philippine national tree, grows up to",
+                    "30 meters with a diameter of 2 meters.",
+                    "Sturdy tree that produces disc-shaped",
+                    "pods that contains the seeds."
+            }, {//balete
+                    "Grows from a host tree that it crushes",
+                    "to death, it can reach up to",
+                    "10-20 meters. There have been instances",
+                    "where it is related to ghost stories."
+            }, {//Pili
+                    "\"The next tree of life.\" Its fruit has a thin",
+                    "skin, but has a hard core part that",
+                    "has the kernel.",
+                    "The trunk is used for furniture."
+            },
     };
 
 }

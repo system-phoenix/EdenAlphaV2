@@ -2,17 +2,7 @@ package com.systemphoenix.edenalpha.Codex;
 
 public class ButtonCodex {
 
-    public static final int PAUSE = 0, PLAY = 1, FAST_FORWARD = 2, RESTART = 3, HOME = 4, CHECK = 5, CROSS = 6, UPGRADE = 7;
-
-    public static final String[] fileNames = {
-            "pauseButton.png",
-            "playButton.png",
-            "fastForwardButton.png",
-            "restartButton.png",
-            "homeButton.png",
-            "checkButton.png",
-            "xButton.png"
-    };
+    public static final int PAUSE = 0, PLAY = 1, FAST_FORWARD = 2, RESTART = 3, HOME = 4, CHECK = 5, CROSS = 6, UPGRADE = 7, HARVEST = 8, WATER_UPGRADE = 9;
 
     public static final String[] beforePress = {
             "beforePress_pauseButton.png",
@@ -23,6 +13,8 @@ public class ButtonCodex {
             "beforePress_checkButton.png",
             "beforePress_crossButton.png",
             "beforePress_upgradeButton.png",
+            "beforePress_harvestButton.png",
+            "beforePress_waterUpgradeButton.png",
     };
 
     public static final String[] onPress = {
@@ -34,6 +26,8 @@ public class ButtonCodex {
             "onPress_checkButton.png",
             "onPress_crossButton.png",
             "onPress_upgradeButton.png",
+            "onPress_harvestButton.png",
+            "onPress_waterUpgradeButton.png",
     };
 
     public static final String[] voidPress = {
@@ -45,6 +39,8 @@ public class ButtonCodex {
             "voidPress_checkButton.png",
             "voidPress_crossButton.png",
             "voidPress_upgradeButton.png",
+            "voidPress_harvestButton.png",
+            "voidPress_waterUpgradeButton.png",
     };
 
 }

@@ -14,25 +14,29 @@ public class MainScreenButton extends Actor implements Disposable {
 
     private MainScreen mainScreen;
 
-    private Sprite buttonSprite;
+    private Sprite buttonSprite, onPressSprite;
 
-    private boolean startButton;
+    private boolean startButton, pressed = false;
 
     public MainScreenButton(MainScreen mainScreen, String fileName, float x, float y, float width, float height, boolean startButton) {
         this.mainScreen = mainScreen;
         this.startButton = startButton;
-        buttonSprite = new Sprite(new Texture(Gdx.files.internal("utilities/" + fileName)));
+        buttonSprite = new Sprite(new Texture(Gdx.files.internal("utilities/beforePress_" + fileName)));
         buttonSprite.setBounds(x, y, width, height);
+
+        onPressSprite = new Sprite(new Texture(Gdx.files.internal("utilities/onPress_" + fileName)));
+        onPressSprite.setBounds(x, y, width, height);
 
         this.setBounds(x, y, width, height);
         this.setTouchable(Touchable.enabled);
 
         this.addListener(new InputListener() {
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                Gdx.app.log("Verbose", "Action triggered!");
+                pressed = true;
                 return MainScreenButton.this.triggerAction();
             }
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                pressed = false;
             }
         });
     }
@@ -52,7 +56,11 @@ public class MainScreenButton extends Actor implements Disposable {
 
     @Override
     public void draw(Batch batch, float alpha) {
-        buttonSprite.draw(batch);
+        if(!pressed) {
+            buttonSprite.draw(batch);
+        } else {
+            onPressSprite.draw(batch);
+        }
     }
 
     @Override

@@ -69,6 +69,7 @@ public class MapScreen extends AbsoluteScreen {
 
     @Override
     public void render(float delta) {
+
 //        update stuff below
         boundCamera();
         fieldSelection.setCameraPosition(cam);

@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
@@ -17,6 +18,7 @@ public class Pulse implements Disposable {
     private Texture texture;
     private TextureRegion blank;
 
+    private Rectangle hitBox;
     private Plant plant;
     private Array<Enemy> targets;
 
@@ -32,7 +34,22 @@ public class Pulse implements Disposable {
         this.plant = plant;
         this.damage = damage;
         this.targets = targets;
+        this.hitBox = null;
 
+        initialize();
+    }
+
+    public Pulse(GameScreen gameScreen, Rectangle hitBox, int damage, Array<Enemy> targets) {
+        this.gameScreen = gameScreen;
+        this.hitBox = hitBox;
+        this.damage = damage;
+        this.targets = targets;
+        this.plant = null;
+
+        initialize();
+    }
+
+    private void initialize() {
         texture = new Texture(Gdx.files.internal("bullets/pulseAnimation.png"));
         blank = new TextureRegion(new Texture(Gdx.files.internal("bullets/blank.png")));
         TextureRegion[][] temp = TextureRegion.split(texture, 256, 256);
@@ -51,8 +68,12 @@ public class Pulse implements Disposable {
     public void render(Batch batch, float delta) {
         stateTime += delta;
         if(!canDispose && !isBlank) {
-            float actualRange = PlantCodex.rangeStats[PlantCodex.range[plant.getPlantIndex()]];
-            batch.draw(animation.getKeyFrame(stateTime), plant.getX() - (32f * actualRange), plant.getY() - (32f * actualRange), (32f * actualRange * 2) + plant.getWidth(), (32f * actualRange * 2) + plant.getHeight());
+            if(plant != null) {
+                float actualRange = plant.getRange();
+                batch.draw(animation.getKeyFrame(stateTime), plant.getX() - (32f * actualRange), plant.getY() - (32f * actualRange), (32f * actualRange * 2) + plant.getWidth(), (32f * actualRange * 2) + plant.getHeight());
+            } else {
+                batch.draw(animation.getKeyFrame(stateTime), hitBox.getX(), hitBox.getY(), hitBox.getWidth(), hitBox.getHeight());
+            }
         } else {
             batch.draw(animation.getKeyFrame(stateTime), gameScreen.getWorldWidth(), gameScreen.getWorldHeight());
         }
@@ -62,7 +83,9 @@ public class Pulse implements Disposable {
             isBlank = true;
             for(int i = 0; i < targets.size; i++) {
                 targets.get(i).receiveDamage(damage);
-                targets.get(i).slow(0.45f);
+                if(plant != null) {
+                    targets.get(i).slow(0.45f);
+                }
             }
         }
     }

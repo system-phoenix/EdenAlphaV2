@@ -47,10 +47,10 @@ public class PlantSquare extends Sprite {
                     this.type = 1;
                     break;
                 case 1:
-                    this.type = 2;
+                    this.type = 4;
                     break;
                 case 2:
-                    this.type = 4;
+                    this.type = 2;
                     break;
             }
         } catch(Exception e) {

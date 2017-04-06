@@ -122,10 +122,23 @@ public class ButtonActor extends Actor implements Disposable {
                 }
                 break;
             case ButtonCodex.UPGRADE:
-                if(isGameScreen) {
+                if(isGameScreen && Plant.getSelectedPlant() != null) {
                     Plant.getSelectedPlant().upgrade();
                 }
                 break;
+            case ButtonCodex.HARVEST:
+                if(isGameScreen && Plant.getSelectedPlant() != null) {
+                    if(Plant.getSelectedPlant().getSeeds() >= 1) {
+                        ((GameScreen)screen).harvestSeeds(Plant.getSelectedPlant());
+                    }
+                }
+                break;
+            case ButtonCodex.WATER_UPGRADE:
+                if(isGameScreen) {
+                    ((GameScreen)screen).upgradeWaterRate();
+                }
+                break;
+
         }
         isPressed = false;
     }

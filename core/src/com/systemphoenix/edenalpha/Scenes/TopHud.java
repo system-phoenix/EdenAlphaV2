@@ -174,7 +174,7 @@ public class TopHud extends AbsoluteHud implements Disposable {
 
     public void setPauseButtonCanDraw(boolean canDraw) {
         if(pauseButton == null) {
-            pauseButton = new ButtonActor(ButtonCodex.PAUSE, gameScreen, (gameScreen.getWorldWidth() / 2) - 48, gameScreen.getWorldHeight() - 64, 64, true, false);
+            pauseButton = new ButtonActor(ButtonCodex.PAUSE, gameScreen, (gameScreen.getWorldWidth() / 2) - 32, gameScreen.getWorldHeight() - 64, 64, true, false);
             stage.addActor(pauseButton);
         }
         this.pauseButton.setCanDraw(canDraw);

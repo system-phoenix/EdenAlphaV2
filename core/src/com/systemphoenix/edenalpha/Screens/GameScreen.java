@@ -81,7 +81,7 @@ public class GameScreen extends AbsoluteScreen {
     private Array<InputProcessor> inputProcessors;
 
     private PlantSquare[][] plantSquares, subSquares;
-    private float pastZoomDistance, plantSquareSize, accumulator, seeds = 75, seedRate = 0.25f, sunlight, water = 150;
+    private float pastZoomDistance, plantSquareSize, accumulator, seeds = 75, waterRate = 0.5f, sunlight, water = 150, waterUpgradeSeedCost = 50;
     private int waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1, displaySquare = -3, pseudoPlantIndex = -1;
     private long timer = 0, newWaveCountdown, timeGap, displaySquareTimer, seedTimer, waveDisplayTimer;
     private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, willPause = false, win = false, lose = false, running = false, canDisplaySquare, canPlant = false, firstCall = true;
@@ -322,10 +322,16 @@ public class GameScreen extends AbsoluteScreen {
 
             if(System.currentTimeMillis() - seedTimer >= 1000) {
                 seedTimer = System.currentTimeMillis();
-                seeds += seedRate;
+                seeds += 0.25f;
+                if(seeds > 999) {
+                    seeds = 999;
+                }
                 topHud.setSeedStatMessage("" + (int)seeds);
 
-                water++;
+                water += waterRate;
+                if(water > 999) {
+                    water = 999;
+                }
                 topHud.setWaterStatMessage("" + (int)water);
             }
             if(newWave) {
@@ -489,6 +495,8 @@ public class GameScreen extends AbsoluteScreen {
             }
 
             if(win || lose) {
+                cam.zoom = worldWidth/screenWidth;
+                boundCamera();
                 gameGraphics.begin();
                 if(win) {
                     if(mapScreen.getHighLevelBound() == region.getMapIndex()) {
@@ -499,7 +507,7 @@ public class GameScreen extends AbsoluteScreen {
                         boolean stringSet = false;
                         for(int i = 0; i < PlantCodex.level.length; i++) {
                             if(PlantCodex.level[i] == game.getHighLevelBound()) {
-                                pauseStageLabel.setText("You unlocked " + RegionCodex.names[region.getMapIndex() + 1] + "and " + PlantCodex.plantName[i] + "!");
+                                pauseStageLabel.setText("You unlocked " + RegionCodex.names[region.getMapIndex() + 1] + " and " + PlantCodex.plantName[i] + "!");
                                 stringSet = true;
                                 break;
                             }
@@ -541,6 +549,7 @@ public class GameScreen extends AbsoluteScreen {
             inputProcessors = new Array<InputProcessor>();
             inputProcessors.add(gameHud.getStage());
             inputProcessors.add(gameHud.getPlantStage());
+            inputProcessors.add(gameHud.getWaterStage());
             inputProcessors.add(topHud.getStage());
             inputProcessors.add(this.gameStage);
             inputProcessors.add(this.pauseStage);
@@ -558,6 +567,11 @@ public class GameScreen extends AbsoluteScreen {
         } else {
             inputProcessors.insert(0, inputProcessor);
         }
+    }
+
+    public void harvestSeeds(Plant plant) {
+        seeds += plant.harvestSeeds();
+        topHud.setSeedStatMessage("" + (int)seeds);
     }
 
     public void plant(int plantIndex, TextureRegion sprite) {
@@ -579,7 +593,6 @@ public class GameScreen extends AbsoluteScreen {
                     plants.add(new Plant(this, gameStage, sprite, plantSquares[selectedY][selectedX], plantIndex, selectedX * 32f, selectedY * 32f, sunlight, bulletSound));
                     break;
             }
-            updateSeedRate();
 
             for(int i = selectedY - 1; i <= selectedY + 1; i++) {
                 for(int j = selectedX - 1; j <= selectedX + 1; j++) {
@@ -611,7 +624,6 @@ public class GameScreen extends AbsoluteScreen {
             world.destroyBody(plant.getBody());
             plant.remove();
             plant.dispose();
-            updateSeedRate();
             resetHud();
             gameHud.setDrawable(1);
         }
@@ -701,7 +713,7 @@ public class GameScreen extends AbsoluteScreen {
 
     @Override
     public boolean zoom(float initialDistance, float distance) {
-        if(!paused) {
+        if(!paused && canPlant) {
             if(pastZoomDistance < distance) {
                 cam.zoom -= 0.01f;
             } else if(pastZoomDistance > distance) {
@@ -853,6 +865,14 @@ public class GameScreen extends AbsoluteScreen {
         return ready;
     }
 
+    public boolean isFirstCall() {
+        return firstCall;
+    }
+
+    public boolean canPlant() {
+        return canPlant;
+    }
+
     public Vector2 getSelectedXY() {
         return new Vector2(selectedX * plantSquareSize, selectedY * plantSquareSize);
     }
@@ -873,14 +893,20 @@ public class GameScreen extends AbsoluteScreen {
         return water;
     }
 
+    public float getWaterUpgradeSeedCost() {
+        return waterUpgradeSeedCost;
+    }
+
     public Array<Plant> getPlants() {
         return plants;
     }
 
-    public void updateSeedRate() {
-        seedRate = 0.25f;
-        for(int i = 0; i < plants.size; i++) {
-            seedRate += plants.get(i).getSeedRate();
+    public void upgradeWaterRate() {
+        if(waterRate < 16) {
+            seeds -= waterUpgradeSeedCost;
+            topHud.setSeedStatMessage("" + (int)seeds);
+            waterUpgradeSeedCost *= 2;
+            waterRate *= 2;
         }
     }
 

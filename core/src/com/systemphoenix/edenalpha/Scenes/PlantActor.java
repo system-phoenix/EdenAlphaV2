@@ -58,6 +58,7 @@ public class PlantActor extends Actor {
         if(canDraw) {
             setRectangleSpriteBounds();
             if(recentlySelectedActor != null) recentlySelectedActor.setDrawRectangle(false);
+            drawRectangle = true;
             recentlySelectedActor = this;
             gameScreen.getGameHud().setData();
             gameScreen.setPseudoPlant(plantIndex);
@@ -81,7 +82,7 @@ public class PlantActor extends Actor {
                 rectangleSprite.draw(batch);
             }
 
-            if(plantCost / 2 > gameScreen.getSeeds() && plantCost > gameScreen.getWater()) {
+            if(plantCost / 2 > gameScreen.getSeeds() || plantCost > gameScreen.getWater()) {
                 maskSprite.draw(batch);
             }
         }

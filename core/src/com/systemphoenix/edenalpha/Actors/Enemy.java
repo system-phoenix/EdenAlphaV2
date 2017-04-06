@@ -20,10 +20,10 @@ import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class Enemy extends Sprite implements Disposable {
     protected float size, velX, velY, damage;
-    protected float stateTime, speed = 30, maxSpeed, waterDrop, stackSlowRate = 0;
+    protected float stateTime, speed = 30, maxSpeed, waterDrop, stackSlowRate = 0, damageCounter = 0, damagePart;
     protected int level = 0, id, life, maxLife;
-    protected long lastDirectionChange, deathTimer, damageTimer, slowTimer, stunLimit, stunTimer, attackSpeed, lastAttackTime;
-    protected boolean spawned = false, moving = true, canDraw = false, canDispose = false, directionSquares[][], drawHpBar, slowed = false, dead, stunned, attacking;
+    protected long lastDirectionChange, deathTimer, damageTimer, slowTimer, attackSpeed, lastAttackTime, receiveDamageTick;
+    protected boolean spawned = false, moving = true, canDraw = false, canDispose = false, directionSquares[][], drawHpBar, slowed = false, dead, stunned, attacking, receivingDamage;
     protected enum Direction {NORTH, SOUTH, EAST, WEST}
     protected Direction direction = Direction.SOUTH, opDirection = Direction.NORTH;
 
@@ -63,7 +63,7 @@ public class Enemy extends Sprite implements Disposable {
         lastAttackTime = System.currentTimeMillis();
         lastDirectionChange = 0;
 
-        hitBox = new Rectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        hitBox = new Rectangle(this.getX() + this.getWidth() / 4, this.getY() + this.getHeight() / 4, this.getWidth() / 2, this.getHeight() / 2);
 
         greenLifeBar = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
         greenLifeBar.setBounds(this.getX(), this.getY(), 32f, 2f);
@@ -175,6 +175,18 @@ public class Enemy extends Sprite implements Disposable {
         } else {
             velX = velY = 0;
         }
+
+        if(receivingDamage) {
+            if(System.currentTimeMillis() - receiveDamageTick > 5) {
+                receiveDamageTick = System.currentTimeMillis();
+                damagePart = damageCounter / 2f;
+                damageCounter -= damagePart;
+                receiveDamage();
+                if(damageCounter <= 0) {
+                    receivingDamage = false;
+                }
+            }
+        }
     }
 
     protected TextureRegion getFrame() {
@@ -215,13 +227,23 @@ public class Enemy extends Sprite implements Disposable {
     }
 
     public void receiveDamage(int damage) {
-        life -= damage;
+        if(!drawHpBar) {
+            damageCounter = 0;
+        }
+        damageCounter += damage;
+        receivingDamage = true;
+        receiveDamageTick = System.currentTimeMillis();
+//        life -= damage;
         drawHpBar = true;
         damageTimer = System.currentTimeMillis();
         if(life <= 0) {
             dead = true;
             deathTimer = System.currentTimeMillis();
         }
+    }
+
+    public void receiveDamage() {
+        life -= damagePart;
     }
 
     public void stackSlow(float percentage) {
@@ -270,12 +292,17 @@ public class Enemy extends Sprite implements Disposable {
     }
 
     public void setDirection() {
-        if(System.currentTimeMillis() - lastDirectionChange >= 250) {
+        if(System.currentTimeMillis() - lastDirectionChange >= 100) {
             this.opDirection = direction;
             boolean loopBreak = false;
+
+//            for(int i = -1; i <= 1; i++) {
+//                Gdx.app.log("Verbose", "[" + directionSquares[(int) body.getPosition().y / 32 + i][(int) body.getPosition().x / 32 + -1] + "]\t[" + directionSquares[(int) body.getPosition().y / 32 + i][(int) body.getPosition().x / 32] + "]\t[" + directionSquares[(int) body.getPosition().y / 32 + i][(int) body.getPosition().x / 32 + 1] + "]");
+//            }
+
             for (int i = -1; i <= 1 && !loopBreak; i++) {
                 for (int j = -1; j <= 1 && !loopBreak; j++) {
-                    if(!(i == j && i + j == 0)) {
+                    if((i != j && i + j != 0)) {
                         if (directionSquares[(int) body.getPosition().y / 32 + i][(int) body.getPosition().x / 32 + j]) {
                             if (i == -1 && j == 0) {
                                 this.direction = Direction.SOUTH;

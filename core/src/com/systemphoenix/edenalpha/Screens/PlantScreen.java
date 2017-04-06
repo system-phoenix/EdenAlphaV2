@@ -35,7 +35,7 @@ public class PlantScreen extends AbsoluteScreen {
     private ButtonActor playButton, checkButton, crossButton, homeButton;
 
     private SpriteBatch gameGraphics;
-    private Label plantName, plantType, plantCost, plantGrowthTime;
+    private Label plantName, plantType, plantCost, plantGrowthTime, plantDescription[];
 
     private MapScreen mapScreen;
     private Region region;
@@ -150,9 +150,10 @@ public class PlantScreen extends AbsoluteScreen {
 
 
         Label tempLabel, spaceFiller;
-        Table tempTable = new Table(), infoTable = new Table();
+        Table tempTable = new Table(), infoTable = new Table(), descTable = new Table();
         tempTable.setBounds(797, 300, 111, 390);
         infoTable.setBounds(908, 300, 320, 390);
+        descTable.setBounds(793, 300, 431, 400);
 
         Color border = Color.BLACK;
         Color fontColor = Color.WHITE;
@@ -229,8 +230,19 @@ public class PlantScreen extends AbsoluteScreen {
         tempTable.row();
         infoTable.row();
 
+        tempLabel = new Label("--", new Label.LabelStyle(font, fontColor));
+        plantDescription = new Label[4];
+
+        tempTable.add(tempLabel);
+        for(int i = 0; i < plantDescription.length; i++) {
+            plantDescription[i] = new Label("--", new Label.LabelStyle(font, fontColor));
+            descTable.add(plantDescription[i]);
+            descTable.row();
+        }
+
         stage.addActor(tempTable);
         stage.addActor(infoTable);
+        stage.addActor(descTable);
         generator.dispose();
         font = tempFont;
 
@@ -369,6 +381,9 @@ public class PlantScreen extends AbsoluteScreen {
             }
             plantDmg.setBounds(plantDmg.getX(), plantDmg.getY(), barSize * ((((PlantCodex.dmgStats[PlantCodex.DMG[index]].x + PlantCodex.dmgStats[PlantCodex.DMG[index]].y)) / (((PlantCodex.baseDmg.x + PlantCodex.baseDmg.y))))), plantDmg.getHeight());
             plantGrowthTime.setText("" + (int)(PlantCodex.growthTime[index]) + " seconds");
+            for(i = 0; i < plantDescription.length; i++) {
+                plantDescription[i].setText(PlantCodex.description[index][i]);
+            }
         }
     }
 

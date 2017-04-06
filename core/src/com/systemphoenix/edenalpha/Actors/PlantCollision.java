@@ -29,7 +29,7 @@ public class PlantCollision implements Disposable{
         body = gameScreen.getWorld().createBody(bodyDef);
 
         circleShape = new CircleShape();
-        circleShape.setRadius(size - 0.1f);
+        circleShape.setRadius(size - 1f);
 
         fixtureDef.shape = circleShape;
         fixtureDef.filter.categoryBits = CollisionBit.PLANT;
