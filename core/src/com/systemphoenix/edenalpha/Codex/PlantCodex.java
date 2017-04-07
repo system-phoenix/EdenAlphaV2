@@ -32,7 +32,7 @@ public class PlantCodex {
     };
 
     public static final int maxHP[] = {
-            MOD,        LOWER,     LOWEST,      VOID,          LOWER,          ABS_LOWEST,      LOWER,      ABS_LOWEST,  LOWER,      LOW,       ABS_HIGHEST,VOID,       HIGHER,     HIGH,      LOWER
+            LOW,        MOD,     LOWEST,      VOID,          LOWER,          ABS_LOWEST,      LOWER,      ABS_LOWEST,  LOWER,      LOW,       ABS_HIGHEST,VOID,       HIGHER,     HIGH,      LOWER
     };
 
     public static final float hpStats[] = {
@@ -49,7 +49,7 @@ public class PlantCodex {
     };
 
     public static final int AS[] = {
-            MOD,       LOWER,       LOWER,       LOW,           MOD,           MOD,            HIGH,         HIGH,       MOD,       LOWEST,        HIGHEST,        ABS_LOWEST,       HIGHER,        VOID,          HIGHER,
+            MOD,       LOW,       LOWER,       LOW,           MOD,           MOD,            HIGH,         HIGH,       MOD,       LOWEST,        HIGHEST,        ABS_LOWEST,       HIGHER,        VOID,          HIGHER,
     };
 
     public static final long[] asStats = {
@@ -66,7 +66,7 @@ public class PlantCodex {
     };
 
     public static final int range[] = {
-            LOW,       LOWER,      LOWEST, ABS_LOWEST,      ABS_LOWEST,      LOWEST,      LOWER,           LOWER,     MOD,       LOW,       ABS_HIGHEST,  MOD,       MOD,        ABS_LOWEST, MOD
+            LOW,       LOWER,      LOW, ABS_LOWEST,      ABS_LOWEST,      LOWEST,      LOWER,           LOWER,     MOD,       LOW,       ABS_HIGHEST,  MOD,       MOD,        ABS_LOWEST, HIGH
     };
 
     public static final float rangeStats[] = {
@@ -116,8 +116,8 @@ public class PlantCodex {
     };
 
     public static final int[] DMG = {
-            MOD,        //pine
-            MOD,        //mango
+            LOW,        //pine
+            LOWER,      //mango
             HIGHER,     //coconut
             LOWEST,     //mushroom
             LOWEST,     //rafflesia
@@ -134,26 +134,26 @@ public class PlantCodex {
     };
 
     public static final Vector2[] dmgStats = {
-            new Vector2(0, 0),      //void damage
-            new Vector2(0, 5),      //abs lowest
-            new Vector2(10, 15),    //lowest
-            new Vector2(20, 30),    //lower
-            new Vector2(30, 45),    //low
-            new Vector2(45, 55),    //mod
-            new Vector2(50, 65),    //high
-            new Vector2(70, 80),    //higher
-            new Vector2(80, 85),    //highest
-            new Vector2(90, 95),    //abs highest
 //            new Vector2(0, 0),      //void damage
 //            new Vector2(0, 5),      //abs lowest
 //            new Vector2(10, 15),    //lowest
-//            new Vector2(15, 20),    //lower
-//            new Vector2(20, 25),    //low
-//            new Vector2(25, 35),    //mod
-//            new Vector2(35, 40),    //high
-//            new Vector2(40, 45),    //higher
-//            new Vector2(45, 50),    //highest
-//            new Vector2(55, 60),    //abs highest
+//            new Vector2(20, 30),    //lower
+//            new Vector2(30, 45),    //low
+//            new Vector2(45, 55),    //mod
+//            new Vector2(50, 65),    //high
+//            new Vector2(70, 80),    //higher
+//            new Vector2(80, 85),    //highest
+//            new Vector2(90, 95),    //abs highest
+            new Vector2(0, 0),      //void damage
+            new Vector2(0, 5),      //abs lowest
+            new Vector2(10, 15),    //lowest
+            new Vector2(15, 20),    //lower
+            new Vector2(20, 25),    //low
+            new Vector2(25, 30),    //mod
+            new Vector2(30, 35),    //high
+            new Vector2(35, 40),    //higher
+            new Vector2(40, 45),    //highest
+            new Vector2(45, 50),    //abs highest
     };
 
     public static final String bulletFile[] = {

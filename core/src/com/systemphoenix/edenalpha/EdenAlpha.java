@@ -20,7 +20,7 @@ public class EdenAlpha extends Game {
 	private int selectedMapIndex = 0, lowLevelBound = 0, highLevelBound = 0;
 
     private boolean firstTimePlaying = false;
-    private float seedCount;
+    private float seedCount, waterCount;
 	
 	@Override
 	public void create () {
@@ -62,10 +62,17 @@ public class EdenAlpha extends Game {
         }
 
         if(!levelPrefs.contains("SeedCount")) {
-            this.seedCount = 150;
+            this.seedCount = 75;
             levelPrefs.putFloat("SeedCount", seedCount);
         } else {
             this.seedCount = levelPrefs.getFloat("SeedCount");
+        }
+
+        if(!levelPrefs.contains("WaterCount")) {
+            this.waterCount = 150;
+            levelPrefs.putFloat("WaterCount", waterCount);
+        } else {
+            this.waterCount = levelPrefs.getFloat("WaterCount");
         }
 
         if(!levelPrefs.contains("FirstTimePlaying")) {
@@ -128,6 +135,10 @@ public class EdenAlpha extends Game {
         return seedCount;
     }
 
+    public float getWaterCount() {
+        return waterCount;
+    }
+
     public boolean isFirstTimePlaying() {
         return firstTimePlaying;
     }
@@ -138,9 +149,12 @@ public class EdenAlpha extends Game {
 		levelPrefs.flush();
 	}
 
-    public void setSeedCount(float seedCount) {
+    public void setResourceCount(float seedCount, float waterCount) {
         this.seedCount = seedCount;
         levelPrefs.putFloat("SeedCount", this.seedCount);
+
+        this.waterCount = waterCount;
+        levelPrefs.putFloat("WaterCount", this.waterCount);
         levelPrefs.flush();
     }
 

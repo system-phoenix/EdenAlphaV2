@@ -46,10 +46,10 @@ public class Plant extends Actor implements Disposable {
 
     private PlantCollision plantCollision;
 
-    private boolean selected, growing, canDispose = false, hit = false, damaged = false;
+    private boolean selected, growing, canDispose = false, hit = false, damaged = false, refundable = true;
 
     private Vector2 damage;
-    private long attackSpeed, lastAttackTime, growthTimer, lastHitTime, lastAcquisition;
+    private long attackSpeed, lastAttackTime, growthTimer, lastHitTime, lastAcquisition, refundTimer;
     private int plantIndex, upgradeIndex = 0, downGradeIndex = 0;
     private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1, seedRate, effectiveRange, upgradeCostSunlight, upgradeCostWater, actualRange, sunlightAccumulation, sunlight, seeds = 0;
     private boolean hasTarget = false, upgradable = false;
@@ -107,6 +107,7 @@ public class Plant extends Actor implements Disposable {
         lastAttackTime = System.currentTimeMillis();
         lastAcquisition = System.currentTimeMillis();
         growthTimer = System.currentTimeMillis();
+        refundTimer = System.currentTimeMillis();
         growing = true;
 
         if((square.getType() & PlantCodex.typeBit[plantIndex]) == 0) {
@@ -201,10 +202,7 @@ public class Plant extends Actor implements Disposable {
             upgradeSprite = new Sprite(new Texture(Gdx.files.internal("misc/uprank" + upgradeIndex + ".png")));
             upgradeSprite.setBounds(this.getX(), this.getY(), this.getWidth(), this.getHeight());
             switch (plantIndex) {
-                case 0:
-                    upgradeHP(); upgradeAS();
-                    break;
-                case 4: case 5: case 6: case 7: case 8:
+                case 0: case 4: case 5: case 6: case 7: case 8:
                     upgradeHP(); upgradeAS(); upgradeDmg();
                     break;
                 case 1:
@@ -390,6 +388,9 @@ public class Plant extends Actor implements Disposable {
                 seeds += seedRate;
             }
         }
+        if(System.currentTimeMillis() - refundTimer > 3000) {
+            refundable = true;
+        }
     }
 
     @Override
@@ -560,6 +561,10 @@ public class Plant extends Actor implements Disposable {
 
     public boolean canDispose() {
         return canDispose;
+    }
+
+    public boolean isRefundable() {
+        return refundable;
     }
 
     public GameScreen getGameScreen() {

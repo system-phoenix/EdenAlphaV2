@@ -1,5 +1,6 @@
 package com.systemphoenix.edenalpha.Scenes;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Actors.Plant;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
+import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.Screens.AbsoluteScreen;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 import com.systemphoenix.edenalpha.Screens.MapScreen;
@@ -134,7 +136,7 @@ public class ButtonActor extends Actor implements Disposable {
                 }
                 break;
             case ButtonCodex.WATER_UPGRADE:
-                if(isGameScreen) {
+                if(isGameScreen && canDraw) {
                     ((GameScreen)screen).upgradeWaterRate();
                 }
                 break;

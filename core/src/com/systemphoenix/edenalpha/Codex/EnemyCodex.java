@@ -9,11 +9,12 @@ public class EnemyCodex {
     }
 
     public static final int HP[] = {
-            300,    450,    600,    1500,     750,    450,    900,    1200
+//            300,    450,    600,    1500,     750,    450,    900,    1200
+            100,    150,    200,    500,    250,    150,    300,    400
     };
 
     public static final float damage[] = {
-            5,      10,     15,     50,     25,     25,     30,     30
+            5,      5,     15,     30,     25,     25,     30,     50
     };
 
     public static final float speed[] = {

@@ -80,8 +80,4 @@ public class Region {
     public String getMusicFX() {
         return musicFX;
     }
-
-    public void damageForest(float damage) {
-        this.forestLandPercentage -= damage;
-    }
 }

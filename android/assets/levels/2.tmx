@@ -1007,7 +1007,7 @@
   <object id="1357" x="352" y="160" width="32" height="32"/>
   <object id="1358" x="320" y="160" width="32" height="32"/>
  </objectgroup>
- <objectgroup name="saltwaterPlantSquares" visible="0">
+ <objectgroup name="saltwaterPlantSquares">
   <object id="1206" x="96" y="96" width="32" height="32"/>
   <object id="1207" x="96" y="128" width="32" height="32"/>
   <object id="1208" x="96" y="160" width="32" height="32"/>

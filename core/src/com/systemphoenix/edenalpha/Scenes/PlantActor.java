@@ -8,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Actors.Plant;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
@@ -20,17 +19,19 @@ public class PlantActor extends Actor {
     private GameScreen gameScreen;
 
     private int plantIndex;
+    private long clickTimer;
     private float size, plantCost;
-    private boolean canDraw, drawRectangle = false;
+    private boolean canDraw, drawRectangle = false, draggable;
+    private static boolean dragging;
 
-    private Sprite sprite, rectangleSprite, maskSprite;
+    private Sprite sprite, rectangleSprite, maskSprite, dragSprite;
 
     public PlantActor(Sprite textureRegion, Sprite rectangleSprite, int plantIndex, int index, float size) {
         this.gameScreen = null;
         this.sprite = new Sprite(textureRegion);
+        this.dragSprite = new Sprite(textureRegion);
         this.plantIndex = plantIndex;
         this.rectangleSprite = rectangleSprite;
-
         this.plantCost = PlantCodex.cost[plantIndex];
 
         this.maskSprite = new Sprite(new Texture(Gdx.files.internal("utilities/mask.png")));
@@ -45,7 +46,11 @@ public class PlantActor extends Actor {
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
                 return PlantActor.this.triggerAction();
             }
+            public void touchDragged (InputEvent event, float x, float y, int pointer) {
+                dragPlant();
+            }
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                action();
             }
         });
     }
@@ -63,9 +68,29 @@ public class PlantActor extends Actor {
             gameScreen.getGameHud().setData();
             gameScreen.setPseudoPlant(plantIndex);
             Plant.setSelectAllPlants(true);
+            clickTimer = System.currentTimeMillis();
             return true;
         }
         return false;
+    }
+
+    public void dragPlant() {
+        if(draggable && System.currentTimeMillis() - clickTimer >= 200) {
+            dragging = true;
+            dragSprite.setBounds(Gdx.input.getX() + size/2, gameScreen.getWorldHeight() - Gdx.input.getY() + size, size * gameScreen.getCamera().zoom, size * gameScreen.getCamera().zoom);
+            gameScreen.tap(Gdx.input.getX() + size, Gdx.input.getY() - size);
+            gameScreen.getGameHud().setCanDraw(false);
+        }
+    }
+
+    public void action() {
+        if(draggable) {
+            dragging = false;
+            gameScreen.plant(plantIndex, sprite);
+            gameScreen.tap(-1, -1);
+            gameScreen.getGameHud().setCanDraw(true);
+        }
+        Plant.nullSelectedPlant();
     }
 
     public void setRectangleSpriteBounds() {
@@ -85,6 +110,10 @@ public class PlantActor extends Actor {
             if(plantCost / 2 > gameScreen.getSeeds() || plantCost > gameScreen.getWater()) {
                 maskSprite.draw(batch);
             }
+            draggable = !(plantCost / 2 > gameScreen.getSeeds() || plantCost > gameScreen.getWater());
+        }
+        if(dragging) {
+            dragSprite.draw(batch);
         }
     }
 
@@ -110,6 +139,10 @@ public class PlantActor extends Actor {
 
     public static PlantActor getRecentlySelectedActor() {
         return recentlySelectedActor;
+    }
+
+    public static boolean isDragging() {
+        return dragging;
     }
 
     public static void setRecentlySelectedActor(PlantActor plantActor) {

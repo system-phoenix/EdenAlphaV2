@@ -222,7 +222,7 @@ public class Enemy extends Sprite implements Disposable {
     }
 
     public void damageForest() {
-        gameScreen.getRegion().damageForest(1);
+        gameScreen.damageForest(1);
         canDispose = true;
     }
 
