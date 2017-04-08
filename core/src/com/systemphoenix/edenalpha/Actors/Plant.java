@@ -212,7 +212,7 @@ public class Plant extends Actor implements Disposable {
                     upgradeHP(); upgradeDmg(); upgradeSeedRate();
                     break;
                 case 3:
-                    upgradeAS(); upgradeDmg(); upgradeRange();
+                    upgradeAS(); upgradeRange();
                     break;
                 case 9:
                     upgradeHP(); upgradeDmg(); upgradeRange();

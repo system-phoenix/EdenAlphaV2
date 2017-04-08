@@ -83,7 +83,7 @@ public class GameScreen extends AbsoluteScreen {
 
     private PlantSquare[][] plantSquares, subSquares;
     private float pastZoomDistance, plantSquareSize, accumulator, seeds = 75, waterRate = 0.5f, sunlight, water = 150, waterUpgradeSeedCost = 50, forestLife;
-    private int waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1, displaySquare = -3, pseudoPlantIndex = -1;
+    private int waveIndex = -1, waveLimit = 0, selectedX = -1, selectedY = -1, displaySquare = -3, pseudoPlantIndex = -1;
     private long timer = 0, newWaveCountdown, timeGap, displaySquareTimer, seedTimer, waveDisplayTimer;
     private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, willPause = false, win = false, lose = false, running = false, canDisplaySquare, canPlant = false, firstCall = true;
     private boolean willRestart = false, waveDisplay = true;
@@ -97,6 +97,8 @@ public class GameScreen extends AbsoluteScreen {
 
 //        this.seeds = game.getSeedCount() > 75 ? game.getSeedCount() : 75;
 //        this.water = game.getWaterCount() > 150 ? game.getWaterCount() : 150;
+        this.seeds = RegionCodex.startingResource[region.getMapIndex()] / 2;
+        this.water = RegionCodex.startingResource[region.getMapIndex()];
         this.sunlight = region.getSunlight();
 
         worldHeight = region.getWorldHeight();
@@ -616,6 +618,10 @@ public class GameScreen extends AbsoluteScreen {
                 }
             }
 
+            for(int i = 0; i < plants.size - 1; i++) {
+                plants.get(i).getPlantCollision().applyImpulse();
+            }
+
             resetHud();
         }
     }
@@ -829,44 +835,48 @@ public class GameScreen extends AbsoluteScreen {
     }
 
     public void pauseGame() {
-        paused = true;
-        cam.zoom = worldWidth/screenWidth;
-        boundCamera();
-        topHud.setPauseButtonCanDraw(false);
-        gameHud.setCanPress(false);
+        if(!(win || lose)) {
+            paused = true;
+            cam.zoom = worldWidth/screenWidth;
+            boundCamera();
+            topHud.setPauseButtonCanDraw(false);
+            gameHud.setCanPress(false);
 
-        playButton.setCanDraw(true);
-        homeButton.setCanDraw(true);
-        restartButton.setCanDraw(true);
+            playButton.setCanDraw(true);
+            homeButton.setCanDraw(true);
+            restartButton.setCanDraw(true);
 
-        playButton.setCanPress(true);
-        homeButton.setCanPress(true);
-        restartButton.setCanPress(true);
+            playButton.setCanPress(true);
+            homeButton.setCanPress(true);
+            restartButton.setCanPress(true);
 
-        bindInput(pauseProcessors);
+            bindInput(pauseProcessors);
 
-        timeGap = System.currentTimeMillis() - timer;
+            timeGap = System.currentTimeMillis() - timer;
+        }
     }
 
     public void resumeGame() {
-        topHud.setPauseButtonCanDraw(true);
-        gameHud.setDrawable(-1);
-        gameHud.setCanDraw(true);
+        if(!(win || lose)) {
+            topHud.setPauseButtonCanDraw(true);
+            gameHud.setDrawable(-1);
+            gameHud.setCanDraw(true);
 
-        playButton.setCanDraw(false);
-        homeButton.setCanDraw(false);
-        restartButton.setCanDraw(false);
+            playButton.setCanDraw(false);
+            homeButton.setCanDraw(false);
+            restartButton.setCanDraw(false);
 
-        playButton.setCanPress(false);
-        homeButton.setCanPress(false);
-        restartButton.setCanPress(false);
+            playButton.setCanPress(false);
+            homeButton.setCanPress(false);
+            restartButton.setCanPress(false);
 
-        paused = false;
+            paused = false;
 
-        bindInput(mainProcessors);
+            bindInput(mainProcessors);
 
-        timer = System.currentTimeMillis() - timeGap;
-        willPause = false;
+            timer = System.currentTimeMillis() - timeGap;
+            willPause = false;
+        }
     }
 
     public World getWorld() {

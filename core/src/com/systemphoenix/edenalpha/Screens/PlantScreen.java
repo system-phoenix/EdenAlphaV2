@@ -125,22 +125,24 @@ public class PlantScreen extends AbsoluteScreen {
         tempPlants = TextureRegion.split(plants, 32, 32);
         for(int i = 0; i < tempTrees.length; i++) {
             for(int j = 0; j < tempTrees[i].length; j++) {
-                if((i * tempTrees[i].length + j >= mapScreen.getLowLevelBound() && i * tempTrees[i].length + j <= mapScreen.getHighLevelBound()) || (i * tempTrees[i].length + j < 15 && PlantCodex.level[i * tempTrees[i].length + j] <= mapScreen.getHighLevelBound())) {
+                if ((i == 3 && j == 0) || (i == 3 && j == 4)) {
+                    continue;
+                } else if((i * tempTrees[i].length + j >= mapScreen.getLowLevelBound() && i * tempTrees[i].length + j <= mapScreen.getHighLevelBound()) || (i * tempTrees[i].length + j < 15 && PlantCodex.level[i * tempTrees[i].length + j] <= mapScreen.getHighLevelBound())) {
                     if((i == 0 && (j == 3 || j == 4)) || (i == 1 && j == 2)) {
                         sprites[(i * tempTrees[i].length) + j] = new Sprite(tempPlants[i][j]);
                         actorSprites[(i * tempTrees[i].length) + j] = new Sprite(tempPlants[i][j]);
-                    } else if ((i == 3 && j == 0) || (i == 3 && j == 4)) {
-                        continue;
                     } else {
                         sprites[(i * tempTrees[i].length) + j] = new Sprite(tempTrees[i][j]);
                         actorSprites[(i * tempTrees[i].length) + j] = new Sprite(tempTrees[i][j]);
                     }
                     sprites[i * tempTrees[i].length + j].setBounds(rectangles[i][j].getX() + (sizeModifier / 2), rectangles[i][j].getY() + (sizeModifier / 2), rectangles[i][j].getWidth() - sizeModifier, rectangles[i][j].getHeight() - sizeModifier);
-    //                plantButtons.add(new PlantButton(sprites[(i * tempTrees[i].length)], stage, rectangles[i][j].getX() + (sizeModifier / 2), rectangles[i][j].getY() + (sizeModifier / 2), rectangles[i][j].getWidth() - sizeModifier));
-    //                plantButtons.add(new PlantButton(sprites[i * tempTrees[i].length + j], stage, this, i * tempTrees[i].length + j));
                     stage.addActor(new PlantButton(sprites[i * tempTrees[i].length + j], stage, this, i * tempTrees[i].length + j));
-                    actorSprites[(i * tempTrees[i].length) + j].setBounds(0, 64, 64, 64);
+                } else {
+                    sprites[i * tempTrees[i].length + j] = new Sprite(new Texture(Gdx.files.internal("misc/lock.png")));
+                    sprites[i * tempTrees[i].length + j].setBounds(rectangles[i][j].getX() + (sizeModifier / 2), rectangles[i][j].getY() + (sizeModifier / 2), rectangles[i][j].getWidth() - sizeModifier, rectangles[i][j].getHeight() - sizeModifier);
+                    actorSprites[(i * tempTrees[i].length) + j] = new Sprite(new Texture(Gdx.files.internal("misc/lock.png")));
                 }
+                actorSprites[(i * tempTrees[i].length) + j].setBounds(0, 64, 64, 64);
             }
         }
         rectangleSprite.setBounds(rectangles[0][0].getX(), rectangles[0][0].getY(), rectangles[0][0].getWidth(), rectangles[0][0].getHeight());
