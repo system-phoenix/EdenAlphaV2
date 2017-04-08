@@ -25,18 +25,13 @@ public class EdenAlpha extends Game {
 	@Override
 	public void create () {
         this.gameGraphics = new SpriteBatch();
-        try {
-            generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/neuropol.ttf"));
-            FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-            parameter.size = 20;
-            parameter.color = Color.WHITE;
-            this.font = generator.generateFont(parameter);
+        generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/arcon.otf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 20;
+        parameter.color = Color.WHITE;
+        this.font = generator.generateFont(parameter);
 
-            font.setColor(Color.WHITE);
-        } catch(Exception e) {
-            Gdx.app.log("Verbose", "Failed to load custom font.");
-            this.font = new BitmapFont();
-        }
+        font.setColor(Color.WHITE);
 
 		this.levelPrefs = Gdx.app.getPreferences("Level");
 

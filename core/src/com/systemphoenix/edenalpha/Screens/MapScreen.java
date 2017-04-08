@@ -1,6 +1,7 @@
 package com.systemphoenix.edenalpha.Screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -69,6 +70,10 @@ public class MapScreen extends AbsoluteScreen {
 
     @Override
     public void render(float delta) {
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.BACK)) {
+            this.game.setScreen(game.getMainScreen());
+        }
 
 //        update stuff below
         boundCamera();

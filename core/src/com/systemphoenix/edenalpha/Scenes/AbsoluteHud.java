@@ -32,7 +32,7 @@ public class AbsoluteHud implements Disposable {
         this.gameGraphics = game.getGameGraphics();
         Color border = Color.BLACK, fontColor = Color.WHITE;
         BitmapFont tempFont = font;
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/neuropol.ttf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/arcon.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 16;
         parameter.borderColor = border;
@@ -43,6 +43,8 @@ public class AbsoluteHud implements Disposable {
         stage = new Stage(viewport, gameGraphics);
 
         message = new Label("No touch event yet!", new Label.LabelStyle(font, fontColor));
+
+        font = tempFont;
     }
 
     public void setMessage(String message) {

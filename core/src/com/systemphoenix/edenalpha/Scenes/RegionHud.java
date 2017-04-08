@@ -31,7 +31,7 @@ public class RegionHud extends AbsoluteHud {
         Color border = Color.BLACK;
         Color fontColor = Color.WHITE;
         BitmapFont tempFont = font;
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/neuropol.ttf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/arcon.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 32;
         parameter.borderColor = border;

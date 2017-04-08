@@ -117,9 +117,7 @@ public class ButtonActor extends Actor implements Disposable {
                 }
                 break;
             case ButtonCodex.CROSS:
-                if(isGameScreen) {
-                    ((GameScreen)screen).unroot(Plant.getSelectedPlant());
-                } else if(isPlantScreen) {
+                if(isPlantScreen) {
                     ((PlantScreen)screen).selectPlant();
                 }
                 break;
@@ -138,6 +136,11 @@ public class ButtonActor extends Actor implements Disposable {
             case ButtonCodex.WATER_UPGRADE:
                 if(isGameScreen && canDraw) {
                     ((GameScreen)screen).upgradeWaterRate();
+                }
+                break;
+            case ButtonCodex.UPROOT:
+                if(isGameScreen) {
+                    ((GameScreen)screen).unroot(Plant.getSelectedPlant());
                 }
                 break;
 

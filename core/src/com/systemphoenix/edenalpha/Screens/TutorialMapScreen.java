@@ -40,7 +40,7 @@ public class TutorialMapScreen extends AbsoluteScreen {
         this.homeButton = new ButtonActor(ButtonCodex.HOME, this, 32f, 32f, 128, false);
         this.playButton = new ButtonActor(ButtonCodex.PLAY, this, worldWidth - 160f, 32f, 128, false);
 
-        slides = new Sprite[8];
+        slides = new Sprite[9];
 
         for(int i = 0; i < slides.length; i++) {
             slides[i] = new Sprite(new Texture(Gdx.files.internal("tutorial/" + i + ".png")));

@@ -31,7 +31,7 @@ public class TopHud extends AbsoluteHud implements Disposable {
 
         Color border = Color.BLACK, fontColor = Color.WHITE;
         BitmapFont tempFont = font;
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/neuropol.ttf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/arcon.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 32;
         parameter.borderColor = border;
@@ -48,7 +48,11 @@ public class TopHud extends AbsoluteHud implements Disposable {
 
         stage.addActor(temp);
 
-        font = tempFont;
+        parameter.size = 16;
+        parameter.borderColor = border;
+        parameter.borderWidth = 2;
+        font = generator.generateFont(parameter);
+
         temp = new Table();
         temp.setBounds(paramX + paramW, paramY, paramW, paramH);
         temp.top();
@@ -87,6 +91,7 @@ public class TopHud extends AbsoluteHud implements Disposable {
         temp.add(loadingMessage).expandX().expandY();
         stage.addActor(temp);
 
+        font = tempFont;
     }
 
     @Override
@@ -129,16 +134,15 @@ public class TopHud extends AbsoluteHud implements Disposable {
     public void createLabels() {
         Color border = Color.BLACK, fontColor = Color.WHITE;
         BitmapFont tempFont = font;
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/neuropol.ttf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/arcon.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 32;
+        parameter.size = 16;
         parameter.borderColor = border;
         parameter.borderWidth = 3;
         font = generator.generateFont(parameter);
 
         Table temp;
 
-        font = tempFont;
         temp = new Table();
         float paramX = 32, paramY = gameScreen.getWorldHeight() - 60, paramW = 100, paramH = 50;
         temp.setBounds(paramX, paramY, paramW, paramH);
@@ -170,6 +174,7 @@ public class TopHud extends AbsoluteHud implements Disposable {
         temp.add(tempLabel);
 
         stage.addActor(temp);
+        font = tempFont;
     }
 
     public void setPauseButtonCanDraw(boolean canDraw) {

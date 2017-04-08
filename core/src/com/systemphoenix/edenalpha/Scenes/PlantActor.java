@@ -67,7 +67,6 @@ public class PlantActor extends Actor {
             recentlySelectedActor = this;
             gameScreen.getGameHud().setData();
             gameScreen.setPseudoPlant(plantIndex);
-            Plant.setSelectAllPlants(true);
             clickTimer = System.currentTimeMillis();
             return true;
         }
@@ -77,9 +76,10 @@ public class PlantActor extends Actor {
     public void dragPlant() {
         if(draggable && System.currentTimeMillis() - clickTimer >= 200) {
             dragging = true;
-            dragSprite.setBounds(Gdx.input.getX() + size/2, gameScreen.getWorldHeight() - Gdx.input.getY() + size, size * gameScreen.getCamera().zoom, size * gameScreen.getCamera().zoom);
+            dragSprite.setBounds(Gdx.input.getX() + size/2, gameScreen.getWorldHeight() - Gdx.input.getY() + size, size / gameScreen.getCamera().zoom, size / gameScreen.getCamera().zoom);
             gameScreen.tap(Gdx.input.getX() + size, Gdx.input.getY() - size);
             gameScreen.getGameHud().setCanDraw(false);
+            Plant.setSelectAllPlants(true);
         }
     }
 
@@ -89,8 +89,8 @@ public class PlantActor extends Actor {
             gameScreen.plant(plantIndex, sprite);
             gameScreen.tap(-1, -1);
             gameScreen.getGameHud().setCanDraw(true);
+            Plant.nullSelectedPlant();
         }
-        Plant.nullSelectedPlant();
     }
 
     public void setRectangleSpriteBounds() {
@@ -112,7 +112,7 @@ public class PlantActor extends Actor {
             }
             draggable = !(plantCost / 2 > gameScreen.getSeeds() || plantCost > gameScreen.getWater());
         }
-        if(dragging) {
+        if(dragging && recentlySelectedActor.equals(this)) {
             dragSprite.draw(batch);
         }
     }

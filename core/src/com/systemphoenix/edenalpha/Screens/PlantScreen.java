@@ -2,6 +2,7 @@ package com.systemphoenix.edenalpha.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -26,7 +27,7 @@ import com.systemphoenix.edenalpha.Scenes.PlantButton;
 
 public class PlantScreen extends AbsoluteScreen {
 
-    private Stage stage;
+    private Stage stage, checkStage, crossStage;
     private Texture trees, plants;
     private Sprite lowerHud, plantScreenBG, rectangleSprite, plantHP, plantAS, plantDmg;
     private Sprite[] sprites, actorSprites, renderedActorSprites;
@@ -89,19 +90,21 @@ public class PlantScreen extends AbsoluteScreen {
     private void initialize() {
         Viewport viewport = new FitViewport(1280, 720, cam);
         stage = new Stage(viewport, gameGraphics);
+        checkStage = new Stage(viewport, gameGraphics);
+        crossStage = new Stage(viewport, gameGraphics);
 
         lowerHud = new Sprite(new Texture(Gdx.files.internal("misc/lowerHud.png")));
         plantScreenBG = new Sprite(new Texture(Gdx.files.internal("bgScreen/plantScreen.png")));
 
         playButton = new ButtonActor(ButtonCodex.PLAY, this, worldWidth - 160f, 32f, 128, false, true);
         homeButton = new ButtonActor(ButtonCodex.HOME, this, 32f, 32f, 128, false, true);
-        checkButton = new ButtonActor(ButtonCodex.CHECK, this, 1022, 200, 128, false, true);
-        crossButton = new ButtonActor(ButtonCodex.CROSS, this, 878, 200, 128, false, true);
+        checkButton = new ButtonActor(ButtonCodex.CHECK, this, 950, 200, 128, false, true);
+        crossButton = new ButtonActor(ButtonCodex.CROSS, this, 950, 200, 128, false, true);
 
         playButton.setCanDraw(true);
         homeButton.setCanDraw(true);
         checkButton.setCanDraw(true);
-        crossButton.setCanDraw(true);
+        crossButton.setCanDraw(false);
 
         playButton.setCanPress(true);
         homeButton.setCanPress(true);
@@ -110,8 +113,8 @@ public class PlantScreen extends AbsoluteScreen {
 
         stage.addActor(playButton);
         stage.addActor(homeButton);
-        stage.addActor(checkButton);
-        stage.addActor(crossButton);
+        checkStage.addActor(checkButton);
+        crossStage.addActor(crossButton);
 
         rectangleSprite = new Sprite(new Texture(Gdx.files.internal("misc/0_PlantSquare.png")));
 
@@ -153,14 +156,14 @@ public class PlantScreen extends AbsoluteScreen {
         Table tempTable = new Table(), infoTable = new Table(), descTable = new Table();
         tempTable.setBounds(797, 300, 111, 390);
         infoTable.setBounds(908, 300, 320, 390);
-        descTable.setBounds(793, 300, 431, 400);
+        descTable.setBounds(793, 300, 431, 300);
 
         Color border = Color.BLACK;
         Color fontColor = Color.WHITE;
         BitmapFont tempFont = font;
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/neuropol.ttf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/arcon.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 15;
+        parameter.size = 18;
         parameter.borderColor = border;
         parameter.borderWidth = 0;
         font = generator.generateFont(parameter);
@@ -192,12 +195,12 @@ public class PlantScreen extends AbsoluteScreen {
         tempTable.row();
         infoTable.row();
 
-        float startY = worldHeight - 89, startX = 938;
+        float startY = worldHeight - 102, startX = 938, decrement = 21f;
 
         tempLabel = new Label("HP:", new Label.LabelStyle(font, fontColor));
         spaceFiller = new Label(" ", new Label.LabelStyle(font, fontColor));
         plantHP = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
-        plantHP.setBounds(startX, startY - 16, 32, 8);
+        plantHP.setBounds(startX, startY - decrement, 32, 8);
 
         tempTable.add(tempLabel);
         infoTable.add(spaceFiller);
@@ -206,7 +209,7 @@ public class PlantScreen extends AbsoluteScreen {
 
         tempLabel = new Label("Atk Spd:", new Label.LabelStyle(font, fontColor));
         plantAS = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
-        plantAS.setBounds(startX, startY - 32, 32, 8);
+        plantAS.setBounds(startX, startY - decrement * 2, 32, 8);
 
         tempTable.add(tempLabel);
         infoTable.add(spaceFiller);
@@ -215,7 +218,7 @@ public class PlantScreen extends AbsoluteScreen {
 
         tempLabel = new Label("Damage:", new Label.LabelStyle(font, fontColor));
         plantDmg = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
-        plantDmg.setBounds(startX, startY - 48, 32, 8);
+        plantDmg.setBounds(startX, startY - decrement * 3, 32, 8);
 
         tempTable.add(tempLabel);
         infoTable.add(spaceFiller);
@@ -274,10 +277,14 @@ public class PlantScreen extends AbsoluteScreen {
         plantAS.draw(gameGraphics);
         plantDmg.draw(gameGraphics);
         if(!selected[index]) {
+            checkButton.setCanDraw(true);
             checkButton.setCanPress(true);
+            crossButton.setCanDraw(false);
             crossButton.setCanPress(false);
         } else {
+            checkButton.setCanDraw(false);
             checkButton.setCanPress(false);
+            crossButton.setCanDraw(true);
             crossButton.setCanPress(true);
         }
         for(int i = 0; i < currentSelectionIndex; i++) {
@@ -288,6 +295,9 @@ public class PlantScreen extends AbsoluteScreen {
         gameGraphics.setProjectionMatrix(stage.getCamera().combined);
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
+
+        checkStage.draw();
+        crossStage.draw();
     }
 
     public void selectPlant() {
@@ -389,7 +399,11 @@ public class PlantScreen extends AbsoluteScreen {
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(stage);
+        InputMultiplexer input = new InputMultiplexer();
+        input.addProcessor(checkStage);
+        input.addProcessor(crossStage);
+        input.addProcessor(stage);
+        Gdx.input.setInputProcessor(input);
     }
 
     @Override
@@ -418,6 +432,8 @@ public class PlantScreen extends AbsoluteScreen {
         homeButton.dispose();
         crossButton.dispose();
         checkButton.dispose();
+        crossStage.dispose();
+        checkStage.dispose();
         stage.dispose();
     }
 

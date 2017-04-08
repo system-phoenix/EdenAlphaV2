@@ -23,11 +23,11 @@ public class GameHud extends AbsoluteHud implements Disposable {
 
     private GameScreen gameScreen;
     private Stage plantStage, plantActorStage;
-    
+
     private PlantSelector plantSelector;
     private PlantActor[] plantActors;
 
-    private ButtonActor crossButton, upgradeButton, harvestButton, waterUpgradeButton;
+    private ButtonActor uprootButton, upgradeButton, harvestButton, waterUpgradeButton;
 
     private boolean canDraw;
     private int index = -1, drawable = 1;
@@ -41,7 +41,7 @@ public class GameHud extends AbsoluteHud implements Disposable {
         viewport = new FitViewport(worldWidth, worldHeight, new OrthographicCamera());
         plantStage = new Stage(viewport, gameGraphics);
         plantActorStage = new Stage(viewport, gameGraphics);
-        
+
         this.gameScreen = gameScreen;
         this.plantActors = plantActors;
 
@@ -58,7 +58,7 @@ public class GameHud extends AbsoluteHud implements Disposable {
 
         stage.addActor(plantSelector);
 
-        for(int i = 0; i < plantActors.length; i++) {
+        for (int i = 0; i < plantActors.length; i++) {
             plantActorStage.addActor(plantActors[i]);
         }
 
@@ -81,17 +81,17 @@ public class GameHud extends AbsoluteHud implements Disposable {
 
         tempTable.add(plantStatsSeedCount);
 
-        waterUpgradeButton = new ButtonActor(ButtonCodex.CHECK, gameScreen, gameScreen.getWorldWidth() - 160, 32, 128, true, false);
-        crossButton = new ButtonActor(ButtonCodex.CROSS, gameScreen, 32, 32, 128, true, false);
+        waterUpgradeButton = new ButtonActor(ButtonCodex.WATER_UPGRADE, gameScreen, gameScreen.getWorldWidth() - 160, 32, 128, true, false);
+        uprootButton = new ButtonActor(ButtonCodex.UPROOT, gameScreen, 32, 32, 128, true, false);
         upgradeButton = new ButtonActor(ButtonCodex.UPGRADE, gameScreen, worldWidth - 290, 32, 128, true, false);
         harvestButton = new ButtonActor(ButtonCodex.HARVEST, gameScreen, worldWidth - 160, 32, 128, true, false);
 
-        plantStage.addActor(crossButton);
+        plantStage.addActor(uprootButton);
         plantStage.addActor(upgradeButton);
         plantStage.addActor(harvestButton);
         plantStage.addActor(tempTable);
 
-        crossButton.setCanDraw(canDraw);
+        uprootButton.setCanDraw(canDraw);
         stage.addActor(waterUpgradeButton);
     }
 
@@ -99,7 +99,7 @@ public class GameHud extends AbsoluteHud implements Disposable {
         Color border = Color.BLACK;
         Color fontColor = Color.WHITE;
         BitmapFont tempFont = font;
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/neuropol.ttf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/arcon.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 15;
         parameter.borderColor = border;
@@ -115,17 +115,17 @@ public class GameHud extends AbsoluteHud implements Disposable {
         tempTable.add(tempLabel);
         tempTable.row();
 
-        if(!plantStatsTable) {
-            float startY = 81, startX = 111;
+        if (!plantStatsTable) {
+            float startY = 81, startX = 111, decrement = 18f;
             plantName = new Label("--", new Label.LabelStyle(font, fontColor));
             plantType = new Label("--", new Label.LabelStyle(font, fontColor));
             plantCost = new Label("--", new Label.LabelStyle(font, fontColor));
             plantHP = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
-            plantHP.setBounds(startX, startY - 16, 32, 8);
+            plantHP.setBounds(startX, startY - decrement, 32, 8);
             plantAS = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
-            plantAS.setBounds(startX, startY - 32, 32, 8);
+            plantAS.setBounds(startX, startY - decrement * 2, 32, 8);
             plantDmg = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
-            plantDmg.setBounds(startX, startY - 48, 32, 8);
+            plantDmg.setBounds(startX, startY - decrement * 3, 32, 8);
             plantGrowthTime = new Label("--", new Label.LabelStyle(font, fontColor));
 
             tempLabel = new Label("Type:", new Label.LabelStyle(font, fontColor));
@@ -145,18 +145,18 @@ public class GameHud extends AbsoluteHud implements Disposable {
             infoTable.add(plantCost);
             infoTable.row();
         } else {
-            float startY = 113, startX = 596;
+            float startY = 113, startX = 596, decrement = 18f;
             plantStatsName = new Label("--", new Label.LabelStyle(font, fontColor));
             plantStatsHP = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
-            plantStatsHP.setBounds(startX, startY - 16, 32, 8);
+            plantStatsHP.setBounds(startX, startY - decrement, 32, 8);
             plantStatsAS = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
-            plantStatsAS.setBounds(startX, startY - 32, 32, 8);
+            plantStatsAS.setBounds(startX, startY - decrement * 2, 32, 8);
             plantStatsDmg = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
-            plantStatsDmg.setBounds(startX, startY - 48, 32, 8);
+            plantStatsDmg.setBounds(startX, startY - decrement * 3, 32, 8);
             plantStatsSeedRate = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
-            plantStatsSeedRate.setBounds(startX, startY - 64, 32, 8);
+            plantStatsSeedRate.setBounds(startX, startY - decrement * 4, 32, 8);
             plantStatsRange = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
-            plantStatsRange.setBounds(startX, startY - 80, 32, 8);
+            plantStatsRange.setBounds(startX, startY - decrement * 5, 32, 8);
 
 
             plantStatsSeedCount = new Label("--", new Label.LabelStyle(font, fontColor));
@@ -187,7 +187,7 @@ public class GameHud extends AbsoluteHud implements Disposable {
         tempTable.row();
         infoTable.row();
 
-        if(!plantStatsTable) {
+        if (!plantStatsTable) {
             tempLabel = new Label("Growth:", new Label.LabelStyle(font, fontColor));
 
             tempTable.add(tempLabel);
@@ -223,21 +223,21 @@ public class GameHud extends AbsoluteHud implements Disposable {
     }
 
     public void draw(Batch batch) {
-        if(canDraw) {
-            switch(drawable) {
+        if (canDraw) {
+            switch (drawable) {
                 case 0:
-                    if(Plant.getSelectedPlant() != null) {
+                    if (Plant.getSelectedPlant() != null) {
                         Plant plant = Plant.getSelectedPlant();
                         waterUpgradeButton.setCanPress(false);
-                        crossButton.setCanPress(true);
-                        if(PlantCodex.seedProduction[plant.getPlantIndex()] != 0) {
-                            plantStatsSeedCount.setText("" + (int)plant.getSeeds());
+                        uprootButton.setCanPress(true);
+                        if (PlantCodex.seedProduction[plant.getPlantIndex()] != 0) {
+                            plantStatsSeedCount.setText("" + (int) plant.getSeeds());
                             harvestButton.setCanPress(true);
                         } else {
                             plantStatsSeedCount.setText("--");
                             harvestButton.setCanPress(false);
                         }
-                        if(plant.getUpgradeIndex() < 3 && plant.isUpgradable()) {
+                        if (plant.getUpgradeIndex() < 3 && plant.isUpgradable()) {
                             upgradeButton.setCanPress(true);
                         } else {
                             upgradeButton.setCanPress(false);
@@ -256,7 +256,7 @@ public class GameHud extends AbsoluteHud implements Disposable {
                     break;
                 default:
                     waterUpgradeButton.setCanPress(gameScreen.getSeeds() - gameScreen.getWaterUpgradeSeedCost() >= 0);
-                    crossButton.setCanPress(false);
+                    uprootButton.setCanPress(false);
                     harvestButton.setCanPress(false);
                     upgradeButton.setCanPress(false);
                     batch.setProjectionMatrix(stage.getCamera().combined);
@@ -268,7 +268,7 @@ public class GameHud extends AbsoluteHud implements Disposable {
                     batch.end();
             }
         }
-        if(drawable != 0) plantActorStage.draw();
+        if (drawable != 0) plantActorStage.draw();
 //        else if(!gameScreen.isFirstCall() && !canDraw && gameScreen.canPlant()) {
 //            waterUpgradeButton.setCanPress(gameScreen.getSeeds() - gameScreen.getWaterUpgradeSeedCost() >= 0);
 //            waterUpgradeButton.setCanDraw(!canDraw);
@@ -277,14 +277,14 @@ public class GameHud extends AbsoluteHud implements Disposable {
 //            harvestButton.setCanPress(false);
 //            upgradeButton.setCanPress(false);
 //            waterUpgradeButton.setCanPress(false);
-//            crossButton.setCanPress(false);
+//            uprootButton.setCanPress(false);
 //        }
     }
 
     @Override
     public void dispose() {
         waterUpgradeButton.dispose();
-        crossButton.dispose();
+        uprootButton.dispose();
         upgradeButton.dispose();
         harvestButton.dispose();
         waterUpgradeButton.dispose();
@@ -309,7 +309,7 @@ public class GameHud extends AbsoluteHud implements Disposable {
         float barSize = 200f;
         plantName.setText(PlantCodex.plantName[index]);
         String plantType = "";
-        switch(PlantCodex.typeBit[index]) {
+        switch (PlantCodex.typeBit[index]) {
             case 1:
                 plantType = "         Land Plant        ";
                 break;
@@ -333,15 +333,15 @@ public class GameHud extends AbsoluteHud implements Disposable {
                 break;
         }
         this.plantType.setText(plantType);
-        plantCost.setText("" + (int)(PlantCodex.cost[index] / 2) + " seeds, " + (int)(PlantCodex.cost[index]) + " water");
+        plantCost.setText("" + (int) (PlantCodex.cost[index] / 2) + " seeds, " + (int) (PlantCodex.cost[index]) + " water");
         plantHP.setBounds(plantHP.getX(), plantHP.getY(), barSize * (PlantCodex.hpStats[PlantCodex.maxHP[index]] / PlantCodex.baseHP), plantHP.getHeight());
-        if(index != 13) {
-            plantAS.setBounds(plantAS.getX(), plantAS.getY(), barSize * ((float)PlantCodex.baseAS / (float)(PlantCodex.asStats[PlantCodex.AS[index]] * 3f)), plantAS.getHeight());
+        if (index != 13) {
+            plantAS.setBounds(plantAS.getX(), plantAS.getY(), barSize * ((float) PlantCodex.baseAS / (float) (PlantCodex.asStats[PlantCodex.AS[index]] * 3f)), plantAS.getHeight());
         } else {
             plantAS.setBounds(plantAS.getX(), plantAS.getY(), 0, plantAS.getHeight());
         }
         plantDmg.setBounds(plantDmg.getX(), plantDmg.getY(), barSize * ((((PlantCodex.dmgStats[PlantCodex.DMG[index]].x + PlantCodex.dmgStats[PlantCodex.DMG[index]].y)) / (((PlantCodex.baseDmg.x + PlantCodex.baseDmg.y))))), plantDmg.getHeight());
-        plantGrowthTime.setText("" + (int)(PlantCodex.growthTime[index]) + " seconds");
+        plantGrowthTime.setText("" + (int) (PlantCodex.growthTime[index]) + " seconds");
     }
 
     public void setPlantStatsData() {
@@ -350,16 +350,16 @@ public class GameHud extends AbsoluteHud implements Disposable {
         float barSize = 200f;
         plantStatsName.setText(PlantCodex.plantName[index]);
         plantStatsHP.setBounds(plantStatsHP.getX(), plantStatsHP.getY(), barSize * (plant.getTargetHp() / PlantCodex.baseHP), plantStatsHP.getHeight());
-        if(index != 13) {
-            plantStatsAS.setBounds(plantStatsAS.getX(), plantStatsAS.getY(), barSize * ((float)PlantCodex.baseAS / (float)(plant.getAttackSpeed() * 3f)), plantStatsAS.getHeight());
+        if (index != 13) {
+            plantStatsAS.setBounds(plantStatsAS.getX(), plantStatsAS.getY(), barSize * ((float) PlantCodex.baseAS / (float) (plant.getAttackSpeed() * 3f)), plantStatsAS.getHeight());
         } else {
             plantStatsAS.setBounds(plantStatsAS.getX(), plantStatsAS.getY(), 0, plantStatsAS.getHeight());
         }
         plantStatsDmg.setBounds(plantStatsDmg.getX(), plantStatsDmg.getY(), barSize * ((((plant.getDamage().x + plant.getDamage().y)) / (((PlantCodex.baseDmg.x + PlantCodex.baseDmg.y))))), plantStatsDmg.getHeight());
         plantStatsSeedRate.setBounds(plantStatsSeedRate.getX(), plantStatsSeedRate.getY(), barSize * (plant.getSeedRate() / PlantCodex.baseSeedRate), plantStatsSeedRate.getHeight());
         plantStatsRange.setBounds(plantStatsRange.getX(), plantStatsRange.getY(), barSize * (plant.getRange() / PlantCodex.baseRange), plantStatsRange.getHeight());
-        if(plant.getUpgradeIndex() < 3) {
-            plantStatsCost.setText("" + (int)(plant.getUpgradeCostSunlight()) + " sunlight, " + (int)(plant.getUpgradeCostWater()) + " water");
+        if (plant.getUpgradeIndex() < 3) {
+            plantStatsCost.setText("" + (int) (plant.getUpgradeCostSunlight()) + " sunlight, " + (int) (plant.getUpgradeCostWater()) + " water");
         } else {
             plantStatsCost.setText("Fully Upgraded!");
         }
@@ -369,14 +369,14 @@ public class GameHud extends AbsoluteHud implements Disposable {
         this.canDraw = canDraw;
         plantSelector.setCanDraw(canDraw);
         waterUpgradeButton.setCanDraw(canDraw);
-        crossButton.setCanDraw(canDraw);
+        uprootButton.setCanDraw(canDraw);
         upgradeButton.setCanDraw(canDraw);
         harvestButton.setCanDraw(canDraw);
         Plant.setSelectAllPlants(!canDraw);
     }
 
     public void setCanPress(boolean canPress) {
-        crossButton.setCanPress(canPress);
+        uprootButton.setCanPress(canPress);
         waterUpgradeButton.setCanPress(canPress);
         upgradeButton.setCanPress(canPress);
         harvestButton.setCanPress(canPress);

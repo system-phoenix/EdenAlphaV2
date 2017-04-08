@@ -49,20 +49,8 @@ public class MainScreen extends AbsoluteScreen {
         }
         startButton = new MainScreenButton(this, "startButton.png", worldWidth / 2 - 128, 230, 256, 64, true);
         stage.addActor(startButton);
-    }
 
-    public void update() {
-//        if(blinking) {
-//            if(TimeUtils.timeSinceMillis(blink) >= 800) {
-//                blinking = false;
-//                blink = TimeUtils.millis();
-//            }
-//        } else {
-//            if(TimeUtils.timeSinceMillis(blink) >= 500) {
-//                blink = TimeUtils.millis();
-//                blinking = true;
-//            }
-//        }
+        Gdx.input.setCatchBackKey(true);
     }
 
     @Override
@@ -70,21 +58,11 @@ public class MainScreen extends AbsoluteScreen {
         boundCamera();
         cam.update();
         gameGraphics.setProjectionMatrix(cam.combined);
-        if(canStart) {
-            update();
-        }
 
         glyphLayout.setText(font, loadingMessage);
         float x = (screenWidth - glyphLayout.width) / 2;
         gameGraphics.begin();
         gameGraphics.draw(bg, 0, 0, screenWidth, screenHeight);
-//        if(canStart) {
-//            if(blinking) {
-//                font.draw(gameGraphics, loadingMessage, x, screenHeight / 4 - screenHeight / 16);
-//            }
-//        } else {
-//            font.draw(gameGraphics, loadingMessage, x, screenHeight / 4 - screenHeight / 16);
-//        }
         if(helpButton != null) helpButton.draw(gameGraphics, 1);
         startButton.draw(gameGraphics, 1);
         gameGraphics.end();

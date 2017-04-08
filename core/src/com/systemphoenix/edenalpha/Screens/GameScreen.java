@@ -499,6 +499,7 @@ public class GameScreen extends AbsoluteScreen {
 
             if(win || lose) {
                 cam.zoom = worldWidth/screenWidth;
+                bindInput(pauseProcessors);
                 boundCamera();
                 gameGraphics.begin();
                 if(win) {
@@ -647,6 +648,7 @@ public class GameScreen extends AbsoluteScreen {
             plant.dispose();
             resetHud();
             gameHud.setDrawable(1);
+            tap(0, 0, 0, 0);
         }
     }
 
