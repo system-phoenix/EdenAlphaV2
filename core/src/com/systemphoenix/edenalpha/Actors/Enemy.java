@@ -86,7 +86,7 @@ public class Enemy extends Sprite implements Disposable {
         shape.setRadius(size / 2);
         fixtureDef.shape = shape;
         fixtureDef.filter.categoryBits = CollisionBit.ENEMY;
-        fixtureDef.filter.maskBits = CollisionBit.PATHBOUND | CollisionBit.ENDPOINT | CollisionBit.ENEMYRANGE | CollisionBit.PLANT;
+        fixtureDef.filter.maskBits = CollisionBit.PATHBOUND | CollisionBit.ENDPOINT | CollisionBit.ENEMYRANGE | CollisionBit.PLANT | CollisionBit.PULSE;
 
         body.createFixture(fixtureDef).setUserData(this);
 

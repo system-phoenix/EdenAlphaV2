@@ -78,6 +78,7 @@ public class EdenAlpha extends Game {
         }
 
         levelPrefs.flush();
+        highLevelBound = 16;
 
 		this.mainScreen = new com.systemphoenix.edenalpha.Screens.MainScreen(this);
 		this.mapScreen = new com.systemphoenix.edenalpha.Screens.MapScreen(this);

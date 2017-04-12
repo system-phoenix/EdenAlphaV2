@@ -17,10 +17,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.systemphoenix.edenalpha.Codex.AnimalCodex;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.EdenAlpha;
 import com.systemphoenix.edenalpha.Region;
+import com.systemphoenix.edenalpha.Scenes.AnimalActor;
+import com.systemphoenix.edenalpha.Scenes.AnimalButton;
 import com.systemphoenix.edenalpha.Scenes.ButtonActor;
 import com.systemphoenix.edenalpha.Scenes.PlantActor;
 import com.systemphoenix.edenalpha.Scenes.PlantButton;
@@ -28,8 +31,8 @@ import com.systemphoenix.edenalpha.Scenes.PlantButton;
 public class PlantScreen extends AbsoluteScreen {
 
     private Stage stage, checkStage, crossStage;
-    private Texture trees, plants;
-    private Sprite lowerHud, plantScreenBG, rectangleSprite, plantHP, plantAS, plantDmg;
+    private Texture trees, plants, animals;
+    private Sprite lowerHud, plantScreenBG, rectangleSprite, plantHP, plantAS, plantDmg, plantRange, plantSeedRate, animalActorSprite;
     private Sprite[] sprites, actorSprites, renderedActorSprites;
     private Rectangle actorRectangles[], rectangles[][];
 
@@ -41,9 +44,7 @@ public class PlantScreen extends AbsoluteScreen {
     private MapScreen mapScreen;
     private Region region;
 
-    private float sizeModifier = 10;
-
-    private int selectedIndeces[], currentSelectionIndex, index;
+    private int selectedIndeces[], currentSelectionIndex, index, selectedAnimalIndex = -1;
     private boolean selected[];
 
     public PlantScreen(EdenAlpha game, MapScreen mapScreen, Region region) {
@@ -73,13 +74,13 @@ public class PlantScreen extends AbsoluteScreen {
         this.rectangles = new Rectangle[4][5];
         for(int i = 0; i < rectangles.length - 1; i++) {
             for(int j = 0; j < rectangles[i].length; j++) {
-                rectangles[i][j] = new Rectangle((64 + (j * 144)) - (sizeModifier / 2), (720 - (128 + (i * 128))) - (sizeModifier / 2), 96f + sizeModifier, 96f + sizeModifier);
+                rectangles[i][j] = new Rectangle((64 + (j * 144)), (720 - (128 + (i * 128))), 96f, 96f);
             }
         }
 
         for(int j = 0; j < rectangles[rectangles.length - 1].length; j++) {
             if(!(j == 0 || j + 1 == rectangles[rectangles.length - 1].length)) {
-                rectangles[rectangles.length - 1][j] = new Rectangle((64 + (j * 144)) - (sizeModifier / 2), 176 - (sizeModifier / 2), 96f + sizeModifier, 96f + sizeModifier);
+                rectangles[rectangles.length - 1][j] = new Rectangle((64 + (j * 144)), 176, 96f, 96f);
             }
         }
 
@@ -118,15 +119,23 @@ public class PlantScreen extends AbsoluteScreen {
 
         rectangleSprite = new Sprite(new Texture(Gdx.files.internal("misc/0_PlantSquare.png")));
 
-        TextureRegion tempTrees[][], tempPlants[][];
+        TextureRegion tempTrees[][], tempPlants[][], tempAnimals[][];
         trees = new Texture(Gdx.files.internal("trees/trees.png"));
         tempTrees = TextureRegion.split(trees, 64, 64);
         plants = new Texture(Gdx.files.internal("trees/plants.png"));
         tempPlants = TextureRegion.split(plants, 32, 32);
+        animals = new Texture(Gdx.files.internal("trees/animals.png"));
+        tempAnimals = TextureRegion.split(animals, 256, 256);
         for(int i = 0; i < tempTrees.length; i++) {
             for(int j = 0; j < tempTrees[i].length; j++) {
+                Gdx.app.log("Verbose", "tempTrees.length: " + tempTrees.length + ", tempTrees[i].length:" + tempTrees[i].length + ", (i * tempTrees[i].length + j): " + (i * tempTrees[i].length + j));
                 if ((i == 3 && j == 0) || (i == 3 && j == 4)) {
                     continue;
+                } else if(i == 3 && (AnimalCodex.level[j - 1] <= mapScreen.getHighLevelBound() && AnimalCodex.level[j - 1] >= mapScreen.getLowLevelBound())) {
+                    sprites[(i * tempTrees[i].length) + j] = new Sprite(tempAnimals[0][j - 1]);
+                    sprites[i * tempTrees[i].length + j].setBounds(rectangles[i][j].getX(), rectangles[i][j].getY(), rectangles[i][j].getWidth(), rectangles[i][j].getHeight());
+                    actorSprites[(i * tempTrees[i].length) + j] = new Sprite(tempAnimals[0][j - 1]);
+                    stage.addActor(new AnimalButton(sprites[i * tempTrees[i].length + j], stage, this, i * tempTrees[i].length + j));
                 } else if((i * tempTrees[i].length + j >= mapScreen.getLowLevelBound() && i * tempTrees[i].length + j <= mapScreen.getHighLevelBound()) || (i * tempTrees[i].length + j < 15 && PlantCodex.level[i * tempTrees[i].length + j] <= mapScreen.getHighLevelBound())) {
                     if((i == 0 && (j == 3 || j == 4)) || (i == 1 && j == 2)) {
                         sprites[(i * tempTrees[i].length) + j] = new Sprite(tempPlants[i][j]);
@@ -135,18 +144,19 @@ public class PlantScreen extends AbsoluteScreen {
                         sprites[(i * tempTrees[i].length) + j] = new Sprite(tempTrees[i][j]);
                         actorSprites[(i * tempTrees[i].length) + j] = new Sprite(tempTrees[i][j]);
                     }
-                    sprites[i * tempTrees[i].length + j].setBounds(rectangles[i][j].getX() + (sizeModifier / 2), rectangles[i][j].getY() + (sizeModifier / 2), rectangles[i][j].getWidth() - sizeModifier, rectangles[i][j].getHeight() - sizeModifier);
+                    sprites[i * tempTrees[i].length + j].setBounds(rectangles[i][j].getX(), rectangles[i][j].getY(), rectangles[i][j].getWidth(), rectangles[i][j].getHeight());
                     stage.addActor(new PlantButton(sprites[i * tempTrees[i].length + j], stage, this, i * tempTrees[i].length + j));
                 } else {
                     sprites[i * tempTrees[i].length + j] = new Sprite(new Texture(Gdx.files.internal("misc/lock.png")));
-                    sprites[i * tempTrees[i].length + j].setBounds(rectangles[i][j].getX() + (sizeModifier / 2), rectangles[i][j].getY() + (sizeModifier / 2), rectangles[i][j].getWidth() - sizeModifier, rectangles[i][j].getHeight() - sizeModifier);
+                    sprites[i * tempTrees[i].length + j].setBounds(rectangles[i][j].getX(), rectangles[i][j].getY(), rectangles[i][j].getWidth(), rectangles[i][j].getHeight());
                     actorSprites[(i * tempTrees[i].length) + j] = new Sprite(new Texture(Gdx.files.internal("misc/lock.png")));
                 }
                 actorSprites[(i * tempTrees[i].length) + j].setBounds(0, 64, 64, 64);
             }
         }
         rectangleSprite.setBounds(rectangles[0][0].getX(), rectangles[0][0].getY(), rectangles[0][0].getWidth(), rectangles[0][0].getHeight());
-
+        animalActorSprite = new Sprite();
+        animalActorSprite.setBounds(976, 32, 64, 64);
         for(int i = 0; i < renderedActorSprites.length; i++) {
             renderedActorSprites[i] = new Sprite();
             renderedActorSprites[i].setBounds(PlantCodex.plantSelectorIndex[i], 64, 64, 64);
@@ -158,7 +168,7 @@ public class PlantScreen extends AbsoluteScreen {
         Table tempTable = new Table(), infoTable = new Table(), descTable = new Table();
         tempTable.setBounds(797, 300, 111, 390);
         infoTable.setBounds(908, 300, 320, 390);
-        descTable.setBounds(793, 300, 431, 300);
+        descTable.setBounds(793, 300, 431, 250);
 
         Color border = Color.BLACK;
         Color fontColor = Color.WHITE;
@@ -227,6 +237,24 @@ public class PlantScreen extends AbsoluteScreen {
         tempTable.row();
         infoTable.row();
 
+        tempLabel = new Label("Range:", new Label.LabelStyle(font, fontColor));
+        plantRange = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
+        plantRange.setBounds(startX, startY - decrement * 4, 32, 8);
+
+        tempTable.add(tempLabel);
+        infoTable.add(spaceFiller);
+        tempTable.row();
+        infoTable.row();
+
+        tempLabel = new Label("Seed Rate:", new Label.LabelStyle(font, fontColor));
+        plantSeedRate = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
+        plantSeedRate.setBounds(startX, startY - decrement * 5, 32, 8);
+
+        tempTable.add(tempLabel);
+        infoTable.add(spaceFiller);
+        tempTable.row();
+        infoTable.row();
+
         tempLabel = new Label("Growth:", new Label.LabelStyle(font, fontColor));
         plantGrowthTime = new Label("--", new Label.LabelStyle(font, fontColor));
 
@@ -278,6 +306,8 @@ public class PlantScreen extends AbsoluteScreen {
         plantHP.draw(gameGraphics);
         plantAS.draw(gameGraphics);
         plantDmg.draw(gameGraphics);
+        plantRange.draw(gameGraphics);
+        plantSeedRate.draw(gameGraphics);
         if(!selected[index]) {
             checkButton.setCanDraw(true);
             checkButton.setCanPress(true);
@@ -292,6 +322,9 @@ public class PlantScreen extends AbsoluteScreen {
         for(int i = 0; i < currentSelectionIndex; i++) {
             renderedActorSprites[i].draw(gameGraphics);
         }
+        if(selectedAnimalIndex != -1) {
+            animalActorSprite.draw(gameGraphics);
+        }
         gameGraphics.end();
 
         gameGraphics.setProjectionMatrix(stage.getCamera().combined);
@@ -303,35 +336,43 @@ public class PlantScreen extends AbsoluteScreen {
     }
 
     public void selectPlant() {
-        if(currentSelectionIndex <= selectedIndeces.length) {
-            selected[index] = !selected[index];
-            if(selected[index]) {
-                if(currentSelectionIndex < selectedIndeces.length) {
-                    selectedIndeces[currentSelectionIndex] = index;
-                    renderedActorSprites[currentSelectionIndex].set(actorSprites[index]);
-                    renderedActorSprites[currentSelectionIndex].setBounds(PlantCodex.plantSelectorIndex[currentSelectionIndex], 64, 64, 64);
-                    currentSelectionIndex++;
-                } else {
-                    selected[index] = !selected[index];
-                }
-            } else {
-                for(int i = 0; i < selectedIndeces.length; i++) {
-                    if(selectedIndeces[i] == index) {
-                        for(int j = i; j < selectedIndeces.length; j++) {
-                            if(j + 1 == selectedIndeces.length) {
-                                selectedIndeces[j] = -1;
-                                renderedActorSprites[j] = new Sprite();
-                            } else {
-                                selectedIndeces[j] = selectedIndeces[j + 1];
-                                renderedActorSprites[j] = renderedActorSprites[j + 1];
-                                renderedActorSprites[j].setBounds(PlantCodex.plantSelectorIndex[j], 64, 64, 64);
-                            }
-                        }
-                        break;
+        if(index < 16) {
+            if(currentSelectionIndex <= selectedIndeces.length) {
+                selected[index] = !selected[index];
+                if(selected[index]) {
+                    if(currentSelectionIndex < selectedIndeces.length) {
+                        selectedIndeces[currentSelectionIndex] = index;
+                        renderedActorSprites[currentSelectionIndex].set(actorSprites[index]);
+                        renderedActorSprites[currentSelectionIndex].setBounds(PlantCodex.plantSelectorIndex[currentSelectionIndex], 64, 64, 64);
+                        currentSelectionIndex++;
+                    } else {
+                        selected[index] = !selected[index];
                     }
+                } else {
+                    for(int i = 0; i < selectedIndeces.length; i++) {
+                        if(selectedIndeces[i] == index) {
+                            for(int j = i; j < selectedIndeces.length; j++) {
+                                if(j + 1 == selectedIndeces.length) {
+                                    selectedIndeces[j] = -1;
+                                    renderedActorSprites[j] = new Sprite();
+                                } else {
+                                    selectedIndeces[j] = selectedIndeces[j + 1];
+                                    renderedActorSprites[j] = renderedActorSprites[j + 1];
+                                    renderedActorSprites[j].setBounds(PlantCodex.plantSelectorIndex[j], 64, 64, 64);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    currentSelectionIndex--;
                 }
-                currentSelectionIndex--;
             }
+        } else {
+            if(selectedAnimalIndex != -1) selected[selectedAnimalIndex] = false;
+            selected[index] = !selected[index];
+            animalActorSprite.set(actorSprites[index]);
+            animalActorSprite.setBounds(976, 64, 64, 64);
+            selectedAnimalIndex = index;
         }
     }
 
@@ -341,7 +382,12 @@ public class PlantScreen extends AbsoluteScreen {
             for(int k = 0; k < plantActor.length; k++) {
                 plantActor[k] = new PlantActor(renderedActorSprites[k], rectangleSprite, selectedIndeces[k], k, 64);
             }
-            game.setScreen(new GameScreen(game, mapScreen, this, region, plantActor));
+            if(selectedAnimalIndex != -1) {
+                AnimalActor animalActor = new AnimalActor(animalActorSprite, rectangleSprite, selectedAnimalIndex, 64);
+                game.setScreen(new GameScreen(game, mapScreen, this, region, plantActor, animalActor));
+            } else {
+                game.setScreen(new GameScreen(game, mapScreen, this, region, plantActor, null));
+            }
         } else {
             Gdx.app.log("verbose", "You cannot start the game without plants!");
         }
@@ -350,6 +396,26 @@ public class PlantScreen extends AbsoluteScreen {
     public void backToMapScreen() {
         game.setScreen(mapScreen);
         this.dispose();
+    }
+
+    public void setAnimalData(int index) {
+        int i = index / 5, j = index % 5;
+        this.index = index;
+        index -= 16;
+        float barSize = 260f;
+        plantName.setText(AnimalCodex.name[index]);
+        rectangleSprite.setBounds(rectangles[i][j].getX(), rectangles[i][j].getY(), rectangles[i][j].getWidth(), rectangles[i][j].getHeight());
+        this.plantType.setText("--");
+        plantCost.setText("" + (int)(50) + " seeds, " + (int)(100) + " water");
+        plantHP.setBounds(plantHP.getX(), plantHP.getY(), plantHP.getWidth() * 0, plantHP.getHeight());
+        plantAS.setBounds(plantAS.getX(), plantAS.getY(), plantAS.getWidth() * 0, plantAS.getHeight());
+        plantDmg.setBounds(plantDmg.getX(), plantDmg.getY(), barSize * (AnimalCodex.DMG[AnimalCodex.dmgStats[index]] / AnimalCodex.DMG[AnimalCodex.HIGHEST]), plantDmg.getHeight());
+        plantRange.setBounds(plantRange.getX(), plantRange.getY(), barSize * (AnimalCodex.RANGE[AnimalCodex.rangeStats[index]] / AnimalCodex.RANGE[AnimalCodex.HIGHEST]), plantRange.getHeight());
+        plantSeedRate.setBounds(plantSeedRate.getX(), plantSeedRate.getY(), plantSeedRate.getWidth() * 0, plantSeedRate.getHeight());
+        plantGrowthTime.setText("--");
+        for(i = 0; i < plantDescription.length; i++) {
+            plantDescription[i].setText(AnimalCodex.description[index][i]);
+        }
     }
 
     public void setData(int index) {
@@ -387,11 +453,13 @@ public class PlantScreen extends AbsoluteScreen {
             plantCost.setText("" + (int)(PlantCodex.cost[index] / 2) + " seeds, " + (int)(PlantCodex.cost[index]) + " water");
             plantHP.setBounds(plantHP.getX(), plantHP.getY(), barSize * (PlantCodex.hpStats[PlantCodex.maxHP[index]] / PlantCodex.baseHP), plantHP.getHeight());
             if(index != 13) {
-                plantAS.setBounds(plantAS.getX(), plantAS.getY(), barSize * ((float)PlantCodex.baseAS / (float)(PlantCodex.asStats[PlantCodex.AS[index]] * 3f)), plantAS.getHeight());
+                plantAS.setBounds(plantAS.getX(), plantAS.getY(), barSize * ((float)PlantCodex.baseAS / (float)(PlantCodex.asStats[PlantCodex.AS[index]] * 4f)), plantAS.getHeight());
             } else {
                 plantAS.setBounds(plantAS.getX(), plantAS.getY(), 0, plantAS.getHeight());
             }
             plantDmg.setBounds(plantDmg.getX(), plantDmg.getY(), barSize * ((((PlantCodex.dmgStats[PlantCodex.DMG[index]].x + PlantCodex.dmgStats[PlantCodex.DMG[index]].y)) / (((PlantCodex.baseDmg.x + PlantCodex.baseDmg.y))))), plantDmg.getHeight());
+            plantRange.setBounds(plantRange.getX(), plantRange.getY(), barSize * (PlantCodex.rangeStats[PlantCodex.range[index]] / PlantCodex.rangeStats[PlantCodex.ABS_HIGHEST]), plantRange.getHeight());
+            plantSeedRate.setBounds(plantSeedRate.getX(), plantSeedRate.getY(), barSize * (PlantCodex.seedRateStats[PlantCodex.seedProduction[index]] / PlantCodex.seedRateStats[PlantCodex.ABS_HIGHEST]), plantSeedRate.getHeight());
             plantGrowthTime.setText("" + (int)(PlantCodex.growthTime[index]) + " seconds");
             for(i = 0; i < plantDescription.length; i++) {
                 plantDescription[i].setText(PlantCodex.description[index][i]);
@@ -415,6 +483,8 @@ public class PlantScreen extends AbsoluteScreen {
         plantHP.getTexture().dispose();
         plantAS.getTexture().dispose();
         plantDmg.getTexture().dispose();
+        plantRange.getTexture().dispose();
+        plantSeedRate.getTexture().dispose();
         for(int i = 0; i < sprites.length; i++) {
             if(sprites[i] != null) {
                 sprites[i].getTexture().dispose();
@@ -427,9 +497,14 @@ public class PlantScreen extends AbsoluteScreen {
                 renderedActorSprites[i].getTexture().dispose();
             }
         }
+
+        if(selectedAnimalIndex != -1) {
+            if(animalActorSprite != null) animalActorSprite.getTexture().dispose();
+        }
         rectangleSprite.getTexture().dispose();
         trees.dispose();
         plants.dispose();
+        animals.dispose();
         playButton.dispose();
         homeButton.dispose();
         crossButton.dispose();

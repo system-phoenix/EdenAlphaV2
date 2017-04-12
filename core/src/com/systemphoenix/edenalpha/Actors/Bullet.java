@@ -21,7 +21,7 @@ public class Bullet implements Disposable{
 
     private Array<Enemy> targets = null;
 
-    private float angle, projectileSize;
+    private float projectileSize;
     private boolean canDispose = false, drawBlank;
     private int damage;
 
@@ -68,7 +68,7 @@ public class Bullet implements Disposable{
     public void update(float delta) {
         if(!drawBlank) {
             float speed = 512f;
-            angle = (float)Math.atan2(((hitBox.getY() + projectileSize / 2) - target.getBody().getPosition().y), ((hitBox.getX() + projectileSize / 2) - target.getBody().getPosition().x));
+            float angle = (float)Math.atan2(((hitBox.getY() + projectileSize / 2) - target.getBody().getPosition().y), ((hitBox.getX() + projectileSize / 2) - target.getBody().getPosition().x));
 
             hitBox.x += speed * delta * (-Math.cos(angle));
             hitBox.y += speed * delta * (-Math.sin(angle));
@@ -88,14 +88,14 @@ public class Bullet implements Disposable{
                     }
                 }
                 if(overlap) {
-                    Array<Enemy> subTargets = new Array<Enemy>();
-                    hitBox.set(hitBox.getX() - hitBox.getWidth() / 2, hitBox.getY() - hitBox.getHeight() / 2, hitBox.getWidth() * 2, hitBox.getHeight() * 2);
-                    for(int i = 0; i < targets.size; i++) {
-                        if(targets.get(i).getHitBox().overlaps(hitBox)) {
-                            subTargets.add(targets.get(i));
-                        }
-                    }
-                    plant.addPulse(new Pulse(gameScreen, hitBox, damage, subTargets));
+//                    Array<Enemy> subTargets = new Array<Enemy>();
+//                    hitBox.set(hitBox.getX() - hitBox.getWidth() / 2, hitBox.getY() - hitBox.getHeight() / 2, hitBox.getWidth() * 2, hitBox.getHeight() * 2);
+//                    for(int i = 0; i < targets.size; i++) {
+//                        if(targets.get(i).getHitBox().overlaps(hitBox)) {
+//                            subTargets.add(targets.get(i));
+//                        }
+//                    }
+                    plant.addPulse(new Pulse(gameScreen, hitBox, damage, gameScreen.getPulseAnimation()));
                     drawBlank = true;
                 }
 //                canDispose = true;

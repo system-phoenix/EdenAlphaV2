@@ -49,7 +49,7 @@ public class PlantCodex {
     };
 
     public static final int AS[] = {
-            MOD,       LOW,       LOWER,       HIGHER,           MOD,           MOD,            HIGH,         HIGH,       MOD,       LOWEST,        HIGHEST,        ABS_LOWEST,       HIGHER,        VOID,          HIGHER,
+            MOD,       LOW,       LOWER,       HIGHER,           MOD,           MOD,            HIGH,         HIGH,       MOD,       HIGHEST,        ABS_HIGHEST,        ABS_LOWEST,       HIGHER,        VOID,          HIGHER,
     };
 
     public static final long[] asStats = {
@@ -161,7 +161,7 @@ public class PlantCodex {
     };
 
     public static final float[] plantSelectorIndex = {
-            368f, 464f, 560f, 656f, 752f, 848f
+            368f, 464f, 560f, 656f, 752f, 848f, 976f
     };
 
     public static final String[][] description = {

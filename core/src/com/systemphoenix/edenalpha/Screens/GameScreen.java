@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.input.GestureDetector;
@@ -35,6 +36,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.systemphoenix.edenalpha.Actors.Plant;
+import com.systemphoenix.edenalpha.Codex.AnimalCodex;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.Codex.RegionCodex;
@@ -44,6 +46,7 @@ import com.systemphoenix.edenalpha.EnemyUtils.Wave;
 import com.systemphoenix.edenalpha.PlantSquares.PlantSquare;
 import com.systemphoenix.edenalpha.PlantSquares.SquareType;
 import com.systemphoenix.edenalpha.Region;
+import com.systemphoenix.edenalpha.Scenes.AnimalActor;
 import com.systemphoenix.edenalpha.Scenes.ButtonActor;
 import com.systemphoenix.edenalpha.Scenes.GameHud;
 import com.systemphoenix.edenalpha.Scenes.PlantActor;
@@ -81,22 +84,24 @@ public class GameScreen extends AbsoluteScreen {
     private Array<Plant> plants;
     private Array<InputProcessor> inputProcessors, mainProcessors, pauseProcessors;
 
+    private TextureRegion blank;
+    private Animation<TextureRegion> pulseAnimation, slashAnimation;
+
+    private Rectangle hitRectangle;
+
     private PlantSquare[][] plantSquares, subSquares;
     private float pastZoomDistance, plantSquareSize, accumulator, seeds = 75, waterRate = 0.5f, sunlight, water = 150, waterUpgradeSeedCost = 50, forestLife;
-    private int waveIndex = -1, waveLimit = 0, selectedX = -1, selectedY = -1, displaySquare = -3, pseudoPlantIndex = -1;
+    private int waveIndex = -1, waveLimit = 10, selectedX = -1, selectedY = -1, displaySquare = -3, pseudoPlantIndex = -1, pseudoAnimalIndex = -1;
     private long timer = 0, newWaveCountdown, timeGap, displaySquareTimer, seedTimer, waveDisplayTimer;
     private boolean preSixty = true, directionSquares[][], newWave = false, ready = false, paused = false, willPause = false, win = false, lose = false, running = false, canDisplaySquare, canPlant = false, firstCall = true;
     private boolean willRestart = false, waveDisplay = true;
 
-    public GameScreen(EdenAlpha game, MapScreen mapScreen, PlantScreen plantScreen, Region region, PlantActor[] plantActors) {
+    public GameScreen(EdenAlpha game, MapScreen mapScreen, PlantScreen plantScreen, Region region, PlantActor[] plantActors, AnimalActor animalActor) {
         super(game);
         this.region = region;
         this.mapScreen = mapScreen;
         this.plantScreen = plantScreen;
         this.forestLife = region.getLifePercentage();
-
-//        this.seeds = game.getSeedCount() > 75 ? game.getSeedCount() : 75;
-//        this.water = game.getWaterCount() > 150 ? game.getWaterCount() : 150;
         this.seeds = RegionCodex.startingResource[region.getMapIndex()] / 2;
         this.water = RegionCodex.startingResource[region.getMapIndex()];
         this.sunlight = region.getSunlight();
@@ -108,6 +113,32 @@ public class GameScreen extends AbsoluteScreen {
         this.gameStage = new Stage(viewport, game.getGameGraphics());
         this.pauseStage = new Stage(viewport, game.getGameGraphics());
 
+        this.gameHud = new GameHud(game, this, plantActors, animalActor);
+        this.topHud = new TopHud(game, this);
+
+        initializeStageActors();
+        initializeSprites();
+
+        for(int i = 0; i < plantActors.length; i++) {
+            plantActors[i].setGameScreen(this);
+        }
+        if(animalActor != null) {
+            animalActor.setGameScreen(this);
+        }
+
+
+        bulletSound = Gdx.audio.newSound(Gdx.files.internal("sfx/fx/Bullet.mp3"));
+        slashSound = Gdx.audio.newSound(Gdx.files.internal("sfx/fx/Slash.mp3"));
+        pulseSound = Gdx.audio.newSound(Gdx.files.internal("sfx/fx/Pulse.mp3"));
+
+        Gdx.input.setCatchBackKey(true);
+        plants = new Array<Plant>();
+        inputProcessors = null;
+        timer = System.currentTimeMillis();
+        ready = true;
+    }
+
+    private void initializeStageActors() {
         playButton = new ButtonActor(ButtonCodex.PLAY, this, 576, screenHeight / 2 - 64, 128, true, false);
         homeButton = new ButtonActor(ButtonCodex.HOME, this, 432, screenHeight / 2 - 64, 128, true, false);
         restartButton = new ButtonActor(ButtonCodex.RESTART, this, 720, screenHeight / 2 - 64, 128, true, false);
@@ -128,30 +159,32 @@ public class GameScreen extends AbsoluteScreen {
         temp.add(pauseStageLabel).expandX();
 
         pauseStage.addActor(temp);
+    }
 
-        this.gameHud = new GameHud(game, this, plantActors);
-        this.topHud = new TopHud(game, this);
-
-        for(int i = 0; i < plantActors.length; i++) {
-            plantActors[i].setGameScreen(this);
-        }
-
+    private void initializeSprites() {
         this.winEndGame = new Sprite(new Texture(Gdx.files.internal("bgScreen/winEndGame.png")));
         this.winEndGame.setBounds(0f, 0f, worldWidth, worldHeight);
         this.loseEndGame = new Sprite(new Texture(Gdx.files.internal("bgScreen/loseEndGame.png")));
         this.loseEndGame.setBounds(0f, 0f, worldWidth, worldHeight);
         this.pausedSprite = new Sprite(new Texture(Gdx.files.internal("bgScreen/paused.png")));
         this.pausedSprite.setBounds(0f, 0f, worldWidth, worldHeight);
+        blank = new TextureRegion(new Texture(Gdx.files.internal("bullets/blank.png")));
+        pulseAnimation = initializeAnimation("bullets/pulseAnimation.png");
+        slashAnimation = initializeAnimation("bullets/slashAnimation.png");
+    }
 
-        bulletSound = Gdx.audio.newSound(Gdx.files.internal("sfx/fx/Bullet.mp3"));
-        slashSound = Gdx.audio.newSound(Gdx.files.internal("sfx/fx/Slash.mp3"));
-        pulseSound = Gdx.audio.newSound(Gdx.files.internal("sfx/fx/Pulse.mp3"));
+    private Animation<TextureRegion> initializeAnimation(String fileName) {
+        Texture texture = new Texture(Gdx.files.internal(fileName));
+        TextureRegion[][] temp = TextureRegion.split(texture, 256, 256);
+        Array<TextureRegion> anim = new Array<TextureRegion>();
+        for(int i = 0; i < temp.length; i++) {
+            for (int j = 0; j < temp[i].length; j++) {
+                anim.add(temp[i][j]);
+            }
+        }
+        anim.add(blank);
 
-        Gdx.input.setCatchBackKey(true);
-        plants = new Array<Plant>();
-        inputProcessors = null;
-        timer = System.currentTimeMillis();
-        ready = true;
+        return new Animation<TextureRegion>(0.05f, anim);
     }
 
     private void initialize() {
@@ -326,19 +359,20 @@ public class GameScreen extends AbsoluteScreen {
             if(System.currentTimeMillis() - seedTimer >= 1000) {
                 seedTimer = System.currentTimeMillis();
                 seeds += 0.25f;
-                if(seeds > 999) {
-                    seeds = 999;
+                if(seeds > 5000) {
+                    seeds = 5000;
                 }
                 topHud.setSeedStatMessage("" + (int)seeds);
 
                 water += waterRate;
-                if(water > 999) {
-                    water = 999;
+                if(water > 5000) {
+                    water = 5000;
                 }
                 topHud.setWaterStatMessage("" + (int)water);
             }
             if(newWave) {
-                if(System.currentTimeMillis() - newWaveCountdown >= 15000) {
+                if(waveIndex + 1 > waveLimit) waveIndex++;
+                else if(System.currentTimeMillis() - newWaveCountdown >= 15000) {
                     newWave = false;
                     waveIndex++;
                     if(waveIndex >= waveLimit) {
@@ -473,17 +507,20 @@ public class GameScreen extends AbsoluteScreen {
             }
             gameGraphics.end();
 
-            try {
-                for(int i = 0; i < plants.size; i++) {
-                    if(plants.get(i).canDispose()) {
-                        unroot(plants.get(i));
-                    }
+//            try {
+            for(int i = 0; i < plants.size; i++) {
+                if(plants.get(i).canDispose()) {
+                    unroot(plants.get(i));
                 }
-                gameGraphics.setProjectionMatrix(gameStage.getCamera().combined);
-                gameStage.draw();
-            } catch(Exception e) {
-                Gdx.app.log("Verbose", "Error rendering gameStage: " + e.getMessage());
             }
+            gameGraphics.setProjectionMatrix(gameStage.getCamera().combined);
+            gameStage.draw();
+//            } catch(Exception e) {
+//                StringWriter sw = new StringWriter();
+//                PrintWriter pw = new PrintWriter(sw);
+//                e.printStackTrace(pw);
+//                Gdx.app.log("Verbose", "Error rendering gameStage: " + sw.toString());
+//            }
             try {
                 gameGraphics.setProjectionMatrix(topHud.getStage().getCamera().combined);
                 topHud.update();
@@ -671,20 +708,24 @@ public class GameScreen extends AbsoluteScreen {
             cam.unproject(touchPos);
             touchPos.x = touchPos.x - (int)touchPos.x  > 0.5 ? (int) touchPos.x + 1 : (int) touchPos.x;
             touchPos.y = touchPos.y - (int)touchPos.y  > 0.5 ? (int) touchPos.y + 1 : (int) touchPos.y;
-            if(canPlant) {
-                if(plantSquares[(int)touchPos.y / (int)plantSquareSize][(int)touchPos.x / (int)plantSquareSize] != null) {
-                    selectedX = (int) touchPos.x / (int)plantSquareSize;
-                    selectedY = (int) touchPos.y / (int)plantSquareSize;
+            if((int)touchPos.x / (int)plantSquareSize < 40) {
+                if(canPlant) {
+                    if(plantSquares[(int)touchPos.y / (int)plantSquareSize][(int)touchPos.x / (int)plantSquareSize] != null) {
+                        selectedX = (int) touchPos.x / (int)plantSquareSize;
+                        selectedY = (int) touchPos.y / (int)plantSquareSize;
 
-                    gameHud.setCanDraw(true);
-                    if(PlantActor.getRecentlySelectedActor() != null) {
-                        setPseudoPlant(pseudoPlantIndex);
+                        gameHud.setCanDraw(true);
+                        if(PlantActor.getRecentlySelectedActor() != null) {
+                            if(!PlantActor.getRecentlySelectedActor().isAnimal()) {
+                                setPseudoPlant(pseudoPlantIndex);
+                            } else {
+                                setPseudoAnimal(pseudoAnimalIndex);
+                            }
+                        }
+                    } else {
+                        resetHud();
                     }
-                } else {
-                    resetHud();
                 }
-//                    gameHud.setDrawable(-1);
-//                    Plant.nullSelectedPlant();
             }
         } else {
             selectedX = selectedY = -1;
@@ -702,15 +743,12 @@ public class GameScreen extends AbsoluteScreen {
 
 //  Touch methods
     @Override
-    public boolean touchDown(float x, float y, int pointer, int button) {
-        return false;
-    }
-
-    @Override
     public boolean tap(float x, float y, int count, int button) {
-        Plant.nullSelectedPlant();
-        gameHud.setCanDraw(true);
-        gameHud.setDrawable(-1);
+        if(canPlant) {
+            Plant.nullSelectedPlant();
+            gameHud.setCanDraw(true);
+            gameHud.setDrawable(-1);
+        }
         return true;
     }
 
@@ -951,6 +989,18 @@ public class GameScreen extends AbsoluteScreen {
         return cam;
     }
 
+    public Animation<TextureRegion> getPulseAnimation() {
+        return pulseAnimation;
+    }
+
+    public Animation<TextureRegion> getSlashAnimation() {
+        return slashAnimation;
+    }
+
+    public Rectangle getHitRectangle() {
+        return hitRectangle;
+    }
+
     public void upgradeWaterRate() {
         if(waterRate < 16) {
             seeds -= waterUpgradeSeedCost;
@@ -975,6 +1025,16 @@ public class GameScreen extends AbsoluteScreen {
             float effectiveRange = PlantCodex.effectiveRange[plantIndex];
             redRangeSprite.setBounds(this.getSelectedXY().x - (32f * actualRange), this.getSelectedXY().y - (32f * actualRange), (32f * actualRange * 2) + 64, (32f * actualRange * 2) + 64);
             greenRangeSprite.setBounds(this.getSelectedXY().x - (32f * effectiveRange), this.getSelectedXY().y - (32f * effectiveRange), (32f * effectiveRange * 2) + 64, (32f * effectiveRange * 2) + 64);
+        }
+    }
+
+    public void setPseudoAnimal(int animalIndex) {
+        this.pseudoAnimalIndex = animalIndex;
+        if(animalIndex >= 0 && animalIndex <= 2) {
+            float actualRange = AnimalCodex.RANGE[AnimalCodex.rangeStats[animalIndex]];
+            redRangeSprite.setBounds(this.getSelectedXY().x - (32f * actualRange), this.getSelectedXY().y - (32f * actualRange), (32f * actualRange * 2) + 64, (32f * actualRange * 2) + 64);
+            greenRangeSprite.setBounds(this.getSelectedXY().x, this.getSelectedXY().y, 0, 0);
+            hitRectangle = new Rectangle(this.getSelectedXY().x - (32f * actualRange), this.getSelectedXY().y - (32f * actualRange), (32f * actualRange * 2) + 64, (32f * actualRange * 2) + 64);
         }
     }
 

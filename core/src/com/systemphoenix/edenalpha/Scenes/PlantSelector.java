@@ -13,11 +13,13 @@ public class PlantSelector extends Actor implements Disposable {
     private boolean canDraw = false;
 
     private PlantActor[] plantActors;
+    private AnimalActor animalActor;
 
-    public PlantSelector(PlantActor[] plantActors) {
+    public PlantSelector(PlantActor[] plantActors, AnimalActor animalActor) {
         exSprite = new Sprite(new Texture(Gdx.files.internal("misc/lowerHudData.png")));
         sprite = new Sprite(new Texture(Gdx.files.internal("misc/lowerHud.png")));
         this.plantActors = plantActors;
+        this.animalActor = animalActor;
     }
 
     @Override
@@ -38,6 +40,9 @@ public class PlantSelector extends Actor implements Disposable {
         this.canDraw = canDraw;
         for(int i = 0; i < plantActors.length; i++) {
             plantActors[i].setCanDraw(canDraw);
+        }
+        if(animalActor != null) {
+            animalActor.setCanDraw(canDraw);
         }
     }
 

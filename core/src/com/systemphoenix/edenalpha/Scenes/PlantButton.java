@@ -13,7 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Screens.PlantScreen;
 
-public class PlantButton extends Actor implements Disposable {
+public class PlantButton extends Actor {
 
     public PlantButton(Sprite sprite, Stage stage, final PlantScreen plantScreen, final int plantIndex) {
         this.setBounds(sprite.getX(), sprite.getY(), sprite.getWidth(), sprite.getHeight());
@@ -30,10 +30,5 @@ public class PlantButton extends Actor implements Disposable {
         });
 
         stage.addActor(this);
-    }
-
-    @Override
-    public void dispose() {
-
     }
 }

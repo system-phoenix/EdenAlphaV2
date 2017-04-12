@@ -14,17 +14,15 @@ import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class PlantActor extends Actor {
 
-    private static PlantActor recentlySelectedActor = null;
-
-    private GameScreen gameScreen;
+    protected static PlantActor recentlySelectedActor = null;
+    protected long clickTimer;
+    protected GameScreen gameScreen;
+    protected boolean canDraw, drawRectangle = false, draggable, animal;
+    protected static boolean dragging;
+    protected Sprite sprite, rectangleSprite, maskSprite, dragSprite;
 
     private int plantIndex;
-    private long clickTimer;
     private float size, plantCost;
-    private boolean canDraw, drawRectangle = false, draggable;
-    private static boolean dragging;
-
-    private Sprite sprite, rectangleSprite, maskSprite, dragSprite;
 
     public PlantActor(Sprite textureRegion, Sprite rectangleSprite, int plantIndex, int index, float size) {
         this.gameScreen = null;
@@ -33,8 +31,9 @@ public class PlantActor extends Actor {
         this.plantIndex = plantIndex;
         this.rectangleSprite = rectangleSprite;
         this.plantCost = PlantCodex.cost[plantIndex];
+        this.animal = false;
 
-        this.maskSprite = new Sprite(new Texture(Gdx.files.internal("utilities/mask.png")));
+        this.maskSprite = new Sprite(new Texture(Gdx.files.internal("misc/lock.png")));
         this.maskSprite.setBounds(PlantCodex.plantSelectorIndex[index], 32f, size, size);
         this.setBounds(PlantCodex.plantSelectorIndex[index], 32f, size, size);
 
@@ -53,6 +52,22 @@ public class PlantActor extends Actor {
                 action();
             }
         });
+    }
+
+    public PlantActor(Sprite textureRegion, Sprite rectangleSprite, int plantIndex, float size) {
+        this.gameScreen = null;
+        this.sprite = new Sprite(textureRegion);
+        this.dragSprite = new Sprite(textureRegion);
+        this.plantIndex = plantIndex;
+        this.rectangleSprite = rectangleSprite;
+        this.animal = true;
+
+        this.maskSprite = new Sprite(new Texture(Gdx.files.internal("misc/lock.png")));
+        this.maskSprite.setBounds(PlantCodex.plantSelectorIndex[6], 32f, size, size);
+        this.setBounds(PlantCodex.plantSelectorIndex[6], 32f, size, size);
+
+        this.size = size;
+        this.canDraw = false;
     }
 
     public void setGameScreen(GameScreen gameScreen) {
@@ -76,8 +91,9 @@ public class PlantActor extends Actor {
     public void dragPlant() {
         if(draggable && System.currentTimeMillis() - clickTimer >= 200) {
             dragging = true;
-            dragSprite.setBounds(Gdx.input.getX() + size/2, gameScreen.getWorldHeight() - Gdx.input.getY() + size, size / gameScreen.getCamera().zoom, size / gameScreen.getCamera().zoom);
-            gameScreen.tap(Gdx.input.getX() + size, Gdx.input.getY() - size);
+            float x = 32, y = 32;
+            dragSprite.setBounds(Gdx.input.getX() - x, gameScreen.getWorldHeight() - Gdx.input.getY() + y, size / gameScreen.getCamera().zoom, size / gameScreen.getCamera().zoom);
+            gameScreen.tap(Gdx.input.getX() - x, Gdx.input.getY() - y);
             gameScreen.getGameHud().setCanDraw(false);
             Plant.setSelectAllPlants(true);
         }
@@ -112,6 +128,7 @@ public class PlantActor extends Actor {
             }
             draggable = !(plantCost / 2 > gameScreen.getSeeds() || plantCost > gameScreen.getWater());
         }
+//        if(dragging) {
         if(dragging && recentlySelectedActor.equals(this)) {
             dragSprite.draw(batch);
         }
@@ -133,16 +150,28 @@ public class PlantActor extends Actor {
         return plantCost;
     }
 
-    public Sprite getSprite() {
-        return sprite;
-    }
-
-    public static PlantActor getRecentlySelectedActor() {
-        return recentlySelectedActor;
+    public boolean isAnimal() {
+        return animal;
     }
 
     public static boolean isDragging() {
         return dragging;
+    }
+
+    public Sprite getSprite() {
+        return sprite;
+    }
+
+    public void setPlantCost(float plantCost) {
+        this.plantCost = plantCost;
+    }
+
+    public static void setDragging(boolean dragging) {
+        PlantActor.dragging = dragging;
+    }
+
+    public static PlantActor getRecentlySelectedActor() {
+        return recentlySelectedActor;
     }
 
     public static void setRecentlySelectedActor(PlantActor plantActor) {

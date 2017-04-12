@@ -315,13 +315,13 @@ public class Plant extends Actor implements Disposable {
                     } else {
                         switch (plantIndex) {
                             case 4:
-                                pulses.add(new Pulse(gameScreen, this, rand.nextInt(dmgRange) + (int) damage.x, targets));
+                                pulses.add(new Pulse(gameScreen, this, rand.nextInt(dmgRange) + (int) damage.x, gameScreen.getPulseAnimation()));
                                 break;
                             case 5:
                                 roots.add(new Root(gameScreen, this, rand.nextInt(dmgRange) + (int) damage.x, targets, false));
                                 break;
                             case 11:
-                                slashes.add(new Slash(gameScreen, this, rand.nextInt(dmgRange) + (int) damage.x, targets));
+                                slashes.add(new Slash(gameScreen, this, rand.nextInt(dmgRange) + (int) damage.x, targets, gameScreen.getSlashAnimation()));
                                 break;
                             case 13:
                                 if(!hasTarget) {
@@ -420,7 +420,6 @@ public class Plant extends Actor implements Disposable {
                 for(int i = 0; i < pulses.size; i++) {
                     pulses.get(i).render(batch, Gdx.graphics.getDeltaTime());
                     if(pulses.get(i).canDispose()) {
-                        pulses.get(i).dispose();
                         pulses.removeIndex(i);
                     }
                 }
@@ -428,7 +427,6 @@ public class Plant extends Actor implements Disposable {
                 for(int i = 0; i < slashes.size; i++) {
                     slashes.get(i).render(batch, Gdx.graphics.getDeltaTime());
                     if(slashes.get(i).canDispose()) {
-                        slashes.get(i).dispose();
                         slashes.removeIndex(i);
                     }
                 }
@@ -473,12 +471,10 @@ public class Plant extends Actor implements Disposable {
         }
 
         for(int i = 0; i < pulses.size; i++) {
-            pulses.get(i).dispose();
             pulses.removeIndex(i);
         }
 
         for(int i = 0; i < slashes.size; i++) {
-            slashes.get(i).dispose();
             slashes.removeIndex(i);
         }
 

@@ -35,7 +35,7 @@ public class GameHud extends AbsoluteHud implements Disposable {
     private Label plantName, plantType, plantCost, plantGrowthTime, plantStatsName, plantStatsCost, plantStatsSeedCount;
     private Sprite plantHP, plantAS, plantDmg, plantStatsSprite, plantStatsHP, plantStatsAS, plantStatsDmg, plantStatsRange, plantStatsSeedRate;
 
-    public GameHud(EdenAlpha game, GameScreen gameScreen, PlantActor[] plantActors) {
+    public GameHud(EdenAlpha game, GameScreen gameScreen, PlantActor[] plantActors, AnimalActor animalActor) {
         super(game);
 
         viewport = new FitViewport(worldWidth, worldHeight, new OrthographicCamera());
@@ -45,7 +45,7 @@ public class GameHud extends AbsoluteHud implements Disposable {
         this.gameScreen = gameScreen;
         this.plantActors = plantActors;
 
-        plantSelector = new PlantSelector(plantActors);
+        plantSelector = new PlantSelector(plantActors, animalActor);
 
         plantStatsSprite = new Sprite((new Texture(Gdx.files.internal("bgScreen/lowerPlantHud.png"))));
 
@@ -60,6 +60,9 @@ public class GameHud extends AbsoluteHud implements Disposable {
 
         for (int i = 0; i < plantActors.length; i++) {
             plantActorStage.addActor(plantActors[i]);
+        }
+        if(animalActor != null) {
+            plantActorStage.addActor(animalActor);
         }
 
         stage.addActor(temp);
@@ -81,7 +84,7 @@ public class GameHud extends AbsoluteHud implements Disposable {
 
         tempTable.add(plantStatsSeedCount);
 
-        waterUpgradeButton = new ButtonActor(ButtonCodex.WATER_UPGRADE, gameScreen, gameScreen.getWorldWidth() - 160, 32, 128, true, false);
+        waterUpgradeButton = new ButtonActor(ButtonCodex.WATER_UPGRADE, gameScreen, gameScreen.getWorldWidth() - 160, 0, 128, true, false);
         uprootButton = new ButtonActor(ButtonCodex.UPROOT, gameScreen, 32, 32, 128, true, false);
         upgradeButton = new ButtonActor(ButtonCodex.UPGRADE, gameScreen, worldWidth - 290, 32, 128, true, false);
         harvestButton = new ButtonActor(ButtonCodex.HARVEST, gameScreen, worldWidth - 160, 32, 128, true, false);
@@ -307,41 +310,43 @@ public class GameHud extends AbsoluteHud implements Disposable {
     public void setData() {
         this.index = PlantActor.getRecentlySelectedActor().getPlantIndex();
         float barSize = 200f;
-        plantName.setText(PlantCodex.plantName[index]);
-        String plantType = "";
-        switch (PlantCodex.typeBit[index]) {
-            case 1:
-                plantType = "         Land Plant        ";
-                break;
-            case 2:
-                plantType = "      Salt-water plant     ";
-                break;
-            case 4:
-                plantType = "     Fresh-water plant     ";
-                break;
-            case 1 | 2:
-                plantType = "   Land/salt-water plant   ";
-                break;
-            case 1 | 4:
-                plantType = "  Land/fresh-water plant   ";
-                break;
-            case 2 | 4:
-                plantType = "  Salt/fresh-water plant   ";
-                break;
-            case 1 | 2 | 4:
-                plantType = "Land/salt/fresh-water plant";
-                break;
+        if(!PlantActor.getRecentlySelectedActor().isAnimal()) {
+            plantName.setText(PlantCodex.plantName[index]);
+            String plantType = "";
+            switch (PlantCodex.typeBit[index]) {
+                case 1:
+                    plantType = "         Land Plant        ";
+                    break;
+                case 2:
+                    plantType = "      Salt-water plant     ";
+                    break;
+                case 4:
+                    plantType = "     Fresh-water plant     ";
+                    break;
+                case 1 | 2:
+                    plantType = "   Land/salt-water plant   ";
+                    break;
+                case 1 | 4:
+                    plantType = "  Land/fresh-water plant   ";
+                    break;
+                case 2 | 4:
+                    plantType = "  Salt/fresh-water plant   ";
+                    break;
+                case 1 | 2 | 4:
+                    plantType = "Land/salt/fresh-water plant";
+                    break;
+            }
+            this.plantType.setText(plantType);
+            plantCost.setText("" + (int) (PlantCodex.cost[index] / 2) + " seeds, " + (int) (PlantCodex.cost[index]) + " water");
+            plantHP.setBounds(plantHP.getX(), plantHP.getY(), barSize * (PlantCodex.hpStats[PlantCodex.maxHP[index]] / PlantCodex.baseHP), plantHP.getHeight());
+            if (index != 13) {
+                plantAS.setBounds(plantAS.getX(), plantAS.getY(), barSize * ((float) PlantCodex.baseAS / (float) (PlantCodex.asStats[PlantCodex.AS[index]] * 3f)), plantAS.getHeight());
+            } else {
+                plantAS.setBounds(plantAS.getX(), plantAS.getY(), 0, plantAS.getHeight());
+            }
+            plantDmg.setBounds(plantDmg.getX(), plantDmg.getY(), barSize * ((((PlantCodex.dmgStats[PlantCodex.DMG[index]].x + PlantCodex.dmgStats[PlantCodex.DMG[index]].y)) / (((PlantCodex.baseDmg.x + PlantCodex.baseDmg.y))))), plantDmg.getHeight());
+            plantGrowthTime.setText("" + (int) (PlantCodex.growthTime[index]) + " seconds");
         }
-        this.plantType.setText(plantType);
-        plantCost.setText("" + (int) (PlantCodex.cost[index] / 2) + " seeds, " + (int) (PlantCodex.cost[index]) + " water");
-        plantHP.setBounds(plantHP.getX(), plantHP.getY(), barSize * (PlantCodex.hpStats[PlantCodex.maxHP[index]] / PlantCodex.baseHP), plantHP.getHeight());
-        if (index != 13) {
-            plantAS.setBounds(plantAS.getX(), plantAS.getY(), barSize * ((float) PlantCodex.baseAS / (float) (PlantCodex.asStats[PlantCodex.AS[index]] * 3f)), plantAS.getHeight());
-        } else {
-            plantAS.setBounds(plantAS.getX(), plantAS.getY(), 0, plantAS.getHeight());
-        }
-        plantDmg.setBounds(plantDmg.getX(), plantDmg.getY(), barSize * ((((PlantCodex.dmgStats[PlantCodex.DMG[index]].x + PlantCodex.dmgStats[PlantCodex.DMG[index]].y)) / (((PlantCodex.baseDmg.x + PlantCodex.baseDmg.y))))), plantDmg.getHeight());
-        plantGrowthTime.setText("" + (int) (PlantCodex.growthTime[index]) + " seconds");
     }
 
     public void setPlantStatsData() {
