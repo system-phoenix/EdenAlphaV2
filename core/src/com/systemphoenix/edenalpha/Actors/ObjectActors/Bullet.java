@@ -5,11 +5,10 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
-public class Bullet implements Disposable{
+public class Bullet {
 
     private GameScreen gameScreen;
 
@@ -121,12 +120,6 @@ public class Bullet implements Disposable{
     public void hitTarget(Enemy enemy) {
         enemy.receiveDamage(damage);
         drawBlank = true;
-    }
-
-    @Override
-    public void dispose() {
-        sprite.getTexture().dispose();
-        blank.getTexture().dispose();
     }
 
     public boolean isDisposable() {

@@ -354,6 +354,10 @@ public class Enemy extends Sprite implements Disposable {
         return life;
     }
 
+    public int getLevel() {
+        return level;
+    }
+
     public Body getBody() {
         return body;
     }

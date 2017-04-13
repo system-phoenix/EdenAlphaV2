@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.systemphoenix.edenalpha.Codex.EnemyCodex;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.WindowUtils.CollisionBit;
 import com.systemphoenix.edenalpha.PlantSquares.PlantSquare;
@@ -51,7 +52,7 @@ public class Plant extends Actor implements Disposable {
     private Vector2 damage;
     private long attackSpeed, lastAttackTime, growthTimer, lastHitTime, lastAcquisition, refundTimer;
     private int plantIndex, upgradeIndex = 0, downGradeIndex = 0;
-    private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1, seedRate, effectiveRange, upgradeCostSunlight, upgradeCostWater, actualRange, sunlightAccumulation, sunlight, seeds = 0;
+    private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1, seedRate, effectiveRange, upgradeCostSunlight, upgradeCostWater, actualRange, sunlightAccumulation, sunlight, seeds = 0, fastestSpeed = 0;
     private boolean hasTarget = false, upgradable = false;
 
     private Random rand = new Random();
@@ -181,7 +182,14 @@ public class Plant extends Actor implements Disposable {
     }
 
     public void acquireTarget(Enemy enemy) {
-        targets.add(enemy);
+        if(EnemyCodex.speed[enemy.getLevel()] > fastestSpeed) {
+            fastestSpeed = EnemyCodex.speed[enemy.getLevel()];
+            targets.set(0, enemy);
+        } else if(EnemyCodex.speed[enemy.getLevel()] == fastestSpeed) {
+            targets.set(1, enemy);
+        } else {
+            targets.add(enemy);
+        }
     }
 
     public void acquireAttacker(Enemy enemy) {
@@ -419,7 +427,6 @@ public class Plant extends Actor implements Disposable {
                 for(int i = 0; i < bullets.size; i++) {
                     bullets.get(i).render(batch);
                     if(bullets.get(i).isDisposable()) {
-                        bullets.get(i).dispose();
                         bullets.removeIndex(i);
                     }
                 }
@@ -478,7 +485,6 @@ public class Plant extends Actor implements Disposable {
         }
 
         for(int i = 0; i < bullets.size; i++) {
-            bullets.get(i).dispose();
             bullets.removeIndex(i);
         }
 

@@ -62,7 +62,7 @@ public class AnimalActor extends PlantActor {
             if(recentlySelectedActor != null) recentlySelectedActor.setDrawRectangle(false);
             drawRectangle = true;
             recentlySelectedActor = this;
-            gameScreen.getGameHud().setData();
+            gameScreen.getGameHud().setAnimalData();
             gameScreen.setPseudoAnimal(animalIndex);
             clickTimer = gameScreen.getCentralTimer();
             return true;
@@ -144,5 +144,9 @@ public class AnimalActor extends PlantActor {
 
     public float getRange() {
         return range;
+    }
+
+    public int getAnimalIndex() {
+        return animalIndex;
     }
 }

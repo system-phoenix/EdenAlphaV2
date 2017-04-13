@@ -377,11 +377,11 @@ public class GameHud extends AbsoluteHud implements Disposable {
     }
 
     public void setAnimalData() {
-        this.index = animalActor.getPlantIndex();
+        this.index = animalActor.getAnimalIndex();
         float barSize = 200;
         plantName.setText(AnimalCodex.name[index]);
-        plantHP.setBounds(plantStatsHP.getX(), plantStatsHP.getY(), 0, plantStatsHP.getHeight());
-        plantAS.setBounds(plantStatsAS.getX(), plantStatsAS.getY(), 0, plantStatsAS.getHeight());
+        plantHP.setBounds(plantHP.getX(), plantHP.getY(), 0, plantHP.getHeight());
+        plantAS.setBounds(plantAS.getX(), plantAS.getY(), 0, plantAS.getHeight());
         plantDmg.setBounds(plantDmg.getX(), plantDmg.getY(), barSize * (AnimalCodex.DMG[AnimalCodex.dmgStats[index]] / AnimalCodex.DMG[AnimalCodex.HIGHEST]), plantDmg.getHeight());
         plantGrowthTime.setText("--");
     }
