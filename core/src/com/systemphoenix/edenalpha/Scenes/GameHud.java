@@ -13,10 +13,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.systemphoenix.edenalpha.Actors.Plant;
+import com.systemphoenix.edenalpha.Actors.ObjectActors.Plant;
+import com.systemphoenix.edenalpha.Actors.StageActors.AnimalActor;
+import com.systemphoenix.edenalpha.Actors.StageActors.ButtonActor;
+import com.systemphoenix.edenalpha.Actors.StageActors.PlantActor;
+import com.systemphoenix.edenalpha.Codex.AnimalCodex;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
-import com.systemphoenix.edenalpha.EdenAlpha;
+import com.systemphoenix.edenalpha.Eden;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class GameHud extends AbsoluteHud implements Disposable {
@@ -28,14 +32,15 @@ public class GameHud extends AbsoluteHud implements Disposable {
     private PlantActor[] plantActors;
 
     private ButtonActor uprootButton, upgradeButton, harvestButton, waterUpgradeButton;
+    private AnimalActor animalActor;
 
-    private boolean canDraw;
-    private int index = -1, drawable = 1;
+    private boolean drawable;
+    private int index = -1, drawIndex = 1;
 
     private Label plantName, plantType, plantCost, plantGrowthTime, plantStatsName, plantStatsCost, plantStatsSeedCount;
     private Sprite plantHP, plantAS, plantDmg, plantStatsSprite, plantStatsHP, plantStatsAS, plantStatsDmg, plantStatsRange, plantStatsSeedRate;
 
-    public GameHud(EdenAlpha game, GameScreen gameScreen, PlantActor[] plantActors, AnimalActor animalActor) {
+    public GameHud(Eden game, GameScreen gameScreen, com.systemphoenix.edenalpha.Actors.StageActors.PlantActor[] plantActors, AnimalActor animalActor) {
         super(game);
 
         viewport = new FitViewport(worldWidth, worldHeight, new OrthographicCamera());
@@ -62,7 +67,8 @@ public class GameHud extends AbsoluteHud implements Disposable {
             plantActorStage.addActor(plantActors[i]);
         }
         if(animalActor != null) {
-            plantActorStage.addActor(animalActor);
+            this.animalActor = animalActor;
+            plantActorStage.addActor(this.animalActor);
         }
 
         stage.addActor(temp);
@@ -84,17 +90,17 @@ public class GameHud extends AbsoluteHud implements Disposable {
 
         tempTable.add(plantStatsSeedCount);
 
-        waterUpgradeButton = new ButtonActor(ButtonCodex.WATER_UPGRADE, gameScreen, gameScreen.getWorldWidth() - 160, 0, 128, true, false);
-        uprootButton = new ButtonActor(ButtonCodex.UPROOT, gameScreen, 32, 32, 128, true, false);
-        upgradeButton = new ButtonActor(ButtonCodex.UPGRADE, gameScreen, worldWidth - 290, 32, 128, true, false);
-        harvestButton = new ButtonActor(ButtonCodex.HARVEST, gameScreen, worldWidth - 160, 32, 128, true, false);
+        waterUpgradeButton = new com.systemphoenix.edenalpha.Actors.StageActors.ButtonActor(ButtonCodex.WATER_UPGRADE, gameScreen, gameScreen.getWorldWidth() - 160, 0, 128, true, false);
+        uprootButton = new com.systemphoenix.edenalpha.Actors.StageActors.ButtonActor(ButtonCodex.UPROOT, gameScreen, 32, 32, 128, true, false);
+        upgradeButton = new com.systemphoenix.edenalpha.Actors.StageActors.ButtonActor(ButtonCodex.UPGRADE, gameScreen, worldWidth - 290, 32, 128, true, false);
+        harvestButton = new com.systemphoenix.edenalpha.Actors.StageActors.ButtonActor(ButtonCodex.HARVEST, gameScreen, worldWidth - 160, 32, 128, true, false);
 
         plantStage.addActor(uprootButton);
         plantStage.addActor(upgradeButton);
         plantStage.addActor(harvestButton);
         plantStage.addActor(tempTable);
 
-        uprootButton.setCanDraw(canDraw);
+        uprootButton.setDrawable(drawable);
         stage.addActor(waterUpgradeButton);
     }
 
@@ -226,8 +232,8 @@ public class GameHud extends AbsoluteHud implements Disposable {
     }
 
     public void draw(Batch batch) {
-        if (canDraw) {
-            switch (drawable) {
+        if (drawable) {
+            switch (drawIndex) {
                 case 0:
                     if (Plant.getSelectedPlant() != null) {
                         Plant plant = Plant.getSelectedPlant();
@@ -271,10 +277,10 @@ public class GameHud extends AbsoluteHud implements Disposable {
                     batch.end();
             }
         }
-        if (drawable != 0) plantActorStage.draw();
-//        else if(!gameScreen.isFirstCall() && !canDraw && gameScreen.canPlant()) {
+        if (drawIndex != 0) plantActorStage.draw();
+//        else if(!gameScreen.isFirstCall() && !drawable && gameScreen.canPlant()) {
 //            waterUpgradeButton.setCanPress(gameScreen.getSeeds() - gameScreen.getWaterUpgradeSeedCost() >= 0);
-//            waterUpgradeButton.setCanDraw(!canDraw);
+//            waterUpgradeButton.setDrawable(!drawable);
 //            waterStage.draw();
 //
 //            harvestButton.setCanPress(false);
@@ -308,9 +314,9 @@ public class GameHud extends AbsoluteHud implements Disposable {
     }
 
     public void setData() {
-        this.index = PlantActor.getRecentlySelectedActor().getPlantIndex();
+        this.index = com.systemphoenix.edenalpha.Actors.StageActors.PlantActor.getRecentlySelectedActor().getPlantIndex();
         float barSize = 200f;
-        if(!PlantActor.getRecentlySelectedActor().isAnimal()) {
+        if(!com.systemphoenix.edenalpha.Actors.StageActors.PlantActor.getRecentlySelectedActor().isAnimal()) {
             plantName.setText(PlantCodex.plantName[index]);
             String plantType = "";
             switch (PlantCodex.typeBit[index]) {
@@ -370,14 +376,24 @@ public class GameHud extends AbsoluteHud implements Disposable {
         }
     }
 
-    public void setCanDraw(boolean canDraw) {
-        this.canDraw = canDraw;
-        plantSelector.setCanDraw(canDraw);
-        waterUpgradeButton.setCanDraw(canDraw);
-        uprootButton.setCanDraw(canDraw);
-        upgradeButton.setCanDraw(canDraw);
-        harvestButton.setCanDraw(canDraw);
-        Plant.setSelectAllPlants(!canDraw);
+    public void setAnimalData() {
+        this.index = animalActor.getPlantIndex();
+        float barSize = 200;
+        plantName.setText(AnimalCodex.name[index]);
+        plantHP.setBounds(plantStatsHP.getX(), plantStatsHP.getY(), 0, plantStatsHP.getHeight());
+        plantAS.setBounds(plantStatsAS.getX(), plantStatsAS.getY(), 0, plantStatsAS.getHeight());
+        plantDmg.setBounds(plantDmg.getX(), plantDmg.getY(), barSize * (AnimalCodex.DMG[AnimalCodex.dmgStats[index]] / AnimalCodex.DMG[AnimalCodex.HIGHEST]), plantDmg.getHeight());
+        plantGrowthTime.setText("--");
+    }
+
+    public void setDrawable(boolean drawable) {
+        this.drawable = drawable;
+        plantSelector.setDrawable(drawable);
+        waterUpgradeButton.setDrawable(drawable);
+        uprootButton.setDrawable(drawable);
+        upgradeButton.setDrawable(drawable);
+        harvestButton.setDrawable(drawable);
+        Plant.setSelectAllPlants(!drawable);
     }
 
     public void setCanPress(boolean canPress) {
@@ -387,20 +403,20 @@ public class GameHud extends AbsoluteHud implements Disposable {
         harvestButton.setCanPress(canPress);
     }
 
-    public void setDrawable(int drawable) {
-        this.drawable = drawable;
+    public void setDrawIndex(int drawIndex) {
+        this.drawIndex = drawIndex;
     }
 
     public PlantActor[] getPlantActors() {
         return plantActors;
     }
 
-    public boolean canDraw() {
-        return canDraw;
+    public boolean isDrawable() {
+        return drawable;
     }
 
-    public int getDrawable() {
-        return drawable;
+    public int getDrawIndex() {
+        return drawIndex;
     }
 
     public Stage getPlantStage() {

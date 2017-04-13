@@ -2,27 +2,24 @@ package com.systemphoenix.edenalpha.Scenes;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Disposable;
-import com.systemphoenix.edenalpha.Actors.Plant;
+import com.systemphoenix.edenalpha.Actors.ObjectActors.Plant;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
-import com.systemphoenix.edenalpha.EdenAlpha;
+import com.systemphoenix.edenalpha.Eden;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class TopHud extends AbsoluteHud implements Disposable {
 
     private Label waveStats, timeStats, readyPlant, loadingMessage, seedStats, waterStats, sunlightStats;
-    private ButtonActor pauseButton = null;
+    private com.systemphoenix.edenalpha.Actors.StageActors.ButtonActor pauseButton = null;
     private HudBackground hudBg;
     private GameScreen gameScreen;
 
-    public TopHud(EdenAlpha game, GameScreen gameScreen) {
+    public TopHud(Eden game, GameScreen gameScreen) {
         super(game);
         this.gameScreen = gameScreen;
 
@@ -177,12 +174,12 @@ public class TopHud extends AbsoluteHud implements Disposable {
         font = tempFont;
     }
 
-    public void setPauseButtonCanDraw(boolean canDraw) {
+    public void setPauseButtonCanDraw(boolean drawable) {
         if(pauseButton == null) {
-            pauseButton = new ButtonActor(ButtonCodex.PAUSE, gameScreen, (gameScreen.getWorldWidth() / 2) - 32, gameScreen.getWorldHeight() - 64, 64, true, false);
+            pauseButton = new com.systemphoenix.edenalpha.Actors.StageActors.ButtonActor(ButtonCodex.PAUSE, gameScreen, (gameScreen.getWorldWidth() / 2) - 32, gameScreen.getWorldHeight() - 64, 64, true, false);
             stage.addActor(pauseButton);
         }
-        this.pauseButton.setCanDraw(canDraw);
+        this.pauseButton.setDrawable(drawable);
 
     }
 

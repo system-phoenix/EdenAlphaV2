@@ -1,4 +1,4 @@
-package com.systemphoenix.edenalpha.Scenes;
+package com.systemphoenix.edenalpha.Actors.StageActors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;

@@ -1,11 +1,10 @@
 package com.systemphoenix.edenalpha.EnemyUtils;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.systemphoenix.edenalpha.Actors.Enemy;
+import com.systemphoenix.edenalpha.Actors.ObjectActors.Enemy;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class Wave implements Disposable {
@@ -47,13 +46,13 @@ public class Wave implements Disposable {
     }
 
     public void update(float delta) {
-        if(System.currentTimeMillis() - nextSpawn >= 1500 && spawnCounter < enemyLimit) {
+        if(gameScreen.getCentralTimer() - nextSpawn >= 1500 && spawnCounter < enemyLimit) {
             for(int i = 0; i < spawnPoints.size; i++) {
 //                spawnPoints.get(i).addEnemy(new Enemy(gameScreen, levels[0], spawnPoints.get(i).getVector().x, spawnPoints.get(i).getVector().y, 32, spawnCounter));
                 spawnPoints.get(i).spawnEnemy(spawnCounter);
             }
             spawnCounter++;
-            nextSpawn = System.currentTimeMillis();
+            nextSpawn = gameScreen.getCentralTimer();
         }
 
         int enemiesSize = 0;

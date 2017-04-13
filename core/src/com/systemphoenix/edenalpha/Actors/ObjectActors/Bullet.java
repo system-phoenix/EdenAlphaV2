@@ -1,7 +1,6 @@
-package com.systemphoenix.edenalpha.Actors;
+package com.systemphoenix.edenalpha.Actors.ObjectActors;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
@@ -22,12 +21,12 @@ public class Bullet implements Disposable{
     private Array<Enemy> targets = null;
 
     private float projectileSize;
-    private boolean canDispose = false, drawBlank;
+    private boolean disposable = false, drawBlank;
     private int damage;
 
     private long timer;
 
-    public Bullet(GameScreen gameScreen, Plant plant, Enemy target, int damage) {
+    public Bullet(GameScreen gameScreen, Plant plant, Sprite bullet, Sprite blank, Enemy target, int damage) {
         this.gameScreen = gameScreen;
         this.plant = plant;
         this.target = target;
@@ -36,16 +35,14 @@ public class Bullet implements Disposable{
         projectileSize = PlantCodex.projectileSize[plant.getPlantIndex()];
 
         hitBox = new Rectangle(plant.getX() + (plant.getWidth() - projectileSize) / 2, plant.getY() + (plant.getWidth() - projectileSize) / 2, projectileSize, projectileSize);
-//        angle = (float)Math.atan2(((hitBox.getY() + projectileSize / 2) - target.getBody().getPosition().y), ((hitBox.getX() + projectileSize / 2) - target.getBody().getPosition().x));
 
-        sprite = new Sprite(new Texture(Gdx.files.internal("bullets/" + PlantCodex.bulletFile[plant.getPlantIndex()] + "Bullet.png")));
-//        sprite.setBounds(hitBox.getX(), hitBox.getY(), hitBox.getWidth(), hitBox.getHeight());
-        blank = new Sprite(new Texture(Gdx.files.internal("bullets/blank.png")));
-        blank.setBounds(gameScreen.getWorldWidth(), gameScreen.getWorldHeight(), 0, 0);
-        timer = System.currentTimeMillis();
+        this.sprite = new Sprite(bullet);
+        this.blank = new Sprite(blank);
+        this.blank.setBounds(gameScreen.getWorldWidth(), gameScreen.getWorldHeight(), 0, 0);
+        timer = gameScreen.getCentralTimer();
     }
 
-    public Bullet(GameScreen gameScreen, Plant plant, Enemy target, Array<Enemy> targets, int damage) {
+    public Bullet(GameScreen gameScreen, Plant plant, Sprite bullet, Sprite blank, Enemy target, Array<Enemy> targets, int damage) {
         this.gameScreen = gameScreen;
         this.plant = plant;
         this.target = target;
@@ -56,13 +53,11 @@ public class Bullet implements Disposable{
 
         hitBox = new Rectangle(plant.getX() + (plant.getWidth() - projectileSize) / 2, plant.getY() + (plant.getWidth() - projectileSize) / 2, projectileSize, projectileSize);
 
-        sprite = new Sprite(new Texture(Gdx.files.internal("bullets/" + PlantCodex.bulletFile[plant.getPlantIndex()] + "Bullet.png")));
-//        sprite.setBounds(hitBox.getX(), hitBox.getY(), hitBox.getWidth(), hitBox.getHeight());
-        blank = new Sprite(new Texture(Gdx.files.internal("bullets/blank.png")));
-        blank.setBounds(gameScreen.getWorldWidth(), gameScreen.getWorldHeight(), 0, 0);
+        this.sprite = new Sprite(bullet);
+        this.blank = new Sprite(blank);
+        this.blank.setBounds(gameScreen.getWorldWidth(), gameScreen.getWorldHeight(), 0, 0);
 
-//        hitBox.set(hitBox.getX() - hitBox.getWidth() / 2, hitBox.getY() - hitBox.getHeight() / 2, hitBox.getWidth() * 2, hitBox.getHeight() * 2);
-        timer = System.currentTimeMillis();
+        timer = gameScreen.getCentralTimer();
     }
 
     public void update(float delta) {
@@ -98,14 +93,14 @@ public class Bullet implements Disposable{
                     plant.addPulse(new Pulse(gameScreen, hitBox, damage, gameScreen.getPulseAnimation()));
                     drawBlank = true;
                 }
-//                canDispose = true;
+//                disposable = true;
             }
         }
 
-        if(System.currentTimeMillis() - timer >= 1000 && !drawBlank) {
+        if(gameScreen.getCentralTimer() - timer >= 1000 && !drawBlank) {
             drawBlank = true;
-        } else if(drawBlank && System.currentTimeMillis() - timer >= 1400) {
-            canDispose = true;
+        } else if(drawBlank && gameScreen.getCentralTimer() - timer >= 1400) {
+            disposable = true;
         }
     }
 
@@ -134,8 +129,8 @@ public class Bullet implements Disposable{
         blank.getTexture().dispose();
     }
 
-    public boolean canDispose() {
-        return canDispose;
+    public boolean isDisposable() {
+        return disposable;
     }
 
 }

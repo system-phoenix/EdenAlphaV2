@@ -20,13 +20,13 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.systemphoenix.edenalpha.Codex.AnimalCodex;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
-import com.systemphoenix.edenalpha.EdenAlpha;
-import com.systemphoenix.edenalpha.Region;
-import com.systemphoenix.edenalpha.Scenes.AnimalActor;
-import com.systemphoenix.edenalpha.Scenes.AnimalButton;
-import com.systemphoenix.edenalpha.Scenes.ButtonActor;
-import com.systemphoenix.edenalpha.Scenes.PlantActor;
-import com.systemphoenix.edenalpha.Scenes.PlantButton;
+import com.systemphoenix.edenalpha.Eden;
+import com.systemphoenix.edenalpha.WindowUtils.Region;
+import com.systemphoenix.edenalpha.Actors.StageActors.AnimalActor;
+import com.systemphoenix.edenalpha.Actors.StageActors.AnimalButton;
+import com.systemphoenix.edenalpha.Actors.StageActors.ButtonActor;
+import com.systemphoenix.edenalpha.Actors.StageActors.PlantActor;
+import com.systemphoenix.edenalpha.Actors.StageActors.PlantButton;
 
 public class PlantScreen extends AbsoluteScreen {
 
@@ -47,7 +47,7 @@ public class PlantScreen extends AbsoluteScreen {
     private int selectedIndeces[], currentSelectionIndex, index, selectedAnimalIndex = -1;
     private boolean selected[];
 
-    public PlantScreen(EdenAlpha game, MapScreen mapScreen, Region region) {
+    public PlantScreen(Eden game, MapScreen mapScreen, Region region) {
         super(game);
         this.mapScreen = mapScreen;
         this.region = region;
@@ -102,10 +102,10 @@ public class PlantScreen extends AbsoluteScreen {
         checkButton = new ButtonActor(ButtonCodex.CHECK, this, 950, 200, 128, false, true);
         crossButton = new ButtonActor(ButtonCodex.CROSS, this, 950, 200, 128, false, true);
 
-        playButton.setCanDraw(true);
-        homeButton.setCanDraw(true);
-        checkButton.setCanDraw(true);
-        crossButton.setCanDraw(false);
+        playButton.setDrawable(true);
+        homeButton.setDrawable(true);
+        checkButton.setDrawable(true);
+        crossButton.setDrawable(false);
 
         playButton.setCanPress(true);
         homeButton.setCanPress(true);
@@ -309,14 +309,14 @@ public class PlantScreen extends AbsoluteScreen {
         plantRange.draw(gameGraphics);
         plantSeedRate.draw(gameGraphics);
         if(!selected[index]) {
-            checkButton.setCanDraw(true);
+            checkButton.setDrawable(true);
             checkButton.setCanPress(true);
-            crossButton.setCanDraw(false);
+            crossButton.setDrawable(false);
             crossButton.setCanPress(false);
         } else {
-            checkButton.setCanDraw(false);
+            checkButton.setDrawable(false);
             checkButton.setCanPress(false);
-            crossButton.setCanDraw(true);
+            crossButton.setDrawable(true);
             crossButton.setCanPress(true);
         }
         for(int i = 0; i < currentSelectionIndex; i++) {

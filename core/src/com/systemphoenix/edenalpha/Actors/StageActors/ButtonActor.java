@@ -1,8 +1,6 @@
-package com.systemphoenix.edenalpha.Scenes;
+package com.systemphoenix.edenalpha.Actors.StageActors;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -11,9 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Disposable;
-import com.systemphoenix.edenalpha.Actors.Plant;
+import com.systemphoenix.edenalpha.Actors.ObjectActors.Plant;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
-import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.Screens.AbsoluteScreen;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 import com.systemphoenix.edenalpha.Screens.MapScreen;
@@ -26,7 +23,7 @@ public class ButtonActor extends Actor implements Disposable {
 
     private int index;
     private Sprite beforePressSprite, onPressSprite, voidPressSprite;
-    private boolean canDraw = false, canPress = true, isPressed, isGameScreen, isPlantScreen, isMapScreen, isTutorialScreen;
+    private boolean drawable = false, canPress = true, isPressed, isGameScreen, isPlantScreen, isMapScreen, isTutorialScreen;
 
     public ButtonActor(final int index, AbsoluteScreen screen, float x, float y, int size, final boolean isGameScreen, final boolean isPlantScreen) {
         this.index = index;
@@ -134,7 +131,7 @@ public class ButtonActor extends Actor implements Disposable {
                 }
                 break;
             case ButtonCodex.WATER_UPGRADE:
-                if(isGameScreen && canDraw) {
+                if(isGameScreen && drawable) {
                     ((GameScreen)screen).upgradeWaterRate();
                 }
                 break;
@@ -167,7 +164,7 @@ public class ButtonActor extends Actor implements Disposable {
 
     @Override
     public void draw(Batch batch, float alpha) {
-        if(canDraw) {
+        if(drawable) {
             if(canPress) {
                 if(isPressed) {
                     onPressSprite.draw(batch);
@@ -185,8 +182,8 @@ public class ButtonActor extends Actor implements Disposable {
         beforePressSprite.getTexture().dispose();
     }
 
-    public void setCanDraw(boolean canDraw) {
-        this.canDraw = canDraw;
+    public void setDrawable(boolean drawable) {
+        this.drawable = drawable;
     }
 
     public void setCanPress(boolean canPress) {

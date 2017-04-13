@@ -2,45 +2,46 @@ package com.systemphoenix.edenalpha.Scenes;
 
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Disposable;
+import com.systemphoenix.edenalpha.Actors.StageActors.MapActor;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
-import com.systemphoenix.edenalpha.EdenAlpha;
+import com.systemphoenix.edenalpha.Eden;
 import com.systemphoenix.edenalpha.Screens.MapScreen;
 
 public class MapSelect extends AbsoluteHud implements Disposable {
 
-    private MapActor left, right;
-    private ButtonActor playButton;
+    private com.systemphoenix.edenalpha.Actors.StageActors.MapActor left, right;
+    private com.systemphoenix.edenalpha.Actors.StageActors.ButtonActor playButton;
 
-    public MapSelect(EdenAlpha game, MapScreen mapScreen) {
+    public MapSelect(Eden game, MapScreen mapScreen) {
         super(game);
-        left = new MapActor(mapScreen, worldWidth, worldHeight, true, false);
-        right = new MapActor(mapScreen, worldWidth, worldHeight, false, false);
+        left = new com.systemphoenix.edenalpha.Actors.StageActors.MapActor(mapScreen, worldWidth, worldHeight, true, false);
+        right = new com.systemphoenix.edenalpha.Actors.StageActors.MapActor(mapScreen, worldWidth, worldHeight, false, false);
 
-        playButton = new ButtonActor(ButtonCodex.PLAY, mapScreen, worldWidth / 2 - 64, 64, 128, true);
+        playButton = new com.systemphoenix.edenalpha.Actors.StageActors.ButtonActor(ButtonCodex.PLAY, mapScreen, worldWidth / 2 - 64, 64, 128, true);
         stage.addActor(left);
         stage.addActor(right);
         stage.addActor(playButton);
-        playButton.setCanDraw(true);
+        playButton.setDrawable(true);
     }
 
-    public void setCanDraw(boolean left, boolean right) {
-        this.left.setCanDraw(left);
-        this.right.setCanDraw(right);
+    public void setDrawable(boolean left, boolean right) {
+        this.left.setDrawable(left);
+        this.right.setDrawable(right);
     }
 
-    public void setLeftCanDraw(boolean canDraw) {
-        this.left.setCanDraw(canDraw);
+    public void setLeftCanDraw(boolean drawable) {
+        this.left.setDrawable(drawable);
     }
 
-    public void setRightCanDraw(boolean canDraw) {
-        this.right.setCanDraw(canDraw);
+    public void setRightCanDraw(boolean drawable) {
+        this.right.setDrawable(drawable);
     }
 
     public Stage getStage() {
         return this.stage;
     }
 
-    public MapActor getLeft() {
+    public com.systemphoenix.edenalpha.Actors.StageActors.MapActor getLeft() {
         return left;
     }
 

@@ -1,4 +1,4 @@
-package com.systemphoenix.edenalpha.Actors;
+package com.systemphoenix.edenalpha.Actors.ObjectActors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -15,7 +15,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Codex.EnemyCodex;
-import com.systemphoenix.edenalpha.CollisionBit;
+import com.systemphoenix.edenalpha.WindowUtils.CollisionBit;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class Enemy extends Sprite implements Disposable {
@@ -23,7 +23,7 @@ public class Enemy extends Sprite implements Disposable {
     protected float stateTime, speed = 30, maxSpeed, waterDrop, stackSlowRate = 0, damageCounter = 0, damagePart;
     protected int level = 0, id, life, maxLife;
     protected long lastDirectionChange, deathTimer, damageTimer, slowTimer, attackSpeed, lastAttackTime, receiveDamageTick;
-    protected boolean spawned = false, moving = true, canDraw = false, canDispose = false, directionSquares[][], drawHpBar, slowed = false, dead, stunned, attacking, receivingDamage;
+    protected boolean spawned = false, moving = true, drawable = false, disposable = false, directionSquares[][], drawHpBar, slowed = false, dead, stunned, attacking, receivingDamage;
     protected enum Direction {NORTH, SOUTH, EAST, WEST}
     protected Direction direction = Direction.SOUTH, opDirection = Direction.NORTH;
 
@@ -60,7 +60,7 @@ public class Enemy extends Sprite implements Disposable {
         }
 
         initialize(x, y);
-        lastAttackTime = System.currentTimeMillis();
+        lastAttackTime = gameScreen.getCentralTimer();
         lastDirectionChange = 0;
 
         hitBox = new Rectangle(this.getX() + this.getWidth() / 4, this.getY() + this.getHeight() / 4, this.getWidth() / 2, this.getHeight() / 2);
@@ -118,26 +118,26 @@ public class Enemy extends Sprite implements Disposable {
             southAnimation = new Animation<TextureRegion>(frameDuration, textureRegionsSouth);
             eastAnimation = new Animation<TextureRegion>(frameDuration, textureRegionsEast);
             westAnimation = new Animation<TextureRegion>(frameDuration, textureRegionsWest);
-            canDraw = true;
+            drawable = true;
         } catch (Exception e) {
             Gdx.app.log("Verbose", "Loading baddies: " + e.getMessage());
         }
     }
 
     public void update(float delta) {
-        if((dead && System.currentTimeMillis() - deathTimer >= 100) || life <= 0) {
-            canDispose = true;
+        if((dead && gameScreen.getCentralTimer() - deathTimer >= 100) || life <= 0) {
+            disposable = true;
             gameScreen.updateWater(waterDrop);
         }
         stateTime += delta;
         if(moving) {
-            if(!attacking && (slowed && System.currentTimeMillis() - slowTimer > 500)) {
+            if(!attacking && (slowed && gameScreen.getCentralTimer() - slowTimer > 500)) {
                 speed = maxSpeed;
                 slowed = false;
             } else if(attacking) {
-                if(System.currentTimeMillis() - lastAttackTime > attackSpeed) {
+                if(gameScreen.getCentralTimer() - lastAttackTime > attackSpeed) {
                     plantTarget.receiveDamage(damage);
-                    lastAttackTime = System.currentTimeMillis();
+                    lastAttackTime = gameScreen.getCentralTimer();
                 }
             }
             switch (direction) {
@@ -164,7 +164,7 @@ public class Enemy extends Sprite implements Disposable {
             greenLifeBar.setBounds(this.getX(), this.getY(), 32f * multiplier, 2f);
             redLifeBar.setBounds(this.getX(), this.getY(), 32f, 2f);
             if(drawHpBar) {
-                if(System.currentTimeMillis() - damageTimer >= 5000) {
+                if(gameScreen.getCentralTimer() - damageTimer >= 5000) {
                     drawHpBar = false;
                 }
             }
@@ -177,8 +177,8 @@ public class Enemy extends Sprite implements Disposable {
         }
 
         if(receivingDamage) {
-            if(System.currentTimeMillis() - receiveDamageTick > 5) {
-                receiveDamageTick = System.currentTimeMillis();
+            if(gameScreen.getCentralTimer() - receiveDamageTick > 5) {
+                receiveDamageTick = gameScreen.getCentralTimer();
                 damagePart = damageCounter / 2f;
                 damageCounter -= damagePart;
                 receiveDamage();
@@ -223,7 +223,7 @@ public class Enemy extends Sprite implements Disposable {
 
     public void damageForest() {
         gameScreen.damageForest(1);
-        canDispose = true;
+        disposable = true;
     }
 
     public void receiveDamage(int damage) {
@@ -232,18 +232,20 @@ public class Enemy extends Sprite implements Disposable {
         }
         damageCounter += damage;
         receivingDamage = true;
-        receiveDamageTick = System.currentTimeMillis();
+        receiveDamageTick = gameScreen.getCentralTimer();
 //        life -= damage;
         drawHpBar = true;
-        damageTimer = System.currentTimeMillis();
+        damageTimer = gameScreen.getCentralTimer();
         if(life <= 0) {
             dead = true;
-            deathTimer = System.currentTimeMillis();
+            deathTimer = gameScreen.getCentralTimer();
         }
     }
 
     public void receiveDamage() {
-        life -= damagePart;
+        if(spawned) {
+            life -= damagePart;
+        }
     }
 
     public void stackSlow(float percentage) {
@@ -254,7 +256,7 @@ public class Enemy extends Sprite implements Disposable {
             speed = 10;
         }
         slowed = true;
-        slowTimer = System.currentTimeMillis();
+        slowTimer = gameScreen.getCentralTimer();
     }
 
     public void slow(float percentage) {
@@ -262,7 +264,7 @@ public class Enemy extends Sprite implements Disposable {
             speed -= maxSpeed * percentage;
         }
         slowed = true;
-        slowTimer = System.currentTimeMillis();
+        slowTimer = gameScreen.getCentralTimer();
     }
 
     public void stun() {
@@ -292,7 +294,7 @@ public class Enemy extends Sprite implements Disposable {
     }
 
     public void setDirection() {
-        if(System.currentTimeMillis() - lastDirectionChange >= 100) {
+        if(gameScreen.getCentralTimer() - lastDirectionChange >= 100) {
             this.opDirection = direction;
             boolean loopBreak = false;
 
@@ -321,7 +323,7 @@ public class Enemy extends Sprite implements Disposable {
                     }
                 }
             }
-            lastDirectionChange = System.currentTimeMillis();
+            lastDirectionChange = gameScreen.getCentralTimer();
         }
     }
 
@@ -336,8 +338,8 @@ public class Enemy extends Sprite implements Disposable {
         gameScreen.getWorld().destroyBody(body);
     }
 
-    public boolean canDispose() {
-        return canDispose;
+    public boolean isDisposable() {
+        return disposable;
     }
 
     public boolean isSpawned() {

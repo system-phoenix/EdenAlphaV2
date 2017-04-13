@@ -1,4 +1,4 @@
-package com.systemphoenix.edenalpha.Actors;
+package com.systemphoenix.edenalpha.Actors.ObjectActors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
@@ -19,7 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
-import com.systemphoenix.edenalpha.CollisionBit;
+import com.systemphoenix.edenalpha.WindowUtils.CollisionBit;
 import com.systemphoenix.edenalpha.PlantSquares.PlantSquare;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
@@ -35,18 +35,18 @@ public class Plant extends Actor implements Disposable {
 
     private Sound sound;
 
-    private Sprite sprite, rangeSprite = null, effectiveRangeSprite = null, redLifeBar, greenLifeBar, downgradeSprite, upgradeSprite;
+    private Sprite sprite, rangeSprite = null, effectiveRangeSprite = null, redLifeBar, greenLifeBar, downgradeSprite, upgradeSprite, bulletSprite, blankSprite;
 
     private Body body;
     private Array<Enemy> targets, attackers;
-    private Array<Bullet> bullets;
+    private Array<com.systemphoenix.edenalpha.Actors.ObjectActors.Bullet> bullets;
     private Array<Pulse> pulses;
     private Array<Slash> slashes;
     private Array<Root> roots;
 
     private PlantCollision plantCollision;
 
-    private boolean selected, growing, canDispose = false, hit = false, damaged = false, refundable = true;
+    private boolean selected, growing, disposable = false, hit = false, damaged = false, refundable = true;
 
     private Vector2 damage;
     private long attackSpeed, lastAttackTime, growthTimer, lastHitTime, lastAcquisition, refundTimer;
@@ -73,6 +73,13 @@ public class Plant extends Actor implements Disposable {
 
         this.sound = sound;
 
+        if(PlantCodex.projectileSize[plantIndex] > 0) {
+            this.blankSprite = new Sprite(new Texture(Gdx.files.internal("bullets/blank.png")));
+            this.bulletSprite = new Sprite(new Texture(Gdx.files.internal("bullets/" + PlantCodex.bulletFile[plantIndex] + "Bullet.png")));
+        } else {
+            this.blankSprite = this.bulletSprite = null;
+        }
+
         this.redLifeBar = new Sprite(new Texture(Gdx.files.internal("utilities/redLife.png")));
         this.redLifeBar.setBounds(x + size / 2, y + size / 4 + size / 2, size, size / 16);
         this.greenLifeBar = new Sprite(new Texture(Gdx.files.internal("utilities/greenLife.png")));
@@ -98,16 +105,16 @@ public class Plant extends Actor implements Disposable {
         initialize();
         this.targets = new Array<Enemy>();
         this.attackers = new Array<Enemy>();
-        this.bullets = new Array<Bullet>();
+        this.bullets = new Array<com.systemphoenix.edenalpha.Actors.ObjectActors.Bullet>();
         this.pulses = new Array<Pulse>();
         this.slashes = new Array<Slash>();
         this.roots = new Array<Root>();
 
         gameStage.addActor(this);
-        lastAttackTime = System.currentTimeMillis();
-        lastAcquisition = System.currentTimeMillis();
-        growthTimer = System.currentTimeMillis();
-        refundTimer = System.currentTimeMillis();
+        lastAttackTime = gameScreen.getCentralTimer();
+        lastAcquisition = gameScreen.getCentralTimer();
+        growthTimer = gameScreen.getCentralTimer();
+        refundTimer = gameScreen.getCentralTimer();
         growing = true;
 
         if((square.getType() & PlantCodex.typeBit[plantIndex]) == 0) {
@@ -163,9 +170,9 @@ public class Plant extends Actor implements Disposable {
                 selectedPlant = this;
             }
             gameScreen.resetHud();
-            gameScreen.getGameHud().setDrawable(0);
+            gameScreen.getGameHud().setDrawIndex(0);
             gameScreen.getGameHud().setPlantStatsData();
-            gameScreen.getGameHud().setCanDraw(true);
+            gameScreen.getGameHud().setDrawable(true);
             selectAllPlants = false;
         } else {
             nullSelectedPlant();
@@ -301,16 +308,16 @@ public class Plant extends Actor implements Disposable {
 
     public void update() {
         if(!growing) {
-            if(targets.size > 0 && System.currentTimeMillis() - lastAttackTime >= attackSpeed) {
+            if(targets.size > 0 && gameScreen.getCentralTimer() - lastAttackTime >= attackSpeed) {
                 sound.play();
                 try{
                     int dmgRange = (int)(damage.y - damage.x);
                     if(PlantCodex.projectileSize[plantIndex] > 0) {
                         int dmg = rand.nextInt(dmgRange) + (int) damage.x;
                         if(plantIndex != 2) {
-                            bullets.add(new Bullet(gameScreen, this, targets.get(0), dmg));
+                            bullets.add(new com.systemphoenix.edenalpha.Actors.ObjectActors.Bullet(gameScreen, this, bulletSprite, blankSprite, targets.get(0), dmg));
                         } else {
-                            bullets.add(new Bullet(gameScreen, this, targets.get(0), targets, dmg));
+                            bullets.add(new com.systemphoenix.edenalpha.Actors.ObjectActors.Bullet(gameScreen, this, bulletSprite, blankSprite, targets.get(0), targets, dmg));
                         }
                     } else {
                         switch (plantIndex) {
@@ -332,7 +339,7 @@ public class Plant extends Actor implements Disposable {
                                 break;
                         }
                     }
-                    lastAttackTime = System.currentTimeMillis();
+                    lastAttackTime = gameScreen.getCentralTimer();
                 } catch (Exception e) {
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
@@ -342,14 +349,14 @@ public class Plant extends Actor implements Disposable {
             }
 
             if(damaged) {
-                if(System.currentTimeMillis() - growthTimer >= 200) {
+                if(gameScreen.getCentralTimer() - growthTimer >= 200) {
                     hp += growthRate;
                     float multiplier = hp / targetHp;
                     greenLifeBar.setBounds(greenLifeBar.getX(), greenLifeBar.getY(), size * multiplier, size / 16);
                     if(hp >= targetHp) {
                         damaged = false;
                     }
-                    growthTimer = System.currentTimeMillis();
+                    growthTimer = gameScreen.getCentralTimer();
                 }
             }
 
@@ -361,7 +368,7 @@ public class Plant extends Actor implements Disposable {
 
             upgradable = (gameScreen.getWater() - upgradeCostWater >= 0 && sunlight - upgradeCostSunlight >= 0);
         } else {
-            if(System.currentTimeMillis() - growthTimer >= 200) {
+            if(gameScreen.getCentralTimer() - growthTimer >= 200) {
                 hp += growthRate;
                 float multiplier = hp / targetHp;
                 greenLifeBar.setBounds(greenLifeBar.getX(), greenLifeBar.getY(), size * multiplier, size / 16);
@@ -370,16 +377,16 @@ public class Plant extends Actor implements Disposable {
                         growing = false;
                         redLifeBar.setY(redLifeBar.getY() - size / 2);
                         greenLifeBar.setY(greenLifeBar.getY() - size / 2);
-                        lastAttackTime = System.currentTimeMillis();
+                        lastAttackTime = gameScreen.getCentralTimer();
                     } else if(damaged) {
                         damaged = false;
                     }
                 }
-                growthTimer = System.currentTimeMillis();
+                growthTimer = gameScreen.getCentralTimer();
             }
         }
-        if(System.currentTimeMillis() - lastAcquisition > 1000) {
-            lastAcquisition = System.currentTimeMillis();
+        if(gameScreen.getCentralTimer() - lastAcquisition > 1000) {
+            lastAcquisition = gameScreen.getCentralTimer();
             sunlight += sunlightAccumulation;
             if(sunlight > upgradeCostSunlight) {
                 sunlight = upgradeCostSunlight;
@@ -388,7 +395,7 @@ public class Plant extends Actor implements Disposable {
                 seeds += seedRate;
             }
         }
-        if(System.currentTimeMillis() - refundTimer > 3000) {
+        if(gameScreen.getCentralTimer() - refundTimer > 3000) {
             refundable = true;
         }
     }
@@ -396,7 +403,7 @@ public class Plant extends Actor implements Disposable {
     @Override
     public void draw(Batch batch, float alpha) {
         if(!growing && hp <= 0) {
-            canDispose = true;
+            disposable = true;
         } else {
             update();
             if(selected || selectAllPlants) {
@@ -411,7 +418,7 @@ public class Plant extends Actor implements Disposable {
 
                 for(int i = 0; i < bullets.size; i++) {
                     bullets.get(i).render(batch);
-                    if(bullets.get(i).canDispose()) {
+                    if(bullets.get(i).isDisposable()) {
                         bullets.get(i).dispose();
                         bullets.removeIndex(i);
                     }
@@ -419,21 +426,21 @@ public class Plant extends Actor implements Disposable {
 
                 for(int i = 0; i < pulses.size; i++) {
                     pulses.get(i).render(batch, Gdx.graphics.getDeltaTime());
-                    if(pulses.get(i).canDispose()) {
+                    if(pulses.get(i).isDisposable()) {
                         pulses.removeIndex(i);
                     }
                 }
 
                 for(int i = 0; i < slashes.size; i++) {
                     slashes.get(i).render(batch, Gdx.graphics.getDeltaTime());
-                    if(slashes.get(i).canDispose()) {
+                    if(slashes.get(i).isDisposable()) {
                         slashes.removeIndex(i);
                     }
                 }
 
                 for(int i = 0; i < roots.size; i++) {
                     roots.get(i).render(batch);
-                    if(roots.get(i).canDispose()) {
+                    if(roots.get(i).isDisposable()) {
                         roots.get(i).dispose();
                         roots.removeIndex(i);
                     }
@@ -444,7 +451,7 @@ public class Plant extends Actor implements Disposable {
                 greenLifeBar.draw(batch);
             }
 
-            if(hit && System.currentTimeMillis() - lastHitTime > 5000) {
+            if(hit && gameScreen.getCentralTimer() - lastHitTime > 5000) {
                 hit = false;
                 damaged = true;
             }
@@ -464,6 +471,11 @@ public class Plant extends Actor implements Disposable {
 
         redLifeBar.getTexture().dispose();
         greenLifeBar.getTexture().dispose();
+
+        if(blankSprite != null) {
+            blankSprite.getTexture().dispose();
+            bulletSprite.getTexture().dispose();
+        }
 
         for(int i = 0; i < bullets.size; i++) {
             bullets.get(i).dispose();
@@ -555,8 +567,8 @@ public class Plant extends Actor implements Disposable {
         return growing;
     }
 
-    public boolean canDispose() {
-        return canDispose;
+    public boolean isDisposable() {
+        return disposable;
     }
 
     public boolean isRefundable() {
@@ -601,7 +613,7 @@ public class Plant extends Actor implements Disposable {
         greenLifeBar.setBounds(greenLifeBar.getX(), greenLifeBar.getY(), size * multiplier, greenLifeBar.getHeight());
         hit = true;
         damaged = false;
-        lastHitTime = System.currentTimeMillis();
+        lastHitTime = gameScreen.getCentralTimer();
     }
 
     public void addPulse(Pulse pulse) {

@@ -8,7 +8,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.systemphoenix.edenalpha.CollisionBit;
+import com.systemphoenix.edenalpha.WindowUtils.CollisionBit;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class PlantSquare extends Sprite {

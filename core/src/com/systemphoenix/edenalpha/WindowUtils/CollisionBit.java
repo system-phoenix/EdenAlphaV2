@@ -1,4 +1,4 @@
-package com.systemphoenix.edenalpha;
+package com.systemphoenix.edenalpha.WindowUtils;
 
 public class CollisionBit {
     public static final short PATHBOUND = 1;

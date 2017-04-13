@@ -1,4 +1,4 @@
-package com.systemphoenix.edenalpha.Actors;
+package com.systemphoenix.edenalpha.Actors.ObjectActors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -17,14 +17,14 @@ public class Root implements Disposable {
     private TextureRegion blank;
 
     private Plant plant;
-    private Array<Enemy> targets;
-    private Enemy target;
+    private Array<com.systemphoenix.edenalpha.Actors.ObjectActors.Enemy> targets;
+    private com.systemphoenix.edenalpha.Actors.ObjectActors.Enemy target;
 
     private int damage;
     private long timeToLive, stunTime, limit, lastAttackTime;
-    private boolean canDispose = false, isBlank = false, damageDealt = false, baleteRoot = false;
+    private boolean disposable = false, isBlank = false, damageDealt = false, baleteRoot = false;
 
-    public Root(GameScreen gameScreen, Plant plant, int damage, Array<Enemy> targets, boolean baleteRoot) {
+    public Root(GameScreen gameScreen, Plant plant, int damage, Array<com.systemphoenix.edenalpha.Actors.ObjectActors.Enemy> targets, boolean baleteRoot) {
         this.gameScreen = gameScreen;
         this.plant = plant;
         this.damage = damage;
@@ -43,11 +43,11 @@ public class Root implements Disposable {
         texture = new Texture(Gdx.files.internal("bullets/root.png"));
         blank = new TextureRegion(new Texture(Gdx.files.internal("bullets/blank.png")));
 
-        timeToLive = System.currentTimeMillis();
+        timeToLive = gameScreen.getCentralTimer();
     }
 
     public void render(Batch batch) {
-        if(!canDispose && !isBlank) {
+        if(!disposable && !isBlank) {
             batch.draw(texture, target.getX(), target.getY(), 32, 32);
             if(!damageDealt) {
                 if(!baleteRoot) {
@@ -58,12 +58,12 @@ public class Root implements Disposable {
                     damageDealt = true;
                 } else {
                         target.slow(1f);
-                        if(System.currentTimeMillis() - lastAttackTime >= 1000) {
+                        if(gameScreen.getCentralTimer() - lastAttackTime >= 1000) {
                             target.receiveDamage(target.maxLife / 10);
-                            lastAttackTime = System.currentTimeMillis();
+                            lastAttackTime = gameScreen.getCentralTimer();
                             if(target.getLife() <= 0) {
                                 damageDealt = true;
-//                                limit = System.currentTimeMillis();
+//                                limit = gameScreen.getCentralTimer();
                                 plant.setHasTarget(false);
                             }
                         }
@@ -72,9 +72,9 @@ public class Root implements Disposable {
         } else {
             batch.draw(blank, gameScreen.getWorldWidth(), gameScreen.getWorldHeight());
         }
-        if(System.currentTimeMillis() - timeToLive >= limit) {
-            canDispose = true;
-        } else if(!isBlank && System.currentTimeMillis() - timeToLive >= limit - 400) {
+        if(gameScreen.getCentralTimer() - timeToLive >= limit) {
+            disposable = true;
+        } else if(!isBlank && gameScreen.getCentralTimer() - timeToLive >= limit - 400) {
             isBlank = true;
         }
     }
@@ -85,7 +85,7 @@ public class Root implements Disposable {
         blank.getTexture().dispose();
     }
 
-    public boolean canDispose() {
-        return canDispose;
+    public boolean isDisposable() {
+        return disposable;
     }
 }

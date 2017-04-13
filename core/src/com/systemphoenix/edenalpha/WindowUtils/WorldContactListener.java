@@ -1,14 +1,14 @@
-package com.systemphoenix.edenalpha;
+package com.systemphoenix.edenalpha.WindowUtils;
 
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
-import com.systemphoenix.edenalpha.Actors.Enemy;
-import com.systemphoenix.edenalpha.Actors.Plant;
-import com.systemphoenix.edenalpha.Actors.PlantCollision;
-import com.systemphoenix.edenalpha.Actors.Pulse;
+import com.systemphoenix.edenalpha.Actors.ObjectActors.Enemy;
+import com.systemphoenix.edenalpha.Actors.ObjectActors.Plant;
+import com.systemphoenix.edenalpha.Actors.ObjectActors.PlantCollision;
+import com.systemphoenix.edenalpha.Actors.ObjectActors.Pulse;
 
 public class WorldContactListener implements ContactListener {
     @Override

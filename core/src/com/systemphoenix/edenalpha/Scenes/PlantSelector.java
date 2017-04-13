@@ -6,16 +6,17 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Disposable;
+import com.systemphoenix.edenalpha.Actors.StageActors.PlantActor;
 
 public class PlantSelector extends Actor implements Disposable {
 
     private Sprite sprite, exSprite;
-    private boolean canDraw = false;
+    private boolean drawable = false;
 
-    private PlantActor[] plantActors;
-    private AnimalActor animalActor;
+    private com.systemphoenix.edenalpha.Actors.StageActors.PlantActor[] plantActors;
+    private com.systemphoenix.edenalpha.Actors.StageActors.AnimalActor animalActor;
 
-    public PlantSelector(PlantActor[] plantActors, AnimalActor animalActor) {
+    public PlantSelector(PlantActor[] plantActors, com.systemphoenix.edenalpha.Actors.StageActors.AnimalActor animalActor) {
         exSprite = new Sprite(new Texture(Gdx.files.internal("misc/lowerHudData.png")));
         sprite = new Sprite(new Texture(Gdx.files.internal("misc/lowerHud.png")));
         this.plantActors = plantActors;
@@ -24,7 +25,7 @@ public class PlantSelector extends Actor implements Disposable {
 
     @Override
     public void draw(Batch batch, float alpha) {
-        if(canDraw) {
+        if(drawable) {
             batch.draw(sprite, 0f, 0f);
             batch.draw(exSprite, 0f, 0f);
         }
@@ -36,13 +37,13 @@ public class PlantSelector extends Actor implements Disposable {
         exSprite.getTexture().dispose();
     }
 
-    public void setCanDraw(boolean canDraw) {
-        this.canDraw = canDraw;
+    public void setDrawable(boolean drawable) {
+        this.drawable = drawable;
         for(int i = 0; i < plantActors.length; i++) {
-            plantActors[i].setCanDraw(canDraw);
+            plantActors[i].setDrawable(drawable);
         }
         if(animalActor != null) {
-            animalActor.setCanDraw(canDraw);
+            animalActor.setDrawable(drawable);
         }
     }
 

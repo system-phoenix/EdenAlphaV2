@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.systemphoenix.edenalpha.Actors.Enemy;
+import com.systemphoenix.edenalpha.Actors.ObjectActors.Enemy;
 
 public class SpawnPoint implements Disposable {
     private Array<Enemy> enemies, sleepingEnemies;
@@ -20,7 +20,7 @@ public class SpawnPoint implements Disposable {
     public void update(float delta) {
         for(int i = 0; i < enemies.size; i++) {
             Enemy enemy = enemies.get(i);
-            if(enemy.canDispose()) {
+            if(enemy.isDisposable()) {
                 try{
                     enemies.removeIndex(i);
                     enemy.dispose();

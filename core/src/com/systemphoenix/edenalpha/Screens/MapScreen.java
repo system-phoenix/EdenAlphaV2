@@ -7,13 +7,11 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.input.GestureDetector;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.reflect.Field;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.systemphoenix.edenalpha.EdenAlpha;
-import com.systemphoenix.edenalpha.FieldSelection;
-import com.systemphoenix.edenalpha.Region;
+import com.systemphoenix.edenalpha.Eden;
+import com.systemphoenix.edenalpha.WindowUtils.FieldSelection;
+import com.systemphoenix.edenalpha.WindowUtils.Region;
 import com.systemphoenix.edenalpha.Scenes.RegionHud;
 
 public class MapScreen extends AbsoluteScreen {
@@ -33,24 +31,22 @@ public class MapScreen extends AbsoluteScreen {
 
     private int lowLevelBound, highLevelBound;
 
-    public MapScreen(EdenAlpha game) {
+    public MapScreen(Eden game) {
         super(game);
         float sizeWidth = 640, sizeHeight = 360;
         this.inputMultiplexer = new InputMultiplexer();
         this.regionHud = new RegionHud(game, sizeWidth, sizeHeight);
         this.mapSelect = new com.systemphoenix.edenalpha.Scenes.MapSelect(game, this);
-        this.game.getMainScreen().setLoadingMessage("Creating field...");
         this.lowLevelBound = game.getLowLevelBound();
         this.highLevelBound = game.getHighLevelBound();
         this.fieldSelection = new FieldSelection(this, game.getSelectedMapIndex(), lowLevelBound, highLevelBound);
 
-        this.game.getMainScreen().setLoadingMessage("Setting up camera...");
         worldHeight = worldWidth = 1403;
         try {
             mapSprite = new Sprite(new Texture(Gdx.files.internal("maps/[PH]map.gif")));
             Gdx.app.log("Verbose", "Successfully loaded first map");
         } catch(Exception e) {
-            Gdx.app.log("Verbose", "mapsprite " + e.getMessage());
+            Gdx.app.log("Verbose", "map sprite " + e.getMessage());
         }
         mapSprite.setPosition(0, 0);
         mapSprite.setSize(worldWidth, worldHeight);
@@ -61,10 +57,6 @@ public class MapScreen extends AbsoluteScreen {
         fieldSelection.setCameraPosition(cam);
         cam.update();
 
-        this.game.getMainScreen().setLoadingMessage("Creating input...");
-
-        this.game.getMainScreen().setLoadingMessage("Tap to start!");
-        this.game.getMainScreen().setCanStart(true);
         this.game.setScreen(game.getMainScreen());
     }
 
@@ -90,7 +82,7 @@ public class MapScreen extends AbsoluteScreen {
         gameGraphics.end();
 
         Region currentRegion = fieldSelection.getRegion();
-        mapSelect.setCanDraw(true, true);
+        mapSelect.setDrawable(true, true);
         if(fieldSelection.getIndex() - 1 >= lowLevelBound) {
             regionHud.setLeftRegionCode(fieldSelection.getRegionByIndex(fieldSelection.getIndex() - 1).getCode());
         } else {
@@ -124,18 +116,6 @@ public class MapScreen extends AbsoluteScreen {
     }
 
 //    Gesture listener methods
-    @Override
-    public boolean tap(float x, float y, int count, int button) {
-        Vector3 touchPos = new Vector3();
-        touchPos.set(x, y, 0);
-        cam.unproject(touchPos);
-
-//        game.setSelectedMapIndex(fieldSelection.getIndex());
-//        plantScreen = new PlantScreen(game, this, fieldSelection.getRegion());
-//        game.setScreen(plantScreen);
-        return true;
-    }
-
     @Override
     public boolean fling(float deltaX, float deltaY, int button) {
         float limit = 5;

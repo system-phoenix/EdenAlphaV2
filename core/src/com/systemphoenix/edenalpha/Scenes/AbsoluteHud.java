@@ -11,14 +11,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.systemphoenix.edenalpha.EdenAlpha;
+import com.systemphoenix.edenalpha.Eden;
 
 public class AbsoluteHud implements Disposable {
 
     protected final float screenWidth = 1280, screenHeight = 720;
     protected float worldWidth = screenWidth, worldHeight = screenHeight;
 
-    protected EdenAlpha game;
+    protected Eden game;
     protected SpriteBatch gameGraphics;
     protected BitmapFont font;
 
@@ -27,7 +27,7 @@ public class AbsoluteHud implements Disposable {
 
     protected Label message;
 
-    public AbsoluteHud(EdenAlpha game) {
+    public AbsoluteHud(Eden game) {
         this.game = game;
         this.gameGraphics = game.getGameGraphics();
         Color border = Color.BLACK, fontColor = Color.WHITE;

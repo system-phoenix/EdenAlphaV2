@@ -1,11 +1,11 @@
-package com.systemphoenix.edenalpha.Actors;
+package com.systemphoenix.edenalpha.Actors.ObjectActors;
 
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.utils.Disposable;
-import com.systemphoenix.edenalpha.CollisionBit;
+import com.systemphoenix.edenalpha.WindowUtils.CollisionBit;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class PlantCollision implements Disposable{

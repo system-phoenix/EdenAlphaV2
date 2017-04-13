@@ -18,7 +18,7 @@ public class AndroidLauncher extends AndroidApplication {
         config.useImmersiveMode	 = true;
         config.useWakelock		 = true;
         config.hideStatusBar	 = true;
-		initialize(new EdenAlpha(), config);
+		initialize(new Eden(), config);
 	}
 
     @Override

@@ -1,4 +1,4 @@
-package com.systemphoenix.edenalpha.Scenes;
+package com.systemphoenix.edenalpha.Actors.StageActors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -8,7 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.systemphoenix.edenalpha.Actors.Plant;
+import com.systemphoenix.edenalpha.Actors.ObjectActors.Plant;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
@@ -17,7 +17,7 @@ public class PlantActor extends Actor {
     protected static PlantActor recentlySelectedActor = null;
     protected long clickTimer;
     protected GameScreen gameScreen;
-    protected boolean canDraw, drawRectangle = false, draggable, animal;
+    protected boolean drawable, drawRectangle = false, draggable, animal;
     protected static boolean dragging;
     protected Sprite sprite, rectangleSprite, maskSprite, dragSprite;
 
@@ -38,7 +38,7 @@ public class PlantActor extends Actor {
         this.setBounds(PlantCodex.plantSelectorIndex[index], 32f, size, size);
 
         this.size = size;
-        this.canDraw = false;
+        this.drawable = false;
 
         this.setTouchable(Touchable.enabled);
         this.addListener(new InputListener() {
@@ -67,7 +67,7 @@ public class PlantActor extends Actor {
         this.setBounds(PlantCodex.plantSelectorIndex[6], 32f, size, size);
 
         this.size = size;
-        this.canDraw = false;
+        this.drawable = false;
     }
 
     public void setGameScreen(GameScreen gameScreen) {
@@ -75,26 +75,26 @@ public class PlantActor extends Actor {
     }
 
     public boolean triggerAction() {
-        if(canDraw) {
+        if(drawable) {
             setRectangleSpriteBounds();
             if(recentlySelectedActor != null) recentlySelectedActor.setDrawRectangle(false);
             drawRectangle = true;
             recentlySelectedActor = this;
             gameScreen.getGameHud().setData();
             gameScreen.setPseudoPlant(plantIndex);
-            clickTimer = System.currentTimeMillis();
+            clickTimer = gameScreen.getCentralTimer();
             return true;
         }
         return false;
     }
 
     public void dragPlant() {
-        if(draggable && System.currentTimeMillis() - clickTimer >= 200) {
+        if(draggable && gameScreen.getCentralTimer() - clickTimer >= 200) {
             dragging = true;
             float x = 32, y = 32;
             dragSprite.setBounds(Gdx.input.getX() - x, gameScreen.getWorldHeight() - Gdx.input.getY() + y, size / gameScreen.getCamera().zoom, size / gameScreen.getCamera().zoom);
             gameScreen.tap(Gdx.input.getX() - x, Gdx.input.getY() - y);
-            gameScreen.getGameHud().setCanDraw(false);
+            gameScreen.getGameHud().setDrawable(false);
             Plant.setSelectAllPlants(true);
         }
     }
@@ -104,7 +104,7 @@ public class PlantActor extends Actor {
             dragging = false;
             gameScreen.plant(plantIndex, sprite);
             gameScreen.tap(-1, -1);
-            gameScreen.getGameHud().setCanDraw(true);
+            gameScreen.getGameHud().setDrawable(true);
             Plant.nullSelectedPlant();
         }
     }
@@ -116,7 +116,7 @@ public class PlantActor extends Actor {
 
     @Override
     public void draw(Batch batch, float alpha) {
-        if(canDraw) {
+        if(drawable) {
             batch.draw(sprite, this.getX(), this.getY(), size, size);
 
             if(drawRectangle) {
@@ -134,8 +134,8 @@ public class PlantActor extends Actor {
         }
     }
 
-    public void setCanDraw(boolean canDraw) {
-        this.canDraw = canDraw;
+    public void setDrawable(boolean drawable) {
+        this.drawable = drawable;
     }
 
     public void setDrawRectangle(boolean drawRectangle) {

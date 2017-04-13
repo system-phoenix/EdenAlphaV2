@@ -1,4 +1,4 @@
-package com.systemphoenix.edenalpha.Scenes;
+package com.systemphoenix.edenalpha.Actors.StageActors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.systemphoenix.edenalpha.Actors.Pulse;
+import com.systemphoenix.edenalpha.Actors.ObjectActors.Pulse;
 import com.systemphoenix.edenalpha.Codex.AnimalCodex;
 
 public class AnimalActor extends PlantActor {
@@ -57,14 +57,14 @@ public class AnimalActor extends PlantActor {
 
     @Override
     public boolean triggerAction() {
-        if(canDraw) {
+        if(drawable) {
             setRectangleSpriteBounds();
             if(recentlySelectedActor != null) recentlySelectedActor.setDrawRectangle(false);
             drawRectangle = true;
             recentlySelectedActor = this;
             gameScreen.getGameHud().setData();
             gameScreen.setPseudoAnimal(animalIndex);
-            clickTimer = System.currentTimeMillis();
+            clickTimer = gameScreen.getCentralTimer();
             return true;
         }
         return false;
@@ -75,7 +75,7 @@ public class AnimalActor extends PlantActor {
         if(draggable && dragging) {
             setDragging(false);
             gameScreen.tap(-1, -1);
-            gameScreen.getGameHud().setCanDraw(true);
+            gameScreen.getGameHud().setDrawable(true);
             switch(animalIndex) {
                 case 0:
                     Rectangle hitBox = gameScreen.getHitRectangle();
@@ -86,13 +86,13 @@ public class AnimalActor extends PlantActor {
                 case 2:
                     break;
             }
-            effectTimer = System.currentTimeMillis();
+            effectTimer = gameScreen.getCentralTimer();
         }
     }
 
     @Override
     public void draw(Batch batch, float alpha) {
-        if(canDraw) {
+        if(drawable) {
             batch.draw(sprite, this.getX(), this.getY(), size, size);
 
             if(drawRectangle) {
@@ -107,7 +107,7 @@ public class AnimalActor extends PlantActor {
 
         if(pulse != null) {
             pulse.render(batch, Gdx.graphics.getDeltaTime());
-            if(pulse.canDispose()) {
+            if(pulse.isDisposable()) {
                 pulse = null;
             }
         }
@@ -117,7 +117,7 @@ public class AnimalActor extends PlantActor {
         }
 
         if(anchored) {
-            if(System.currentTimeMillis() - effectTimer >= effectLimit) {
+            if(gameScreen.getCentralTimer() - effectTimer >= effectLimit) {
                 anchored = false;
             } else {
                 anchoredSprite.draw(batch);

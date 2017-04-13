@@ -1,4 +1,4 @@
-package com.systemphoenix.edenalpha.Scenes;
+package com.systemphoenix.edenalpha.Actors.StageActors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -18,7 +18,7 @@ public class MapActor extends Actor implements Disposable {
     private Screen screen;
 
     private Sprite sprite;
-    private boolean canDraw, left, isPressed, tutorial;
+    private boolean drawable, left, isPressed, tutorial;
 
     public MapActor(Screen screen, float worldWidth, float worldHeight, boolean left, boolean tutorial) {
         this.screen = screen;
@@ -52,7 +52,7 @@ public class MapActor extends Actor implements Disposable {
     }
 
     public boolean triggerAction() {
-        if(canDraw) {
+        if(drawable) {
             if(!tutorial) {
                 isPressed = true;
             } else {
@@ -66,7 +66,7 @@ public class MapActor extends Actor implements Disposable {
 
     @Override
     public void draw(Batch batch, float alpha){
-        if(canDraw) {
+        if(drawable) {
             sprite.draw(batch);
             if(isPressed && !tutorial) {
                 ((MapScreen)screen).getFieldSelection().setIndex(left ? -1 : 1);
@@ -79,7 +79,7 @@ public class MapActor extends Actor implements Disposable {
         sprite.getTexture().dispose();
     }
 
-    public void setCanDraw(boolean canDraw) {
-        this.canDraw = canDraw;
+    public void setDrawable(boolean drawable) {
+        this.drawable = drawable;
     }
 }

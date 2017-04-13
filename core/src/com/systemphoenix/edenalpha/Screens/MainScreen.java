@@ -2,21 +2,16 @@ package com.systemphoenix.edenalpha.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.systemphoenix.edenalpha.EdenAlpha;
+import com.systemphoenix.edenalpha.Eden;
 
 import java.util.Random;
 
 public class MainScreen extends AbsoluteScreen {
 
     private Texture bg;
-    private String loadingMessage = "Loading...";
-    private GlyphLayout glyphLayout;
     private Viewport viewport;
 
     private Stage stage;
@@ -25,13 +20,9 @@ public class MainScreen extends AbsoluteScreen {
 
     private MainScreenButton startButton, helpButton;
 
-    private boolean canStart = false, blinking = true;
-    private long blink;
-
-    public MainScreen(EdenAlpha game) {
+    public MainScreen(Eden game) {
         super(game);
         this.font.getData().setScale(1.5f);
-        this.glyphLayout = new GlyphLayout();
         int rand = new Random().nextInt(3) + 1;
 
         this.viewport = new FitViewport(worldWidth, worldHeight, cam);
@@ -59,8 +50,6 @@ public class MainScreen extends AbsoluteScreen {
         cam.update();
         gameGraphics.setProjectionMatrix(cam.combined);
 
-        glyphLayout.setText(font, loadingMessage);
-        float x = (screenWidth - glyphLayout.width) / 2;
         gameGraphics.begin();
         gameGraphics.draw(bg, 0, 0, screenWidth, screenHeight);
         if(helpButton != null) helpButton.draw(gameGraphics, 1);
@@ -102,19 +91,11 @@ public class MainScreen extends AbsoluteScreen {
         Gdx.input.setInputProcessor(stage);
     }
 
-    public void setLoadingMessage(String loadingMessage) {
-        this.loadingMessage = loadingMessage;
-    }
-
-    public void setCanStart(boolean canStart) {
-        this.canStart = canStart;
-    }
-
     public boolean isFirstTimePlaying() {
         return game.isFirstTimePlaying();
     }
 
-    public EdenAlpha getGame() {
+    public Eden getGame() {
         return game;
     }
 }

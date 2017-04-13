@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.systemphoenix.edenalpha.Screens.MapScreen;
 
-public class EdenAlpha extends Game {
+public class Eden extends Game {
 	private SpriteBatch gameGraphics;
 	private FreeTypeFontGenerator generator;
     private BitmapFont font;

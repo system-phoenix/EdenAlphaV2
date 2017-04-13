@@ -6,20 +6,20 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.systemphoenix.edenalpha.EdenAlpha;
+import com.systemphoenix.edenalpha.Eden;
 
 public class RegionHud extends AbsoluteHud {
 
     private Label regionCode, regionName, regionForestPercentage;
     private Label leftRegionCode, rightRegionCode;
 
-    public RegionHud(EdenAlpha game) {
+    public RegionHud(Eden game) {
         super(game);
 
         initialize();
     }
 
-    public RegionHud(EdenAlpha game, float projectedWidth, float projectedHeight) {
+    public RegionHud(Eden game, float projectedWidth, float projectedHeight) {
         super(game);
 
         this.viewport.update((int)projectedWidth, (int)projectedHeight);

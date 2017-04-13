@@ -9,13 +9,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.systemphoenix.edenalpha.EdenAlpha;
+import com.systemphoenix.edenalpha.Eden;
 
 public class AbsoluteScreen implements Screen, GestureDetector.GestureListener {
     protected final float screenWidth = 1280, screenHeight = 720;
     protected float worldWidth = screenWidth, worldHeight = screenHeight;
 
-    protected EdenAlpha game;
+    protected Eden game;
 
     protected SpriteBatch gameGraphics;
     protected BitmapFont font;
@@ -23,7 +23,7 @@ public class AbsoluteScreen implements Screen, GestureDetector.GestureListener {
 
     protected boolean willDispose = false;
 
-    public AbsoluteScreen(EdenAlpha game) {
+    public AbsoluteScreen(Eden game) {
         this.game = game;
         this.gameGraphics = game.getGameGraphics();
         this.font = game.getFont();

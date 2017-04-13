@@ -9,9 +9,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
-import com.systemphoenix.edenalpha.EdenAlpha;
-import com.systemphoenix.edenalpha.Scenes.ButtonActor;
-import com.systemphoenix.edenalpha.Scenes.MapActor;
+import com.systemphoenix.edenalpha.Eden;
+import com.systemphoenix.edenalpha.Actors.StageActors.ButtonActor;
+import com.systemphoenix.edenalpha.Actors.StageActors.MapActor;
 
 public class TutorialMapScreen extends AbsoluteScreen {
 
@@ -27,14 +27,14 @@ public class TutorialMapScreen extends AbsoluteScreen {
 
     private int index;
 
-    public TutorialMapScreen(EdenAlpha game) {
+    public TutorialMapScreen(Eden game) {
         super(game);
         float sizeWidth = 1280, sizeHeight = 720;
         this.inputMultiplexer = new InputMultiplexer();
         this.left = new MapActor(this, sizeWidth, sizeHeight, true, true);
-        this.left.setCanDraw(true);
+        this.left.setDrawable(true);
         this.right = new MapActor(this, sizeWidth, sizeHeight, false, true);
-        this.right.setCanDraw(true);
+        this.right.setDrawable(true);
         this.viewport = new FitViewport(sizeWidth, sizeHeight, cam);
 
         this.homeButton = new ButtonActor(ButtonCodex.HOME, this, 32f, 32f, 128, false);
@@ -89,22 +89,22 @@ public class TutorialMapScreen extends AbsoluteScreen {
 
             if(index == 0) {
                 homeButton.setCanPress(!game.isFirstTimePlaying());
-                homeButton.setCanDraw(true);
-                left.setCanDraw(false);
+                homeButton.setDrawable(true);
+                left.setDrawable(false);
             } else {
-                left.setCanDraw(true);
+                left.setDrawable(true);
                 homeButton.setCanPress(false);
-                homeButton.setCanDraw(false);
+                homeButton.setDrawable(false);
             }
 
             if(index + 1 == slides.length) {
-                playButton.setCanDraw(true);
+                playButton.setDrawable(true);
                 playButton.setCanPress(true);
-                right.setCanDraw(false);
+                right.setDrawable(false);
             } else {
-                playButton.setCanDraw(false);
+                playButton.setDrawable(false);
                 playButton.setCanPress(false);
-                right.setCanDraw(true);
+                right.setDrawable(true);
             }
 
             gameGraphics.setProjectionMatrix(stage.getCamera().combined);
