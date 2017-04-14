@@ -182,10 +182,11 @@ public class Plant extends Actor implements Disposable {
     }
 
     public void acquireTarget(Enemy enemy) {
-        if(EnemyCodex.speed[enemy.getLevel()] > fastestSpeed) {
+        if(EnemyCodex.speed[enemy.getLevel()] > fastestSpeed && targets.size > 0) {
             fastestSpeed = EnemyCodex.speed[enemy.getLevel()];
-            targets.set(0, enemy);
-        } else if(EnemyCodex.speed[enemy.getLevel()] == fastestSpeed) {
+//            targets.set(0, enemy);
+            targets.insert(0, enemy);
+        } else if(EnemyCodex.speed[enemy.getLevel()] == fastestSpeed && targets.size > 1) {
             targets.set(1, enemy);
         } else {
             targets.add(enemy);
@@ -372,6 +373,10 @@ public class Plant extends Actor implements Disposable {
                 if(targets.get(i).getLife() <= 0) {
                     targets.removeIndex(i);
                 }
+            }
+
+            if(targets.size == 0) {
+                fastestSpeed = 0;
             }
 
             upgradable = (gameScreen.getWater() - upgradeCostWater >= 0 && sunlight - upgradeCostSunlight >= 0);

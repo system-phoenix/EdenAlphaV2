@@ -4,6 +4,19 @@ import com.badlogic.gdx.math.Vector2;
 
 public class EnemyCodex {
 
+    public static final float baseHP = 500, baseDmg = 50, baseAS = 1000, baseMS = 50;
+
+    public static final String name[] = {
+            "Explorer",
+            "Commercial Farmer",
+            "Rancher",
+            "Scientist",
+            "Miner",
+            "Kaingin Farmer",
+            "Illegal Logger",
+            "Businessman"
+    };
+
     public static int getHP(int index, int wave, int regionIndex) {
         return HP[index] + (int)(Math.pow((double)wave, 2)) + (wave * 10 * regionIndex);
     }
@@ -14,7 +27,7 @@ public class EnemyCodex {
     };
 
     public static final float damage[] = {
-            5,      5,     15,     30,     25,     25,     30,     50
+            5,      5,     15,     30,     25,     5,     30,     50
     };
 
     public static final float speed[] = {

@@ -17,6 +17,8 @@ public class AnimalActor extends PlantActor implements Disposable {
     private float damage, range, upgradeCostWater, upgradeCostSeeds, size;
     private int upgradeIndex = 0, animalIndex;
 
+    private long cooldownTimer;
+    private boolean usable = true;
 
     public AnimalActor(Sprite textureRegion, Sprite rectangleSprite, int animalIndex, float size) {
         super(textureRegion, rectangleSprite, animalIndex, size);
@@ -71,6 +73,8 @@ public class AnimalActor extends PlantActor implements Disposable {
         if(draggable && dragging) {
             if(gameScreen.getSelectedXY().x >= 0 && gameScreen.getSelectedXY().y >= 0) {
                 gameScreen.createAnimal(sprite, arenaSprite, damage, animalIndex);
+                usable = false;
+                cooldownTimer = gameScreen.getTimer();
             }
             setDragging(false);
             gameScreen.tap(-1, -1);
@@ -87,10 +91,16 @@ public class AnimalActor extends PlantActor implements Disposable {
                 rectangleSprite.draw(batch);
             }
 
-            if(getPlantCost() / 2 > gameScreen.getSeeds() || getPlantCost() > gameScreen.getWater()) {
+            if(getPlantCost() / 2 > gameScreen.getSeeds() || getPlantCost() > gameScreen.getWater() || !usable) {
                 maskSprite.draw(batch);
             }
             draggable = !(getPlantCost() / 2 > gameScreen.getSeeds() || getPlantCost() > gameScreen.getWater());
+        }
+
+        if(!usable) {
+            if(gameScreen.getCentralTimer() - cooldownTimer >= 30000) {
+                usable = true;
+            }
         }
 
         if(dragging && recentlySelectedActor.equals(this)) {

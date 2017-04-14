@@ -225,7 +225,7 @@ public class GameScreen extends AbsoluteScreen {
         int limit;
         int[][] temp = region.getWaves();
 
-        int enemyLimit = 1;
+        int enemyLimit = 10;
         for(int i = 0; i < waveLimit; i++) {
             if((i + 1) % 5 == 0) {
                 limit = enemyLimit * 2;

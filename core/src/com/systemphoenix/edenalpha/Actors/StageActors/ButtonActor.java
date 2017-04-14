@@ -140,7 +140,11 @@ public class ButtonActor extends Actor implements Disposable {
                     ((GameScreen)screen).unroot(Plant.getSelectedPlant());
                 }
                 break;
-
+            case ButtonCodex.BOOK:
+                if(isPlantScreen) {
+                    ((PlantScreen)screen).toggleRenderingPlantScreen();
+                }
+                break;
         }
         isPressed = false;
     }
