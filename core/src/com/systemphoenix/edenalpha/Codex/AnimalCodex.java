@@ -11,11 +11,11 @@ public class AnimalCodex {
                             HIGHEST = 6;
 
     public static final String name[] = {
-            "Eagle", "Tamaraw", "King Cobra"
+            "Eagle", "Tamaraw", "Fruit Bat"
     };
 
     public static final float DMG[] = {
-            50,
+            25,
             75,
             100,
             150,
@@ -39,15 +39,15 @@ public class AnimalCodex {
     };
 
     public static final int rangeStats[] = {
-            LOW, HIGH, HIGHER,
+            LOW, HIGH, HIGHEST,
     };
 
     public static final int level[] = {
-            2, 5, 13
+            2, 5, 8
     };
 
     public static final long effectLimit[] = {
-            1000, 5000, 7500
+            500, 5000, 7500
     };
 
     public static final String description[][] = {

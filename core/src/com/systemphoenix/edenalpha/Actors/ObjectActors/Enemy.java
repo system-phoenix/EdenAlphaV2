@@ -23,7 +23,7 @@ public class Enemy extends Sprite implements Disposable {
     protected float stateTime, speed = 30, maxSpeed, waterDrop, stackSlowRate = 0, damageCounter = 0, damagePart;
     protected int level = 0, id, life, maxLife;
     protected long lastDirectionChange, deathTimer, damageTimer, slowTimer, attackSpeed, lastAttackTime, receiveDamageTick;
-    protected boolean spawned = false, moving = true, drawable = false, disposable = false, directionSquares[][], drawHpBar, slowed = false, dead, stunned, attacking, receivingDamage;
+    protected boolean spawned = false, moving = false, drawable = false, disposable = false, directionSquares[][], drawHpBar, slowed = false, dead, stunned, attacking, receivingDamage;
     protected enum Direction {NORTH, SOUTH, EAST, WEST}
     protected Direction direction = Direction.SOUTH, opDirection = Direction.NORTH;
 
@@ -86,7 +86,7 @@ public class Enemy extends Sprite implements Disposable {
         shape.setRadius(size / 2);
         fixtureDef.shape = shape;
         fixtureDef.filter.categoryBits = CollisionBit.ENEMY;
-        fixtureDef.filter.maskBits = CollisionBit.PATHBOUND | CollisionBit.ENDPOINT | CollisionBit.ENEMYRANGE | CollisionBit.PLANT | CollisionBit.PULSE;
+        fixtureDef.filter.maskBits = CollisionBit.PATH_BOUND | CollisionBit.ENDPOINT | CollisionBit.ENEMY_RANGE | CollisionBit.PLANT | CollisionBit.PULSE | CollisionBit.ARENA;
 
         body.createFixture(fixtureDef).setUserData(this);
 
@@ -158,6 +158,7 @@ public class Enemy extends Sprite implements Disposable {
                     velY = -speed;
                     break;
             }
+//            Gdx.app.log("Verbose", "moveSpeed: " + speed + ", velX, velY:" + velX + ", " + velY);
             body.setLinearVelocity(velX, velY);
             setPosition(body.getPosition().x - size / 2, body.getPosition().y - size / 2);
             float multiplier = life >= 0 ? ((float)life / (float)maxLife) : 0;
@@ -227,44 +228,48 @@ public class Enemy extends Sprite implements Disposable {
     }
 
     public void receiveDamage(int damage) {
-        if(!drawHpBar) {
-            damageCounter = 0;
-        }
-        damageCounter += damage;
-        receivingDamage = true;
-        receiveDamageTick = gameScreen.getCentralTimer();
-//        life -= damage;
-        drawHpBar = true;
-        damageTimer = gameScreen.getCentralTimer();
-        if(life <= 0) {
-            dead = true;
-            deathTimer = gameScreen.getCentralTimer();
+        if(spawned) {
+            if(!drawHpBar) {
+                damageCounter = 0;
+            }
+            damageCounter += damage;
+            receivingDamage = true;
+            receiveDamageTick = gameScreen.getCentralTimer();
+    //        life -= damage;
+            drawHpBar = true;
+            damageTimer = gameScreen.getCentralTimer();
+            if(life <= 0) {
+                dead = true;
+                deathTimer = gameScreen.getCentralTimer();
+            }
         }
     }
 
     public void receiveDamage() {
-        if(spawned) {
-            life -= damagePart;
-        }
+        life -= damagePart;
     }
 
     public void stackSlow(float percentage) {
-        stackSlowRate += percentage;
-        if(speed > 10) {
-            speed -= maxSpeed * stackSlowRate;
-        } else {
-            speed = 10;
+        if(spawned) {
+            stackSlowRate += percentage;
+            if(speed > 10) {
+                speed -= maxSpeed * stackSlowRate;
+            } else {
+                speed = 10;
+            }
+            slowed = true;
+            slowTimer = gameScreen.getCentralTimer();
         }
-        slowed = true;
-        slowTimer = gameScreen.getCentralTimer();
     }
 
     public void slow(float percentage) {
-        if(!slowed) {
-            speed -= maxSpeed * percentage;
+        if(spawned) {
+            if(!slowed) {
+                speed -= maxSpeed * percentage;
+            }
+            slowed = true;
+            slowTimer = gameScreen.getCentralTimer();
         }
-        slowed = true;
-        slowTimer = gameScreen.getCentralTimer();
     }
 
     public void stun() {

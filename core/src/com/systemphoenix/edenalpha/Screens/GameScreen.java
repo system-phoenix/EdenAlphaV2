@@ -35,6 +35,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.systemphoenix.edenalpha.Actors.ObjectActors.Animal;
 import com.systemphoenix.edenalpha.Actors.ObjectActors.Plant;
 import com.systemphoenix.edenalpha.Codex.AnimalCodex;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
@@ -80,6 +81,7 @@ public class GameScreen extends AbsoluteScreen {
     private Music bgMusic;
     private Sound bulletSound, pulseSound, slashSound;
 
+    private Animal animal = null;
     private Array<Wave> waves;
     private Array<Plant> plants;
     private Array<InputProcessor> inputProcessors, mainProcessors, pauseProcessors;
@@ -221,10 +223,9 @@ public class GameScreen extends AbsoluteScreen {
         }
 
         int limit;
-
         int[][] temp = region.getWaves();
 
-        int enemyLimit = 10;
+        int enemyLimit = 1;
         for(int i = 0; i < waveLimit; i++) {
             if((i + 1) % 5 == 0) {
                 limit = enemyLimit * 2;
@@ -289,9 +290,9 @@ public class GameScreen extends AbsoluteScreen {
         }
 
 
-        createBodies(spawnPoints, "spawnPoints", CollisionBit.SPAWNPOINT, CollisionBit.SPAWNPOINT | CollisionBit.ENDPOINT | CollisionBit.PATHBOUND);
-        createBodies(endPoints, "endPoints", CollisionBit.ENDPOINT, CollisionBit.ENEMY | CollisionBit.ENDPOINT | CollisionBit.SPAWNPOINT | CollisionBit.PATHBOUND);
-        createBodies(pathBounds, "pathBounds", CollisionBit.PATHBOUND, CollisionBit.ENEMY | CollisionBit.SPAWNPOINT | CollisionBit.ENDPOINT);
+        createBodies(spawnPoints, "spawnPoints", CollisionBit.SPAWN_POINT, CollisionBit.SPAWN_POINT | CollisionBit.ENDPOINT | CollisionBit.PATH_BOUND);
+        createBodies(endPoints, "endPoints", CollisionBit.ENDPOINT, CollisionBit.ENEMY | CollisionBit.ENDPOINT | CollisionBit.SPAWN_POINT | CollisionBit.PATH_BOUND);
+        createBodies(pathBounds, "pathBounds", CollisionBit.PATH_BOUND, CollisionBit.ENEMY | CollisionBit.SPAWN_POINT | CollisionBit.ENDPOINT);
 
 //        createEnemies();
 //        createInterval = centralTimer;
@@ -442,7 +443,7 @@ public class GameScreen extends AbsoluteScreen {
             if(running) {
                 update(delta);
                 renderer.render();
-//            debugRenderer.render(world, cam.combined);
+//                debugRenderer.render(world, cam.combined);
             }
             else if(firstCall){
                     if(centralTimer - timer >= 1000) {
@@ -518,6 +519,9 @@ public class GameScreen extends AbsoluteScreen {
                 if(plants.get(i).isDisposable()) {
                     unroot(plants.get(i));
                 }
+            }
+            if(animal != null && animal.isDisposable()) {
+                nullAnimal();
             }
             gameGraphics.setProjectionMatrix(gameStage.getCamera().combined);
             gameStage.draw();
@@ -634,6 +638,18 @@ public class GameScreen extends AbsoluteScreen {
         topHud.setSeedStatMessage("" + (int)seeds);
     }
 
+    public void createAnimal(Sprite sprite, Sprite arenaSprite, float damage, int animalIndex) {
+        if(animal != null) nullAnimal();
+        this.animal = new Animal(this, sprite, arenaSprite, damage, animalIndex);
+        this.gameStage.addActor(animal);
+    }
+
+    public void nullAnimal() {
+        this.animal.remove();
+        this.animal.dispose();
+        this.animal = null;
+    }
+
     public void plant(int plantIndex, TextureRegion sprite) {
         if(seeds - PlantCodex.cost[plantIndex] / 2 >= 0 && water - PlantCodex.cost[plantIndex] >= 0 && (plantIndex > -1 && plantIndex < 15) && (selectedX > -1 && selectedY > -1) && (plantSquares[selectedY][selectedX] != null)) {
             seeds -= PlantCodex.cost[plantIndex] / 2;
@@ -667,6 +683,7 @@ public class GameScreen extends AbsoluteScreen {
 
             resetHud();
         }
+        Plant.setSelectAllPlants(false);
     }
 
     public void unroot(Plant plant) {
@@ -733,6 +750,7 @@ public class GameScreen extends AbsoluteScreen {
                         }
                     } else {
                         resetHud();
+                        selectedX = selectedY = -1;
                     }
                 }
             }

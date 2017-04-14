@@ -144,7 +144,7 @@ public class Plant extends Actor implements Disposable {
         effectiveRangeSprite.setBounds(this.getX() - (32f * (effectiveRange)), this.getY() - (32f * (effectiveRange)), (32f * (effectiveRange) * 2) + this.getWidth(), (32f * (effectiveRange) * 2) + this.getHeight());
 
         fixtureDef.shape = circleShape;
-        fixtureDef.filter.categoryBits = CollisionBit.ENEMYRANGE;
+        fixtureDef.filter.categoryBits = CollisionBit.ENEMY_RANGE;
         fixtureDef.filter.maskBits = CollisionBit.ENEMY;
         fixtureDef.isSensor = true;
 
@@ -154,7 +154,7 @@ public class Plant extends Actor implements Disposable {
         circleShape.setRadius(size + 32f * effectiveRange);
 
         fixtureDef.shape = circleShape;
-        fixtureDef.filter.categoryBits = CollisionBit.EFFECTIVERANGE;
+        fixtureDef.filter.categoryBits = CollisionBit.EFFECTIVE_RANGE;
         fixtureDef.filter.maskBits = CollisionBit.PLANT | CollisionBit.ENEMY;
         fixtureDef.isSensor = true;
 

@@ -128,7 +128,6 @@ public class PlantScreen extends AbsoluteScreen {
         tempAnimals = TextureRegion.split(animals, 256, 256);
         for(int i = 0; i < tempTrees.length; i++) {
             for(int j = 0; j < tempTrees[i].length; j++) {
-                Gdx.app.log("Verbose", "tempTrees.length: " + tempTrees.length + ", tempTrees[i].length:" + tempTrees[i].length + ", (i * tempTrees[i].length + j): " + (i * tempTrees[i].length + j));
                 if ((i == 3 && j == 0) || (i == 3 && j == 4)) {
                     continue;
                 } else if(i == 3 && (AnimalCodex.level[j - 1] <= mapScreen.getHighLevelBound() && AnimalCodex.level[j - 1] >= mapScreen.getLowLevelBound())) {
@@ -319,6 +318,19 @@ public class PlantScreen extends AbsoluteScreen {
             crossButton.setDrawable(true);
             crossButton.setCanPress(true);
         }
+
+        if(currentSelectionIndex == 0) {
+            playButton.setCanPress(false);
+        } else {
+            playButton.setCanPress(true);
+        }
+
+        if(currentSelectionIndex > 5 && index < 15) {
+            checkButton.setCanPress(false);
+        } else {
+            checkButton.setCanPress(true);
+        }
+
         for(int i = 0; i < currentSelectionIndex; i++) {
             renderedActorSprites[i].draw(gameGraphics);
         }

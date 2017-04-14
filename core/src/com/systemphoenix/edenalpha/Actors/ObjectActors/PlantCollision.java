@@ -33,7 +33,7 @@ public class PlantCollision implements Disposable{
 
         fixtureDef.shape = circleShape;
         fixtureDef.filter.categoryBits = CollisionBit.PLANT;
-        fixtureDef.filter.maskBits = CollisionBit.EFFECTIVERANGE | CollisionBit.ENEMY;
+        fixtureDef.filter.maskBits = CollisionBit.EFFECTIVE_RANGE | CollisionBit.ENEMY;
         fixtureDef.isSensor = true;
 
         body.createFixture(fixtureDef).setUserData(this);

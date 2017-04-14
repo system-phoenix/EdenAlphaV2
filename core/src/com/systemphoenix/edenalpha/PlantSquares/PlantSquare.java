@@ -8,8 +8,8 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.systemphoenix.edenalpha.WindowUtils.CollisionBit;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
+import com.systemphoenix.edenalpha.WindowUtils.CollisionBit;
 
 public class PlantSquare extends Sprite {
     protected float x, y;
@@ -35,7 +35,8 @@ public class PlantSquare extends Sprite {
 
         shape.setAsBox(size / 2, size / 2);
         fixtureDef.shape = shape;
-        fixtureDef.filter.categoryBits = CollisionBit.PLANTSQUARE;
+        fixtureDef.isSensor = true;
+//        fixtureDef.filter.categoryBits = CollisionBit.PLANT_SQUARE;
 
         body.createFixture(fixtureDef);
 

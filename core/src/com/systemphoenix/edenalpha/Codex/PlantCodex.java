@@ -151,19 +151,19 @@ public class PlantCodex {
     public static final float cost[] = {
             50,             //pine
 			25,             //mango
-			100,            //coconut
+			75,             //coconut
 			15,             //mushroom
 			100,            //rafflesia
 			75,             //mangrove
 			150,            //acacia
-			120,            //ananhaw
+			100,            //ananhaw
 			200,            //santol
 			20,             //duhat
 			350,            //kapok
 			350,            //bamboo
 			300,            //narra
 			150,            //balete
-			350             //pili
+			200             //pili
     };
 
     public static final int maxHP[] = {

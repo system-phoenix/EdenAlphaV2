@@ -1,37 +1,33 @@
 package com.systemphoenix.edenalpha.Actors.StageActors;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.systemphoenix.edenalpha.Actors.ObjectActors.Pulse;
+import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Codex.AnimalCodex;
 
-public class AnimalActor extends PlantActor {
+public class AnimalActor extends PlantActor implements Disposable {
 
-    private Sprite anchoredSprite;
+    private Sprite arenaSprite;
 
-    private Pulse pulse = null;
-
-    private boolean anchored;
     private float damage, range, upgradeCostWater, upgradeCostSeeds, size;
     private int upgradeIndex = 0, animalIndex;
-    private long effectTimer, effectLimit;
 
 
     public AnimalActor(Sprite textureRegion, Sprite rectangleSprite, int animalIndex, float size) {
         super(textureRegion, rectangleSprite, animalIndex, size);
-        this.anchoredSprite = new Sprite(textureRegion);
         this.animalIndex = animalIndex - 16;
         this.size = size;
         this.setBounds(976, 32, size, size);
 
         this.damage = AnimalCodex.DMG[AnimalCodex.dmgStats[this.animalIndex]];
         this.range = AnimalCodex.RANGE[AnimalCodex.rangeStats[this.animalIndex]];
-        this.effectLimit = AnimalCodex.effectLimit[this.animalIndex];
+
+        this.arenaSprite = new Sprite(new Texture(Gdx.files.internal("bullets/arena.png")));
 
         float cost = 100;
         setPlantCost(cost);
@@ -73,20 +69,12 @@ public class AnimalActor extends PlantActor {
     @Override
     public void action() {
         if(draggable && dragging) {
+            if(gameScreen.getSelectedXY().x >= 0 && gameScreen.getSelectedXY().y >= 0) {
+                gameScreen.createAnimal(sprite, arenaSprite, damage, animalIndex);
+            }
             setDragging(false);
             gameScreen.tap(-1, -1);
             gameScreen.getGameHud().setDrawable(true);
-            switch(animalIndex) {
-                case 0:
-                    Rectangle hitBox = gameScreen.getHitRectangle();
-                    pulse = new Pulse(gameScreen, hitBox, (int)damage, gameScreen.getPulseAnimation());
-                    break;
-                case 1:
-                    break;
-                case 2:
-                    break;
-            }
-            effectTimer = gameScreen.getCentralTimer();
         }
     }
 
@@ -105,23 +93,8 @@ public class AnimalActor extends PlantActor {
             draggable = !(getPlantCost() / 2 > gameScreen.getSeeds() || getPlantCost() > gameScreen.getWater());
         }
 
-        if(pulse != null) {
-            pulse.render(batch, Gdx.graphics.getDeltaTime());
-            if(pulse.isDisposable()) {
-                pulse = null;
-            }
-        }
-//        if(dragging) {
         if(dragging && recentlySelectedActor.equals(this)) {
             dragSprite.draw(batch);
-        }
-
-        if(anchored) {
-            if(gameScreen.getCentralTimer() - effectTimer >= effectLimit) {
-                anchored = false;
-            } else {
-                anchoredSprite.draw(batch);
-            }
         }
     }
 
@@ -136,6 +109,11 @@ public class AnimalActor extends PlantActor {
                 range = AnimalCodex.RANGE[AnimalCodex.rangeStats[this.animalIndex] + upgradeIndex];
             }
         }
+    }
+
+    @Override
+    public void dispose() {
+        arenaSprite.getTexture().dispose();
     }
 
     public float getDamage() {
