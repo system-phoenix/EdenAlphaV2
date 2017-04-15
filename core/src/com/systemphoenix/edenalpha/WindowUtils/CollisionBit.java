@@ -11,5 +11,6 @@ public class CollisionBit {
     public static final short PULSE = 128;                  //7
     public static final short ARENA = 256;                  //8
 
-//    public static final short PLANT_SQUARE = 16384;         //14
+
+    public static final short PLANT_SQUARE = 16384;         //14
 }

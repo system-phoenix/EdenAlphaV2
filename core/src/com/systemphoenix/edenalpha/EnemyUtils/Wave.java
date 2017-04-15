@@ -82,4 +82,10 @@ public class Wave implements Disposable {
     public boolean isCleared() {
         return cleared;
     }
+
+    public void setPathCount(int pathCount) {
+        for(int i = 0; i < spawnPoints.size; i++) {
+            spawnPoints.get(i).setPathCount(pathCount);
+        }
+    }
 }

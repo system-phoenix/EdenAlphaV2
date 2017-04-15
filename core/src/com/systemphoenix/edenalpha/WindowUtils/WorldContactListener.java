@@ -1,6 +1,5 @@
 package com.systemphoenix.edenalpha.WindowUtils;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
@@ -87,7 +86,7 @@ public class WorldContactListener implements ContactListener {
             case CollisionBit.EFFECTIVE_RANGE | CollisionBit.PLANT:
                 plantCollision  = a.getFilterData().categoryBits == CollisionBit.PLANT ? (PlantCollision) a.getUserData()   : (PlantCollision) b.getUserData();
                 plant           = a.getFilterData().categoryBits == CollisionBit.PLANT ? (Plant) b.getUserData()            : (Plant) a.getUserData();
-                plantsCollide(plantCollision, plant, true);
+                plantsCollide(plantCollision, plant, false);
                 break;
 
             case CollisionBit.PULSE | CollisionBit.ENEMY:

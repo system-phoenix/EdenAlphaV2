@@ -19,11 +19,11 @@ import com.systemphoenix.edenalpha.WindowUtils.CollisionBit;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class Enemy extends Sprite implements Disposable {
-    protected float size, velX, velY, damage;
+    protected float size, velX, velY, damage, pastX, pastY;
     protected float stateTime, speed = 30, maxSpeed, waterDrop, stackSlowRate = 0, damageCounter = 0, damagePart;
-    protected int level = 0, id, life, maxLife;
+    protected int level = 0, id, life, maxLife, pathCount = 0;
     protected long lastDirectionChange, deathTimer, damageTimer, slowTimer, attackSpeed, lastAttackTime, receiveDamageTick;
-    protected boolean spawned = false, moving = false, drawable = false, disposable = false, directionSquares[][], drawHpBar, slowed = false, dead, stunned, attacking, receivingDamage;
+    protected boolean spawned = false, moving = false, drawable = false, disposable = false, directionSquares[][], drawHpBar, slowed = false, dead, stunned, attacking, receivingDamage, spirit = false;
     protected enum Direction {NORTH, SOUTH, EAST, WEST}
     protected Direction direction = Direction.SOUTH, opDirection = Direction.NORTH;
 
@@ -131,6 +131,19 @@ public class Enemy extends Sprite implements Disposable {
         }
         stateTime += delta;
         if(moving) {
+            int x = getX() - (int)getX() < 0.5f ? (int)getX() : (int)getX() + 1;
+            int y = getY() - (int)getY() < 0.5f ? (int)getY() : (int)getY() + 1;
+            if(x != pastX) {
+                if(x % 32 == 0) {
+                    pathCount++;
+                    pastX = x;
+                }
+            } else if(y != pastY) {
+                if(y % 32 == 0) {
+                    pathCount++;
+                    pastY = y;
+                }
+            }
             if(!attacking && (slowed && gameScreen.getCentralTimer() - slowTimer > 500)) {
                 speed = maxSpeed;
                 slowed = false;
@@ -220,6 +233,10 @@ public class Enemy extends Sprite implements Disposable {
                 greenLifeBar.draw(batch);
             }
         }
+    }
+
+    public void decrementPathCount() {
+        pathCount--;
     }
 
     public void damageForest() {
@@ -355,12 +372,20 @@ public class Enemy extends Sprite implements Disposable {
         return moving;
     }
 
+    public boolean isSpirit() {
+        return spirit;
+    }
+
     public int getLife() {
         return life;
     }
 
     public int getLevel() {
         return level;
+    }
+
+    public int getPathCount() {
+        return pathCount;
     }
 
     public Body getBody() {
@@ -373,5 +398,9 @@ public class Enemy extends Sprite implements Disposable {
 
     public void setMoving(boolean moving) {
         this.moving = moving;
+    }
+
+    public void setPathCount(int pathCount) {
+        this.pathCount = pathCount;
     }
 }

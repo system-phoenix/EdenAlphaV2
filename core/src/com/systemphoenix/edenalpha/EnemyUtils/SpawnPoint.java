@@ -68,4 +68,10 @@ public class SpawnPoint implements Disposable {
     public int getEnemySize() {
         return enemies.size;
     }
+
+    public void setPathCount(int pathCount) {
+        for(int i = 0; i < enemies.size; i++) {
+            enemies.get(i).setPathCount(pathCount);
+        }
+    }
 }

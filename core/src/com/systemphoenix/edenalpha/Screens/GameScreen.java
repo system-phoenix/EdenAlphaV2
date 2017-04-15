@@ -37,21 +37,21 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.systemphoenix.edenalpha.Actors.ObjectActors.Animal;
 import com.systemphoenix.edenalpha.Actors.ObjectActors.Plant;
+import com.systemphoenix.edenalpha.Actors.StageActors.AnimalActor;
+import com.systemphoenix.edenalpha.Actors.StageActors.ButtonActor;
+import com.systemphoenix.edenalpha.Actors.StageActors.PlantActor;
 import com.systemphoenix.edenalpha.Codex.AnimalCodex;
 import com.systemphoenix.edenalpha.Codex.ButtonCodex;
 import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.Codex.RegionCodex;
-import com.systemphoenix.edenalpha.WindowUtils.CollisionBit;
 import com.systemphoenix.edenalpha.Eden;
 import com.systemphoenix.edenalpha.EnemyUtils.Wave;
 import com.systemphoenix.edenalpha.PlantSquares.PlantSquare;
 import com.systemphoenix.edenalpha.PlantSquares.SquareType;
-import com.systemphoenix.edenalpha.WindowUtils.Region;
-import com.systemphoenix.edenalpha.Actors.StageActors.AnimalActor;
-import com.systemphoenix.edenalpha.Actors.StageActors.ButtonActor;
 import com.systemphoenix.edenalpha.Scenes.GameHud;
-import com.systemphoenix.edenalpha.Actors.StageActors.PlantActor;
 import com.systemphoenix.edenalpha.Scenes.TopHud;
+import com.systemphoenix.edenalpha.WindowUtils.CollisionBit;
+import com.systemphoenix.edenalpha.WindowUtils.Region;
 import com.systemphoenix.edenalpha.WindowUtils.WorldContactListener;
 
 public class GameScreen extends AbsoluteScreen {
@@ -85,6 +85,8 @@ public class GameScreen extends AbsoluteScreen {
     private Array<Wave> waves;
     private Array<Plant> plants;
     private Array<InputProcessor> inputProcessors, mainProcessors, pauseProcessors;
+    private Array<Body> spawnPoints, endPoints, pathBounds;
+    Array<Vector2> spawnPointsVector;
 
     private TextureRegion blank;
     private Animation<TextureRegion> pulseAnimation, slashAnimation;
@@ -214,12 +216,12 @@ public class GameScreen extends AbsoluteScreen {
     }
 
     private void createEnemyWaves() {
-        Array<Vector2> spawnPoints = new Array<Vector2>();
+        spawnPointsVector = new Array<Vector2>();
         waves = new Array<Wave>();
 
         for(MapObject object : map.getLayers().get("spawnPoints").getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            spawnPoints.add(new Vector2(rect.getX(), rect.getY()));
+            spawnPointsVector.add(new Vector2(rect.getX(), rect.getY()));
         }
 
         int limit;
@@ -232,13 +234,11 @@ public class GameScreen extends AbsoluteScreen {
             } else {
                 limit = enemyLimit;
             }
-            waves.add(new Wave(this, spawnPoints, i, limit, temp[i]));
+            waves.add(new Wave(this, spawnPointsVector, i, limit, temp[i]));
         }
     }
 
     private void createWorld() {
-        Array<Body> spawnPoints, endPoints, pathBounds;
-
         world = new World(new Vector2(0, 0), true);
         world.setContactListener(new WorldContactListener());
         debugRenderer = new Box2DDebugRenderer();
@@ -290,8 +290,8 @@ public class GameScreen extends AbsoluteScreen {
         }
 
 
-        createBodies(spawnPoints, "spawnPoints", CollisionBit.SPAWN_POINT, CollisionBit.SPAWN_POINT | CollisionBit.ENDPOINT | CollisionBit.PATH_BOUND);
-        createBodies(endPoints, "endPoints", CollisionBit.ENDPOINT, CollisionBit.ENEMY | CollisionBit.ENDPOINT | CollisionBit.SPAWN_POINT | CollisionBit.PATH_BOUND);
+        createBodies(spawnPoints, "spawnPoints", CollisionBit.SPAWN_POINT, CollisionBit.SPAWN_POINT | CollisionBit.ENDPOINT);
+        createBodies(endPoints, "endPoints", CollisionBit.ENDPOINT, CollisionBit.ENEMY | CollisionBit.ENDPOINT | CollisionBit.SPAWN_POINT);
         createBodies(pathBounds, "pathBounds", CollisionBit.PATH_BOUND, CollisionBit.ENEMY | CollisionBit.SPAWN_POINT | CollisionBit.ENDPOINT);
 
 //        createEnemies();
@@ -477,8 +477,9 @@ public class GameScreen extends AbsoluteScreen {
                     if(displaySquare >= 0 && displaySquare < region.getArraySizeX()) {
                         for(int i = 0; i < region.getArraySizeY(); i++) {
                             for(int j = displaySquare - 3; j <= displaySquare + 3; j++) {
-                                if(j < region.getArraySizeX() && j >= 0 && plantSquares[i][j] != null)
+                                if(j < region.getArraySizeX() && j >= 0 && plantSquares[i][j] != null) {
                                     plantSquares[i][j].preDraw(gameGraphics);
+                                }
                             }
                         }
                         topHud.setReadyPlantMessage("Ready?");
@@ -839,6 +840,27 @@ public class GameScreen extends AbsoluteScreen {
             plants.get(i).dispose();
         }
 
+        for(int i = 0; i < plantSquares.length; i++) {
+            for(int j = 0; j < plantSquares[i].length; j++) {
+                if(plantSquares[i][j] != null) {
+                    plantSquares[i][j].dispose();
+                    world.destroyBody(plantSquares[i][j].getBody());
+                }
+            }
+        }
+
+        for(int i = 0; i < spawnPoints.size; i++) {
+            world.destroyBody(spawnPoints.get(i));
+        }
+
+        for(int i = 0; i < endPoints.size; i++) {
+            world.destroyBody(endPoints.get(i));
+        }
+
+        for(int i = 0; i < pathBounds.size; i++) {
+            world.destroyBody(pathBounds.get(i));
+        }
+
         bgMusic.dispose();
         bulletSound.dispose();
         pulseSound.dispose();
@@ -984,6 +1006,10 @@ public class GameScreen extends AbsoluteScreen {
         return plants;
     }
 
+    public Array<Vector2> getSpawnPoints() {
+        return spawnPointsVector;
+    }
+
     public OrthographicCamera getCamera() {
         return cam;
     }
@@ -1006,6 +1032,12 @@ public class GameScreen extends AbsoluteScreen {
             topHud.setSeedStatMessage("" + (int)seeds);
             waterUpgradeSeedCost *= 2;
             waterRate *= 2;
+        }
+    }
+
+    public void setWavePathCount(int pathCount) {
+        for(int i = 0; i < waves.size; i++) {
+            waves.get(i).setPathCount(pathCount);
         }
     }
 

@@ -52,7 +52,7 @@ public class PlantScreen extends AbsoluteScreen {
     private MapScreen mapScreen;
     private Region region;
 
-    private int selectedIndeces[], currentSelectionIndex, index, selectedAnimalIndex = -1;
+    private int selectedIndices[], currentSelectionIndex, index, selectedAnimalIndex = -1;
     private boolean selected[], renderingPlantScreen = true;
 
     public PlantScreen(Eden game, MapScreen mapScreen, Region region) {
@@ -61,12 +61,12 @@ public class PlantScreen extends AbsoluteScreen {
         this.region = region;
 
         this.gameGraphics = game.getGameGraphics();
-        this.selectedIndeces = new int[6];
+        this.selectedIndices = new int[6];
         this.actorRectangles = new Rectangle[6];
         this.selected = new boolean[20];
 
-        for(int i = 0; i < selectedIndeces.length; i++) {
-            selectedIndeces[i] = -1;
+        for(int i = 0; i < selectedIndices.length; i++) {
+            selectedIndices[i] = -1;
         }
 
         for(int i = 0; i < selected.length; i++) {
@@ -505,11 +505,11 @@ public class PlantScreen extends AbsoluteScreen {
 
     public void selectPlant() {
         if(index < 16) {
-            if(currentSelectionIndex <= selectedIndeces.length) {
+            if(currentSelectionIndex <= selectedIndices.length) {
                 selected[index] = !selected[index];
                 if(selected[index]) {
-                    if(currentSelectionIndex < selectedIndeces.length) {
-                        selectedIndeces[currentSelectionIndex] = index;
+                    if(currentSelectionIndex < selectedIndices.length) {
+                        selectedIndices[currentSelectionIndex] = index;
                         renderedActorSprites[currentSelectionIndex].set(actorSprites[index]);
                         renderedActorSprites[currentSelectionIndex].setBounds(PlantCodex.plantSelectorIndex[currentSelectionIndex], 64, 64, 64);
                         currentSelectionIndex++;
@@ -517,14 +517,14 @@ public class PlantScreen extends AbsoluteScreen {
                         selected[index] = !selected[index];
                     }
                 } else {
-                    for(int i = 0; i < selectedIndeces.length; i++) {
-                        if(selectedIndeces[i] == index) {
-                            for(int j = i; j < selectedIndeces.length; j++) {
-                                if(j + 1 == selectedIndeces.length) {
-                                    selectedIndeces[j] = -1;
+                    for(int i = 0; i < selectedIndices.length; i++) {
+                        if(selectedIndices[i] == index) {
+                            for(int j = i; j < selectedIndices.length; j++) {
+                                if(j + 1 == selectedIndices.length) {
+                                    selectedIndices[j] = -1;
                                     renderedActorSprites[j] = new Sprite();
                                 } else {
-                                    selectedIndeces[j] = selectedIndeces[j + 1];
+                                    selectedIndices[j] = selectedIndices[j + 1];
                                     renderedActorSprites[j] = renderedActorSprites[j + 1];
                                     renderedActorSprites[j].setBounds(PlantCodex.plantSelectorIndex[j], 64, 64, 64);
                                 }
@@ -548,7 +548,7 @@ public class PlantScreen extends AbsoluteScreen {
         if(currentSelectionIndex > 0) {
             PlantActor plantActor[] = new PlantActor[currentSelectionIndex];
             for(int k = 0; k < plantActor.length; k++) {
-                plantActor[k] = new PlantActor(renderedActorSprites[k], rectangleSprite, selectedIndeces[k], k, 64);
+                plantActor[k] = new PlantActor(renderedActorSprites[k], rectangleSprite, selectedIndices[k], k, 64);
             }
             if(selectedAnimalIndex != -1) {
                 AnimalActor animalActor = new AnimalActor(animalActorSprite, rectangleSprite, selectedAnimalIndex, 64);

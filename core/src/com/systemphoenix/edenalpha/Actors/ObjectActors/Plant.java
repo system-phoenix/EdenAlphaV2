@@ -23,6 +23,7 @@ import com.systemphoenix.edenalpha.Codex.PlantCodex;
 import com.systemphoenix.edenalpha.WindowUtils.CollisionBit;
 import com.systemphoenix.edenalpha.PlantSquares.PlantSquare;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
+import com.systemphoenix.edenalpha.WindowUtils.PositionComparator;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -182,15 +183,7 @@ public class Plant extends Actor implements Disposable {
     }
 
     public void acquireTarget(Enemy enemy) {
-        if(EnemyCodex.speed[enemy.getLevel()] > fastestSpeed && targets.size > 0) {
-            fastestSpeed = EnemyCodex.speed[enemy.getLevel()];
-//            targets.set(0, enemy);
-            targets.insert(0, enemy);
-        } else if(EnemyCodex.speed[enemy.getLevel()] == fastestSpeed && targets.size > 1) {
-            targets.set(1, enemy);
-        } else {
-            targets.add(enemy);
-        }
+        targets.add(enemy);
     }
 
     public void acquireAttacker(Enemy enemy) {
@@ -251,7 +244,7 @@ public class Plant extends Actor implements Disposable {
     }
 
     private void upgradeHP() {
-        if(PlantCodex.maxHP[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+        if(PlantCodex.maxHP[plantIndex] + upgradeIndex < PlantCodex.ABS_HIGHEST) {
             targetHp = PlantCodex.hpStats[PlantCodex.maxHP[plantIndex] + upgradeIndex + downGradeIndex];
             damaged = true;
         }
@@ -276,7 +269,7 @@ public class Plant extends Actor implements Disposable {
     }
 
     private void upgradeRange() {
-        if(PlantCodex.range[plantIndex] + upgradeIndex + downGradeIndex < PlantCodex.ABS_HIGHEST) {
+        if(PlantCodex.range[plantIndex] + upgradeIndex < PlantCodex.ABS_HIGHEST) {
             gameScreen.getWorld().destroyBody(body);
             initialize();
         }
@@ -318,6 +311,7 @@ public class Plant extends Actor implements Disposable {
     public void update() {
         if(!growing) {
             if(targets.size > 0 && gameScreen.getCentralTimer() - lastAttackTime >= attackSpeed) {
+                targets.sort(new PositionComparator());
                 sound.play();
                 try{
                     int dmgRange = (int)(damage.y - damage.x);

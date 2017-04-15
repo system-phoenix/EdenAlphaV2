@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="23" tilewidth="32" tileheight="32" nextobjectid="1450">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="23" tilewidth="32" tileheight="32" nextobjectid="1520">
  <tileset firstgid="1" name="[eden]terrain" tilewidth="32" tileheight="32" tilecount="512" columns="32">
   <image source="[eden]terrain.png" width="1024" height="512"/>
   <tile id="16">
@@ -930,7 +930,7 @@
   <object id="1444" x="160" y="576" width="32" height="32"/>
   <object id="1445" x="192" y="576" width="32" height="32"/>
  </objectgroup>
- <objectgroup name="pathBounds">
+ <objectgroup name="pathBounds" visible="0">
   <object id="1208" x="1056" y="608" width="32" height="32"/>
   <object id="1211" x="896" y="192" width="32" height="32"/>
   <object id="1212" x="864" y="288" width="32" height="32"/>
@@ -944,7 +944,7 @@
  <objectgroup name="endPoints" visible="0">
   <object id="1207" x="1088" y="256" width="32" height="32"/>
  </objectgroup>
- <objectgroup name="directionSquares">
+ <objectgroup name="directionSquares" visible="0">
   <object id="1214" x="1024" y="576" width="32" height="32"/>
   <object id="1217" x="864" y="224" width="32" height="32"/>
   <object id="1218" x="896" y="256" width="32" height="32"/>

@@ -8,10 +8,11 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.utils.Disposable;
 import com.systemphoenix.edenalpha.Screens.GameScreen;
 import com.systemphoenix.edenalpha.WindowUtils.CollisionBit;
 
-public class PlantSquare extends Sprite {
+public class PlantSquare extends Sprite implements Disposable {
     protected float x, y;
     protected int gridX, gridY;
     protected short type;
@@ -36,7 +37,7 @@ public class PlantSquare extends Sprite {
         shape.setAsBox(size / 2, size / 2);
         fixtureDef.shape = shape;
         fixtureDef.isSensor = true;
-//        fixtureDef.filter.categoryBits = CollisionBit.PLANT_SQUARE;
+        fixtureDef.filter.categoryBits = CollisionBit.PLANT_SQUARE;
 
         body.createFixture(fixtureDef);
 
@@ -74,6 +75,11 @@ public class PlantSquare extends Sprite {
         } catch(Exception e) {
             Gdx.app.log("Verbose", "Error in rendering plantSquare: " + e.getMessage());
         }
+    }
+
+    @Override
+    public void dispose() {
+        square.dispose();
     }
 
     public Body getBody() {

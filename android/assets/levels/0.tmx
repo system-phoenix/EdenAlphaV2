@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="23" tilewidth="32" tileheight="32" nextobjectid="1519">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="23" tilewidth="32" tileheight="32" nextobjectid="1520">
  <tileset firstgid="1" name="[eden]terrain" tilewidth="32" tileheight="32" tilecount="512" columns="32">
   <image source="[eden]terrain.png" width="1024" height="512"/>
  </tileset>
@@ -168,7 +168,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup name="pathBounds" visible="0">
+ <objectgroup name="pathBounds">
   <object id="1411" x="160" y="544" width="32" height="32"/>
   <object id="1416" x="608" y="512" width="32" height="32"/>
   <object id="1417" x="576" y="384" width="32" height="32"/>
@@ -578,76 +578,5 @@
   <object id="1354" x="1088" y="416" width="32" height="32"/>
   <object id="1355" x="992" y="448" width="32" height="32"/>
   <object id="1359" x="160" y="192" width="32" height="32"/>
- </objectgroup>
- <objectgroup name="path">
-  <object id="1448" x="160" y="192" width="32" height="32"/>
-  <object id="1449" x="160" y="224" width="32" height="32"/>
-  <object id="1450" x="160" y="256" width="32" height="32"/>
-  <object id="1451" x="160" y="288" width="32" height="32"/>
-  <object id="1452" x="160" y="320" width="32" height="32"/>
-  <object id="1453" x="160" y="352" width="32" height="32"/>
-  <object id="1454" x="160" y="384" width="32" height="32"/>
-  <object id="1455" x="160" y="416" width="32" height="32"/>
-  <object id="1456" x="160" y="448" width="32" height="32"/>
-  <object id="1457" x="160" y="480" width="32" height="32"/>
-  <object id="1458" x="160" y="512" width="32" height="32"/>
-  <object id="1459" x="192" y="512" width="32" height="32"/>
-  <object id="1460" x="224" y="512" width="32" height="32"/>
-  <object id="1461" x="256" y="512" width="32" height="32"/>
-  <object id="1462" x="288" y="512" width="32" height="32"/>
-  <object id="1463" x="320" y="512" width="32" height="32"/>
-  <object id="1464" x="352" y="512" width="32" height="32"/>
-  <object id="1465" x="384" y="512" width="32" height="32"/>
-  <object id="1466" x="416" y="512" width="32" height="32"/>
-  <object id="1467" x="448" y="512" width="32" height="32"/>
-  <object id="1468" x="480" y="512" width="32" height="32"/>
-  <object id="1469" x="512" y="512" width="32" height="32"/>
-  <object id="1470" x="544" y="512" width="32" height="32"/>
-  <object id="1471" x="576" y="512" width="32" height="32"/>
-  <object id="1472" x="576" y="480" width="32" height="32"/>
-  <object id="1473" x="576" y="448" width="32" height="32"/>
-  <object id="1474" x="576" y="416" width="32" height="32"/>
-  <object id="1475" x="608" y="416" width="32" height="32"/>
-  <object id="1476" x="640" y="416" width="32" height="32"/>
-  <object id="1477" x="672" y="416" width="32" height="32"/>
-  <object id="1478" x="704" y="416" width="32" height="32"/>
-  <object id="1479" x="704" y="384" width="32" height="32"/>
-  <object id="1480" x="704" y="352" width="32" height="32"/>
-  <object id="1481" x="704" y="320" width="32" height="32"/>
-  <object id="1482" x="704" y="288" width="32" height="32"/>
-  <object id="1483" x="704" y="256" width="32" height="32"/>
-  <object id="1484" x="704" y="224" width="32" height="32"/>
-  <object id="1485" x="704" y="192" width="32" height="32"/>
-  <object id="1486" x="704" y="160" width="32" height="32"/>
-  <object id="1487" x="704" y="128" width="32" height="32"/>
-  <object id="1488" x="704" y="96" width="32" height="32"/>
-  <object id="1489" x="736" y="96" width="32" height="32"/>
-  <object id="1490" x="768" y="96" width="32" height="32"/>
-  <object id="1491" x="800" y="96" width="32" height="32"/>
-  <object id="1492" x="832" y="96" width="32" height="32"/>
-  <object id="1493" x="864" y="96" width="32" height="32"/>
-  <object id="1494" x="896" y="96" width="32" height="32"/>
-  <object id="1495" x="928" y="96" width="32" height="32"/>
-  <object id="1496" x="960" y="96" width="32" height="32"/>
-  <object id="1498" x="960" y="128" width="32" height="32"/>
-  <object id="1499" x="960" y="160" width="32" height="32"/>
-  <object id="1500" x="960" y="192" width="32" height="32"/>
-  <object id="1501" x="960" y="224" width="32" height="32"/>
-  <object id="1502" x="960" y="256" width="32" height="32"/>
-  <object id="1503" x="960" y="288" width="32" height="32"/>
-  <object id="1504" x="992" y="288" width="32" height="32"/>
-  <object id="1505" x="1024" y="288" width="32" height="32"/>
-  <object id="1506" x="1056" y="288" width="32" height="32"/>
-  <object id="1507" x="1088" y="288" width="32" height="32"/>
-  <object id="1508" x="1120" y="288" width="32" height="32"/>
-  <object id="1509" x="1120" y="320" width="32" height="32"/>
-  <object id="1510" x="1120" y="352" width="32" height="32"/>
-  <object id="1511" x="1120" y="384" width="32" height="32"/>
-  <object id="1513" x="1120" y="416" width="32" height="32"/>
-  <object id="1514" x="1088" y="416" width="32" height="32"/>
-  <object id="1515" x="1056" y="416" width="32" height="32"/>
-  <object id="1516" x="1024" y="416" width="32" height="32"/>
-  <object id="1517" x="992" y="416" width="32" height="32"/>
-  <object id="1518" x="992" y="448" width="32" height="32"/>
  </objectgroup>
 </map>
