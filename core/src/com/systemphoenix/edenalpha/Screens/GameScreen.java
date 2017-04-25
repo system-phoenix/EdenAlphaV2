@@ -109,7 +109,7 @@ public class GameScreen extends AbsoluteScreen {
         this.seeds = RegionCodex.startingResource[region.getMapIndex()] / 2;
         this.water = RegionCodex.startingResource[region.getMapIndex()];
 //        this.waveLimit = region.getWaveLimit();
-        this.waveLimit = 1;
+        this.waveLimit = 0;
         this.sunlight = region.getSunlight();
 
         worldHeight = region.getWorldHeight();
@@ -412,6 +412,7 @@ public class GameScreen extends AbsoluteScreen {
                 } else {
                     win = true;
                     running = false;
+                    pauseGame();
                 }
             }
 
@@ -419,6 +420,7 @@ public class GameScreen extends AbsoluteScreen {
         } else {
             lose = true;
             running = false;
+            pauseGame();
         }
         topHud.setMessage("" + (int)forestLife);
         renderer.setView(cam);
@@ -429,8 +431,8 @@ public class GameScreen extends AbsoluteScreen {
     public void render(float delta) {
         Gdx.gl.glClearColor(0.05f, 0.05f, 0.05f, 1);
         if(willDispose) {
-            game.setScreen(mapScreen);
             this.dispose();
+            game.setScreen(mapScreen);
         } else if(willRestart) {
             restart();
             willRestart = false;
@@ -552,11 +554,9 @@ public class GameScreen extends AbsoluteScreen {
                 Gdx.app.log("Verbose", "Error rendering game hud: " + e.getMessage());
             }
 
+        } else {
+            gameGraphics.begin();
             if(win || lose) {
-                cam.zoom = worldWidth/screenWidth;
-                bindInput(pauseProcessors);
-                boundCamera();
-                gameGraphics.begin();
                 if(win) {
                     if(mapScreen.getHighLevelBound() == region.getMapIndex()) {
                         if(mapScreen.getHighLevelBound() < 16) {
@@ -579,23 +579,10 @@ public class GameScreen extends AbsoluteScreen {
                 } else {
                     loseEndGame.draw(gameGraphics);
                 }
-                gameGraphics.end();
-
-                homeButton.setDrawable(true);
-                homeButton.setCanPress(true);
-
-                restartButton.setCanPress(true);
-                restartButton.setDrawable(true);
-
-                gameGraphics.setProjectionMatrix(pauseStage.getCamera().combined);
-                pauseStage.draw();
-
                 game.setResourceCount(seeds, water);
+            } else {
+                pausedSprite.draw(gameGraphics);
             }
-
-        } else {
-            gameGraphics.begin();
-            pausedSprite.draw(gameGraphics);
             gameGraphics.end();
             gameGraphics.setProjectionMatrix(pauseStage.getCamera().combined);
             pauseStage.draw();
@@ -891,30 +878,29 @@ public class GameScreen extends AbsoluteScreen {
     }
 
     public void restart() {
-        plantScreen.createGameScreen();
         this.dispose();
+        plantScreen.createGameScreen();
     }
 
     public void pauseGame() {
-        if(!(win || lose)) {
-            paused = true;
-            cam.zoom = worldWidth/screenWidth;
-            boundCamera();
-            topHud.setPauseButtonCanDraw(false);
-            gameHud.setCanPress(false);
+//        if(!(win || lose)) paused = true;
+        paused = true;
+        cam.zoom = worldWidth/screenWidth;
+        boundCamera();
+        topHud.setPauseButtonCanDraw(false);
+        gameHud.setCanPress(false);
 
-            playButton.setDrawable(true);
-            homeButton.setDrawable(true);
-            restartButton.setDrawable(true);
+        playButton.setDrawable(!(win || lose));
+        homeButton.setDrawable(true);
+        restartButton.setDrawable(true);
 
-            playButton.setCanPress(true);
-            homeButton.setCanPress(true);
-            restartButton.setCanPress(true);
+        playButton.setCanPress(true);
+        homeButton.setCanPress(true);
+        restartButton.setCanPress(true);
 
-            bindInput(pauseProcessors);
+        bindInput(pauseProcessors);
 
-            timeGap = centralTimer - timer;
-        }
+        timeGap = centralTimer - timer;
     }
 
     public void resumeGame() {
