@@ -108,7 +108,8 @@ public class GameScreen extends AbsoluteScreen {
         this.forestLife = region.getLifePercentage();
         this.seeds = RegionCodex.startingResource[region.getMapIndex()] / 2;
         this.water = RegionCodex.startingResource[region.getMapIndex()];
-        this.waveLimit = region.getWaveLimit();
+//        this.waveLimit = region.getWaveLimit();
+        this.waveLimit = 1;
         this.sunlight = region.getSunlight();
 
         worldHeight = region.getWorldHeight();
@@ -375,7 +376,7 @@ public class GameScreen extends AbsoluteScreen {
                 topHud.setWaterStatMessage("" + (int)water);
             }
             if(newWave) {
-                if(waveIndex + 1 > waveLimit && centralTimer - newWaveCountdown >= 3000) {
+                if(waveIndex + 1 >= waveLimit && centralTimer - newWaveCountdown >= 3000) {
                     newWaveCountdown = centralTimer - 15000;
                 }
                 if(centralTimer - newWaveCountdown >= 15000) {
