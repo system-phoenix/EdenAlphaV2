@@ -28,10 +28,24 @@ public class Animal extends Actor implements Disposable {
         switch(animalIndex) {
             case 0:
                 Rectangle hitBox = gameScreen.getHitRectangle();
+                if(gameScreen.getRegion().getLifePercentage() < 40) {
+                    damage *= 0.5f;
+                } else if(gameScreen.getRegion().getLifePercentage() < 60) {
+                    damage *= 1f;
+                } else {
+                    damage *= 2f;
+                }
                 pulse = new Pulse(gameScreen, hitBox, (int)damage, gameScreen.getPulseAnimation());
                 break;
             case 1:
-                arena = new Arena(gameScreen, arenaSprite, gameScreen.getSelectedXY().x, gameScreen.getSelectedXY().y, 0, animalIndex, true);
+                if(gameScreen.getRegion().getLifePercentage() < 40) {
+                    damage *= 2f;
+                } else if(gameScreen.getRegion().getLifePercentage() < 60) {
+                    damage *= 1f;
+                } else {
+                    damage *= 0.5f;
+                }
+                arena = new Arena(gameScreen, arenaSprite, gameScreen.getSelectedXY().x, gameScreen.getSelectedXY().y, damage, animalIndex, true);
                 break;
             case 2:
                 arena = new Arena(gameScreen, arenaSprite, gameScreen.getSelectedXY().x, gameScreen.getSelectedXY().y, damage, animalIndex, false);

@@ -536,7 +536,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup name="plantSquares" visible="0">
+ <objectgroup name="plantSquares">
   <object id="567" x="256" y="320" width="32" height="32"/>
   <object id="568" x="1120" y="544" width="32" height="32"/>
   <object id="569" x="800" y="512" width="32" height="32"/>
@@ -998,7 +998,7 @@
   <object id="1248" x="1024" y="480" width="32" height="32"/>
   <object id="1404" x="224" y="256" width="32" height="32"/>
  </objectgroup>
- <objectgroup name="saltwaterPlantSquares" visible="0">
+ <objectgroup name="saltwaterPlantSquares">
   <object id="1250" x="96" y="96" width="32" height="32"/>
   <object id="1251" x="128" y="96" width="32" height="32"/>
   <object id="1252" x="160" y="96" width="32" height="32"/>

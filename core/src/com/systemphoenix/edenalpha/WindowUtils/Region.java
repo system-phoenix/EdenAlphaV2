@@ -5,7 +5,7 @@ import com.systemphoenix.edenalpha.Codex.RegionCodex;
 public class Region {
     private String name, code;
     private float x, y, forestLandPercentage, worldWidth, worldHeight, sunlight;
-    private int mapIndex, arraySizeX, arraySizeY, timeStart, waves[][];
+    private int mapIndex, arraySizeX, arraySizeY, timeStart, waveLimit, waves[][];
     private String musicFX;
 
     public Region(int codexIndex) {
@@ -19,6 +19,7 @@ public class Region {
         this.waves                  = RegionCodex.waves[codexIndex];
         this.musicFX                = RegionCodex.mapSound[codexIndex];
         this.sunlight               = RegionCodex.sunlight[codexIndex];
+        this.waveLimit              = this.waves.length;
         this.worldWidth             = 1280;
         this.worldHeight            = 720;
         this.arraySizeX             = 40;
@@ -71,6 +72,10 @@ public class Region {
 
     public int getTimeStart() {
         return timeStart;
+    }
+
+    public int getWaveLimit() {
+        return waveLimit;
     }
 
     public int[][] getWaves() {

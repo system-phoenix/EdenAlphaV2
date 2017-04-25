@@ -158,7 +158,7 @@ public class PlantScreen extends AbsoluteScreen {
                     actorSprites[(i * tempTrees[i].length) + j] = new Sprite(tempAnimals[0][j - 1]);
                     stage.addActor(new AnimalButton(sprites[i * tempTrees[i].length + j], stage, this, i * tempTrees[i].length + j));
                 } else if((i * tempTrees[i].length + j >= mapScreen.getLowLevelBound() && i * tempTrees[i].length + j <= mapScreen.getHighLevelBound()) || (i * tempTrees[i].length + j < 15 && PlantCodex.level[i * tempTrees[i].length + j] <= mapScreen.getHighLevelBound())) {
-                    if((i == 0 && (j == 3 || j == 4)) || (i == 1 && j == 2)) {
+                    if((i == 0 && (j == 3 || j == 4)) || (i == 1 && j == 1)) {
                         sprites[(i * tempTrees[i].length) + j] = new Sprite(tempPlants[i][j]);
                         actorSprites[(i * tempTrees[i].length) + j] = new Sprite(tempPlants[i][j]);
                     } else {
@@ -189,7 +189,7 @@ public class PlantScreen extends AbsoluteScreen {
         Table tempTable = new Table(), infoTable = new Table(), descTable = new Table();
         tempTable.setBounds(797, 300, 111, 390);
         infoTable.setBounds(908, 300, 320, 390);
-        descTable.setBounds(793, 300, 431, 250);
+        descTable.setBounds(793, 300, 431, 225);
 
         Color border = Color.BLACK;
         Color fontColor = Color.WHITE;
@@ -285,7 +285,7 @@ public class PlantScreen extends AbsoluteScreen {
         infoTable.row();
 
         tempLabel = new Label("--", new Label.LabelStyle(font, fontColor));
-        plantDescription = new Label[4];
+        plantDescription = new Label[5];
 
         tempTable.add(tempLabel);
         for(int i = 0; i < plantDescription.length; i++) {
@@ -308,6 +308,8 @@ public class PlantScreen extends AbsoluteScreen {
         enemyStage = new Stage(viewport, gameGraphics);
         enemyScreenBG = new Sprite(new Texture(Gdx.files.internal("bgScreen/enemyScreen.png")));
         enemyScreenBG.setBounds(0, 0, worldWidth, worldHeight);
+
+
 
         Label tempLabel, spaceFiller;
         Table tempTable = new Table(), infoTable = new Table(), descTable = new Table();
@@ -629,7 +631,7 @@ public class PlantScreen extends AbsoluteScreen {
             plantRange.setBounds(plantRange.getX(), plantRange.getY(), barSize * (PlantCodex.rangeStats[PlantCodex.range[index]] / PlantCodex.rangeStats[PlantCodex.ABS_HIGHEST]), plantRange.getHeight());
             plantSeedRate.setBounds(plantSeedRate.getX(), plantSeedRate.getY(), barSize * (PlantCodex.seedRateStats[PlantCodex.seedProduction[index]] / PlantCodex.seedRateStats[PlantCodex.ABS_HIGHEST]), plantSeedRate.getHeight());
             plantGrowthTime.setText("" + (int)(PlantCodex.growthTime[index]) + " seconds");
-            for(i = 0; i < plantDescription.length; i++) {
+            for(i = 0; i < plantDescription.length && i < PlantCodex.description[index].length; i++) {
                 plantDescription[i].setText(PlantCodex.description[index][i]);
             }
         }

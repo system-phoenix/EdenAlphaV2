@@ -70,7 +70,7 @@ public class Plant extends Actor implements Disposable {
 
         this.sunlightAccumulation = sunlightAccumulation;
 
-        this.upgradeCostSunlight = PlantCodex.cost[plantIndex] * 0.75f;
+        this.upgradeCostSunlight = plantIndex == 3 ? 0 : PlantCodex.cost[plantIndex] * 0.75f;
         this.upgradeCostWater = PlantCodex.cost[plantIndex];
 
         this.sound = sound;

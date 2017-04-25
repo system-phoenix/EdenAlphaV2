@@ -16,8 +16,8 @@ public class Arena implements Disposable {
 
     private int animalIndex, shrinkIndex = 0;
     private float damage, x, y;
-    private long lastAttackTime, shrinkTimer;
-    private boolean stun;
+    private long lastAttackTime, shrinkTimer, effectTimer, effectLimit;
+    private boolean stun, attackConsumed = false;
 
     private GameScreen gameScreen;
 
@@ -33,7 +33,8 @@ public class Arena implements Disposable {
         this.stun = stun;
         this.targets = new Array<Enemy>();
         this.damage = damage;
-        this.shrinkTimer = this.lastAttackTime = gameScreen.getCentralTimer();
+        this.effectTimer = this.shrinkTimer = this.lastAttackTime = gameScreen.getCentralTimer();
+        this.effectLimit = AnimalCodex.effectLimit[animalIndex];
         this.x = x; this.y = y;
         initialize();
     }
@@ -73,6 +74,13 @@ public class Arena implements Disposable {
         if(stun) {
             for(int i = 0; i < targets.size; i++) {
                 targets.get(i).slow(1);
+            }
+
+            if(gameScreen.getCentralTimer() - effectTimer - 100 >= effectLimit  && !attackConsumed) {
+                for(int i = 0; i < targets.size; i++) {
+                    targets.get(i).receiveDamage((int)damage);
+                }
+                attackConsumed = true;
             }
         } else {
             if(gameScreen.getCentralTimer() - shrinkTimer >= 750) {

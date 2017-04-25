@@ -19,23 +19,6 @@ public class PlantCodex {
                             HIGHEST     = 8,
                             ABS_HIGHEST = 9;
 
-    public static final int level[] = {
-            0,
-            0,
-            1,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            14
-    };
 
     public static final Vector2[] dmgStats = {
 //            new Vector2(0, 0),      //void damage
@@ -112,15 +95,33 @@ public class PlantCodex {
             1f,         //absolute highest
     };
 
+    public static final int level[] = {
+            0,              //pine
+            0,              //mango
+            2,              //coconutE
+            3,              //mushroom
+            4,              //rafflesia
+            6,              //acacia
+            7,              //anahaw
+            9,              //mangrove
+            10,             //santol
+            11,             //duhat
+            12,             //kapok
+            13,             //bamboo
+            14,             //narra
+            15,             //balete
+            16,             //pili
+    };
+
     public static final String plantName[]= {
             "Pine",         //0
             "Mango",        //1
             "Coconut",      //2
             "Mushroom",     //3
             "Rafflesia",    //4
-            "Mangrove",     //5
-            "Acacia",       //6
-            "Anahaw",       //7
+            "Acacia",       //5
+            "Anahaw",       //6
+            "Mangrove",     //7
             "Santol",       //8
             "Duhat",        //9
             "Kapok",        //10
@@ -136,10 +137,10 @@ public class PlantCodex {
 			1 | 2,          //coconut
 			1 | 4,          //mushroom
 			1,              //rafflesia
+            1,              //acacia
+            1,              //anahaw
 			2,              //mangrove
-			1,              //acacia
-			1,              //anahaw
-			1,              //santol
+            1,              //santol
 			1,              //duhat
 			1,              //kapok
 			1 | 4,          //bamboo
@@ -154,10 +155,10 @@ public class PlantCodex {
 			75,             //coconut
 			15,             //mushroom
 			100,            //rafflesia
+            150,            //acacia
+            100,            //ananhaw
 			75,             //mangrove
-			150,            //acacia
-			100,            //ananhaw
-			200,            //santol
+            200,            //santol
 			20,             //duhat
 			350,            //kapok
 			350,            //bamboo
@@ -172,10 +173,10 @@ public class PlantCodex {
 			LOWEST,         //coconut
 			VOID,           //mushroom
 			LOWER,          //rafflesia
+            LOWER,          //acacia
+            ABS_LOWEST,     //anahaw
 			ABS_LOWEST,     //mangrove
-			LOWER,          //acacia
-			ABS_LOWEST,     //anahaw
-			LOWER,          //santol
+            LOWER,          //santol
 			LOW,            //duhat
 			ABS_HIGHEST,    //kapok
             VOID,           //bamboo
@@ -190,10 +191,10 @@ public class PlantCodex {
 			LOWER,          //coconut
 			HIGHER,         //mushroom
 			LOWER,          //rafflesia
+            HIGH,           //acacia
+            HIGH,           //anahaw
 			MOD,            //mangrove
-			HIGH,           //acacia
-			HIGH,           //anahaw
-			MOD,            //santol
+            MOD,            //santol
 			HIGHEST,        //duhat
 			ABS_HIGHEST,    //kapok
 			ABS_LOWEST,     //bamboo
@@ -208,10 +209,10 @@ public class PlantCodex {
 			LOWER,          //coconut
 			LOWEST,         //mushroom
 			ABS_LOWEST,     //rafflesia
+            LOWER,          //acacia
+            LOWER,          //anahaw
 			LOWEST,         //mangrove
-			LOWER,          //acacia
-			LOWER,          //anahaw
-			MOD,            //santol
+            MOD,            //santol
 			LOW,            //duhat
 			ABS_HIGHEST,    //kapok
 			MOD,            //bamboo
@@ -226,10 +227,10 @@ public class PlantCodex {
 			0,              //coconut
 			0,              //mushroom
 			2,              //rafflesia
+            2,              //acacia
+            0,              //anahaw
 			0,              //mangrove
-			2,              //acacia
-			0,              //anahaw
-			2.5f,           //santol
+            2.5f,           //santol
 			1,              //duhat
 			3,              //kapok
 			0,              //bamboo
@@ -244,10 +245,10 @@ public class PlantCodex {
 			30,             //coconut
 			5,              //mushroom
 			10,             //rafflesia
+            15,             //acacia
+            25,             //anahaw
 			20,             //mangrove
-			15,             //acacia
-			25,             //anahaw
-			20,             //santol
+            20,             //santol
 			15,             //duhat
 			60,             //kapok
 			45,             //bamboo
@@ -262,10 +263,10 @@ public class PlantCodex {
 			HIGH,           //coconut
 			ABS_LOWEST,     //mushroom
 			VOID,           //rafflesia
+            LOW,            //acacia
+            VOID,           //anahaw
 			VOID,           //mangrove
-			LOW,            //acacia
-			VOID,           //anahaw
-			LOWER,          //santol
+            LOWER,          //santol
 			HIGHEST,        //duhat
 			ABS_HIGHEST,    //kapok
 			VOID,           //bamboo
@@ -280,10 +281,10 @@ public class PlantCodex {
 			32,         //coconut
 			8,          //mushroom
 			0,          //rafflesia
+            16,         //acacia
+            32,         //anahaw
 			0,          //mangrove
-			16,         //acacia
-			32,         //anahaw
-			16,         //santol
+            16,         //santol
 			8,          //duhat
 			16,         //kapok
 			0,          //bamboo
@@ -296,11 +297,11 @@ public class PlantCodex {
             LOW,        //pine
             LOWER,      //mango
             HIGHER,     //coconut
-            LOWEST,     //mushroom
+            ABS_LOWEST,     //mushroom
             LOWEST,     //rafflesia
-            LOWEST,     //mangrove
             LOW,        //acacia
             MOD,        //anahaw
+            LOWEST,     //mangrove
             HIGH,       //santol
             ABS_LOWEST, //duhat
             ABS_LOWEST, //kapok
@@ -316,10 +317,10 @@ public class PlantCodex {
 			"brown",    //coconut
 			"blue",     //mushroom
 			"--",       //rafflesia
+            "brown",    //acacia
+            "green",    //anahaw
 			"--",       //mangrove
-			"brown",    //acacia
-			"green",    //anahaw
-			"brown",    //santol
+            "brown",    //santol
 			"purple",   //duhat
 			"blue",     //kapok
 			"--",       //bamboo
@@ -334,80 +335,95 @@ public class PlantCodex {
 
     public static final String[][] description = {
             {//pine
-                    "Mostly associated with cool climates",
-                    "but some species can grow on shores.",
-                    "Grows up to 30 - 40 meters with 140",
-                    "cm diameter."
+                    "Mostly associated with cool climates,",
+                    "commonly in places like Baguio City",
+                    "and Mountain Province. This gained Baguio",
+                    "the nickname \"City of Pines\". Grows up",
+                    "to 30 - 40 meters with 140 cm diameter.",
             }, {//mango
-                    "The tree can reach 15 to 18 meters",
-                    "in height, has round canopy, and ",
-                    "is large spreading. Blooms flowers",
-                    "that may cause allergic reactions."
-            }, {//coconut
-                    "Grows up to 30 meters and the leaves",
-                    "have a length of 4 - 6 meters. Belongs",
-                    "to the family of cherries and peaches.",
-                    "The fruit weighs up to 1.44 kilos."
-            }, {//mushroom
-                    "Fungal plants that can grow almost",
-                    "anywhere. Many are edible but some",
-                    "contains toxins that cause various",
-                    "complications."
-            }, {//rafflesia
-                    "Named after Sir Stanford Raffles and",
-                    "Dr. James Arnold, it is the largest flower",
-                    "that weighs up to 11 kilos and blooms up",
-                    "to 107 centimeters. Smells like rotten meat."
-            }, {//mangrove
-                    "A.k.a. \"rainforest of the sea.\" Protects",
-                    "coastal communities from storm surges",
-                    "and stabilizes coastline through",
-                    "corrosion reduction."
-            }, {//acacia
-                    "Has rapid growth rate and tolerance",
-                    "for poor soils, it can grow up to 30 meters.",
+                    "The tree can reach 15 to 18 meters in",
+                    "height, has round canopy, and is large",
+                    "spreading. Blooms flowers that may cause",
+                    "respiratory and allergic reactions.",
                     "",
-                    ""
+            }, {//coconut
+                    "Typically grows in tropical and subtropical",
+                    "countries. Belongs to the family of cherries",
+                    "and peaches. Grows up to 30 meters and the",
+                    "leaves have a length of 4 - 6 meters.",
+                    "The fruit weighs up to 1.44 kilograms.",
+            }, {//mushroom
+                    "Also known as \"toad stools.\"Fungal plants",
+                    "that can grow almost anywhere. Does not require",
+                    "sunlight to create energy. It is composed of",
+                    "90% water. Releases spores that can cause",
+                    "allergic reactions.",
+            }, {//rafflesia
+                    "Rafflesia Arnoldii or \"stinking corpse lily,\"",
+                    "named after Sir Stanford Raffles and Dr. James",
+                    "Arnold in 1988. It is a jungle parasite that",
+                    "weighs up 11 kilograms and blooms up to 107 cm,",
+                    "it is the largest flower in the world.",
+            }, {//acacia
+                    "A large umbraculifera tree that reaches",
+                    "height up to 20 - 25 meters. Grows rapidly",
+                    "and has tolerance for poor soils. Commonly",
+                    "used as shade trees, but sometimes, grows",
+                    "spontaneously.",
             }, {//anahaw
-                    "The Philippine national leaf, it has",
-                    "many uses and can be transformed",
-                    "into many things.Its tree can grow up",
-                    "to 24 meters, with a very thin trunk."
+                    "Known as the Philippine national leaf,",
+                    "it has many uses and can be transformed",
+                    "into many things. Grows up to 15 - 20 meters",
+                    "with 25 cm diameter. Has a smooth trunk and",
+                    "obscure rings that are leaf marks.",
+            }, {//mangrove
+                    "Also known as \"Rainforest of the Sea.\" Grows in",
+                    "tropical countries. Protects coastal communities",
+                    "from storm surges and stabilizes coastline through",
+                    "corrosion reduction. Important part of marine",
+                    "ecosystem that involves seagrass and coral reefs."
             }, {//santol
-                    "Fast-growing tree that is up to",
-                    "15-45 meters tall. It has compound",
-                    "leaves, composed of 3 leaflets.",
-                    "The fruit is oblate with wrinkles."
+                    "Fast-growing tree that is up to 15-45",
+                    "meters tall. It has compound leaves,",
+                    "composed of 3 leaflets. The five-petalled",
+                    "flowers are borne on the young branches.",
+                    "The fruit is oblate with wrinkles from the base.",
             }, {//duhat
-                    "About 8-14 meters high with white",
-                    "branches and reddish young shoots.",
-                    "The fruit is oval, 1-2 cm long,",
-                    "ranging from purple to black"
+                    "A Duhat tree is about 8-14 meters tall, with",
+                    "white branches and reddish young shoots. The",
+                    "leaves are elliptic, flower petals are",
+                    "arranged to form a cup. The fruit is oval,",
+                    "1-2 cm long, dark purple to black"
             }, {//kapok
-                    "Grows in tropical rainforests, it can",
-                    "conquer new or deforested areas.",
-                    "The tree can grow up to 70 meters.",
+                    "Grows in tropical rainforests, it can conquer",
+                    "new or deforested lands. The tree can grow up",
+                    "to 70 meters. It has an umbrella-shaped",
+                    "crown made of numerous branches.",
                     "The branches are covered with thorns."
             }, {//bamboo
-                    "\"Grass of hope,\" it is a plant with high",
-                    "versatility, thanks to its pliant",
-                    "characteristic and tensile strength.",
-                    ""
+                    "Also called as the \"Grass of hope,\" it is a plant",
+                    "with high versatility, thanks to its pliant",
+                    "characteristic and tensile strength. It shields",
+                    "from ultraviolet rays and decreases the light",
+                    "intensity. Found in varying climates."
             }, {//narra
-                    "The Philippine national tree, grows up to",
+                    "The Philippine National Tree, grows up to",
                     "30 meters with a diameter of 2 meters.",
-                    "Sturdy tree that produces disc-shaped",
-                    "pods that contains the seeds."
+                    "It is a sturdy tree that produces disc-shaped",
+                    "pods that contains two, three occaionally, seeds",
+                    "that are dispersed through wind and air."
             }, {//balete
                     "Grows from a host tree that it crushes",
-                    "to death, it can reach up to",
-                    "10-20 meters. There have been instances",
-                    "where it is related to ghost stories."
+                    "to death, it can reach up to 10-20 meters.",
+                    "There have been instances where it is",
+                    "related to ghost stories and folklores, like",
+                    "the infamous story about the Balete Drive."
             }, {//pili
                     "\"The next tree of life.\" Its fruit has a thin",
-                    "skin, but has a hard core part that",
-                    "has the kernel.",
-                    "The trunk is used for furniture."
+                    "skin. But the core portion is very hard to crack,",
+                    "and it protects the kernel. The trunk is used",
+                    "for furniture, the shell of the fruit is",
+                    "used for charcoal and handicrafts."
             },
     };
 

@@ -17,17 +17,18 @@ public class EnemyCodex {
             "Businessman"
     };
 
-    public static int getHP(int index, int wave, int regionIndex) {
-        return HP[index] + (int)(Math.pow((double)wave, 2)) + (wave * 10 * regionIndex);
+    public static float getHP(int index, int wave, int regionIndex) {
+//        return HP[index] + (int)(Math.pow((double)wave, 2)) + (wave * 10 * regionIndex);
+        return HP[index] + (25 * (wave + 1));
     }
 
     public static final int HP[] = {
 //            300,    450,    600,    1500,     750,    450,    900,    1200
-            100,    150,    200,    500,    250,    150,    300,    400
+            25,    38,    50,    125,    63,    38,    75,    100
     };
 
     public static final float damage[] = {
-            5,      5,     15,     30,     25,     5,     30,     50
+            5,      5,      15,     30,     25,     45,     30,     50
     };
 
     public static final float speed[] = {
@@ -40,6 +41,58 @@ public class EnemyCodex {
 
     public static final float waterDrop[] = {
             1,      2,      3,      4,      5,      6,      7,      8
+    };
+
+    public static final String description[][] = {
+            {
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+            }, {
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+            }, {
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+            }, {
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+            }, {
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+            }, {
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+            }, {
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+            }, {
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+            }
     };
 
     public static Vector2[] getSpriteLocation(int index) {

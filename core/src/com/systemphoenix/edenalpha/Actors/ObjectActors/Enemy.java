@@ -20,8 +20,8 @@ import com.systemphoenix.edenalpha.Screens.GameScreen;
 
 public class Enemy extends Sprite implements Disposable {
     protected float size, velX, velY, damage, pastX, pastY;
-    protected float stateTime, speed = 30, maxSpeed, waterDrop, stackSlowRate = 0, damageCounter = 0, damagePart;
-    protected int level = 0, id, life, maxLife, pathCount = 0;
+    protected float life, maxLife, stateTime, speed = 30, maxSpeed, waterDrop, stackSlowRate = 0, damageCounter = 0, damagePart;
+    protected int level = 0, id, pathCount = 0;
     protected long lastDirectionChange, deathTimer, damageTimer, slowTimer, attackSpeed, lastAttackTime, receiveDamageTick;
     protected boolean spawned = false, moving = false, drawable = false, disposable = false, directionSquares[][], drawHpBar, slowed = false, dead, stunned, attacking, receivingDamage, spirit = false;
     protected enum Direction {NORTH, SOUTH, EAST, WEST}
@@ -244,7 +244,7 @@ public class Enemy extends Sprite implements Disposable {
         disposable = true;
     }
 
-    public void receiveDamage(int damage) {
+    public void receiveDamage(float damage) {
         if(spawned) {
             if(!drawHpBar) {
                 damageCounter = 0;
@@ -376,7 +376,7 @@ public class Enemy extends Sprite implements Disposable {
         return spirit;
     }
 
-    public int getLife() {
+    public float getLife() {
         return life;
     }
 
