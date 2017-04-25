@@ -77,7 +77,7 @@ public class AnimalActor extends PlantActor implements Disposable {
                 cooldownTimer = gameScreen.getTimer();
             }
             setDragging(false);
-            gameScreen.tap(-1, -1);
+            gameScreen.tap(-1, -1, null);
             gameScreen.getGameHud().setDrawable(true);
         }
     }

@@ -92,8 +92,8 @@ public class PlantActor extends Actor {
         if(draggable && gameScreen.getCentralTimer() - clickTimer >= 200) {
             dragging = true;
             float x = 32, y = 32;
-            dragSprite.setBounds(Gdx.input.getX() - x, gameScreen.getWorldHeight() - Gdx.input.getY() + y, size / gameScreen.getCamera().zoom, size / gameScreen.getCamera().zoom);
-            gameScreen.tap(Gdx.input.getX() - x, Gdx.input.getY() - y);
+//            dragSprite.setBounds(Gdx.input.getX() - x, gameScreen.getWorldHeight() - Gdx.input.getY() + y, size / gameScreen.getCamera().zoom, size / gameScreen.getCamera().zoom);
+            gameScreen.tap(Gdx.input.getX() - x, Gdx.input.getY() - y, this);
             gameScreen.getGameHud().setDrawable(false);
             Plant.setSelectAllPlants(true);
         }
@@ -103,7 +103,7 @@ public class PlantActor extends Actor {
         if(draggable) {
             dragging = false;
             gameScreen.plant(plantIndex, sprite);
-            gameScreen.tap(-1, -1);
+            gameScreen.tap(-1, -1, null);
             gameScreen.getGameHud().setDrawable(true);
             Plant.nullSelectedPlant();
         }
@@ -164,6 +164,10 @@ public class PlantActor extends Actor {
 
     public void setPlantCost(float plantCost) {
         this.plantCost = plantCost;
+    }
+
+    public void setDragSpriteBounds(float x, float y) {
+        dragSprite.setBounds(x, gameScreen.getWorldHeight() - y, size / gameScreen.getCamera().zoom, size / gameScreen.getCamera().zoom);
     }
 
     public static void setDragging(boolean dragging) {

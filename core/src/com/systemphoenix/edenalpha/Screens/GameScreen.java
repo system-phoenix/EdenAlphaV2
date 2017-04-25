@@ -730,11 +730,12 @@ public class GameScreen extends AbsoluteScreen {
         gameHud.setDrawable(false);
     }
 
-    public void tap(float x, float y) {
+    public void tap(float x, float y, PlantActor actor) {
         if(!paused && !win && !lose &&(x >= 0 && y >= 0)) {
             Vector3 touchPos = new Vector3();
             touchPos.set(x, y, 0);
             cam.unproject(touchPos);
+            actor.setDragSpriteBounds(x, y);
             touchPos.x = touchPos.x - (int)touchPos.x  > 0.5 ? (int) touchPos.x + 1 : (int) touchPos.x;
             touchPos.y = touchPos.y - (int)touchPos.y  > 0.5 ? (int) touchPos.y + 1 : (int) touchPos.y;
             if((int)touchPos.x / (int)plantSquareSize < 40 && (int)touchPos.y / (int)plantSquareSize < 23) {
