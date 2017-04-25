@@ -326,7 +326,7 @@ public class GameScreen extends AbsoluteScreen {
     public void update(float delta) {
         long sixtyMinuteMark = region.getTimeStart();
         cam.update();
-        if(region.getLifePercentage() > 0) {
+        if(forestLife > 0) {
             accumulator+=delta;
             while(accumulator>FPSCAP){
                 world.step(FPSCAP, 6, 2);
