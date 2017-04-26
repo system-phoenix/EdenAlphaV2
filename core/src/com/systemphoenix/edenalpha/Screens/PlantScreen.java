@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.systemphoenix.edenalpha.Actors.StageActors.AnimalActor;
 import com.systemphoenix.edenalpha.Actors.StageActors.AnimalButton;
+import com.systemphoenix.edenalpha.Actors.StageActors.BlankActor;
 import com.systemphoenix.edenalpha.Actors.StageActors.ButtonActor;
 import com.systemphoenix.edenalpha.Actors.StageActors.EnemyButton;
 import com.systemphoenix.edenalpha.Actors.StageActors.PlantActor;
@@ -35,7 +36,7 @@ import com.systemphoenix.edenalpha.WindowUtils.Region;
 
 public class PlantScreen extends AbsoluteScreen {
 
-    private Stage stage, checkStage, crossStage, enemyStage, buttonStage;
+    private Stage stage, checkStage, crossStage, enemyStage, buttonStage, descriptionStage, plantInfoStage, enemyInfoStage, blankActorStage;
     private Texture trees, plants, animals, enemies;
     private Sprite lowerHud, plantScreenBG, enemyScreenBG, rectangleSprite, plantHP, plantAS, plantDmg, plantRange, plantSeedRate, animalActorSprite;
     private Sprite enemyHP, enemyAS, enemyDmg, enemyMS;
@@ -46,14 +47,14 @@ public class PlantScreen extends AbsoluteScreen {
     private EnemyButton enemyButtons[];
 
     private SpriteBatch gameGraphics;
-    private Label plantName, plantType, plantCost, plantGrowthTime, plantDescription[];
-    private Label enemyName, enemyDescription[];
+    private Label plantName, plantType, plantCost, plantGrowthTime, descriptionLabel[];
+    private Label enemyName;
 
     private MapScreen mapScreen;
     private Region region;
 
-    private int selectedIndices[], currentSelectionIndex, index, selectedAnimalIndex = -1;
-    private boolean selected[], renderingPlantScreen = true;
+    private int selectedIndices[], currentSelectionIndex, index, enemyIndex = 0, selectedAnimalIndex = -1;
+    private boolean selected[], renderingPlantScreen = true, renderingDescStage = false;
 
     public PlantScreen(Eden game, MapScreen mapScreen, Region region) {
         super(game);
@@ -103,23 +104,29 @@ public class PlantScreen extends AbsoluteScreen {
         initializePlantStage();
         initializeEnemyStage();
         Gdx.input.setCatchBackKey(true);
+
+        setData(0);
     }
 
     private void initializePlantStage() {
         Viewport viewport = new FitViewport(1280, 720, cam);
-        stage = new Stage(viewport, gameGraphics);
-        buttonStage = new Stage(viewport, gameGraphics);
-        checkStage = new Stage(viewport, gameGraphics);
-        crossStage = new Stage(viewport, gameGraphics);
+        stage            = new Stage(viewport, gameGraphics);
+        plantInfoStage   = new Stage(viewport, gameGraphics);
+        descriptionStage = new Stage(viewport, gameGraphics);
+        blankActorStage  = new Stage(viewport, gameGraphics);
 
-        lowerHud = new Sprite(new Texture(Gdx.files.internal("misc/lowerHud.png")));
-        plantScreenBG = new Sprite(new Texture(Gdx.files.internal("bgScreen/plantScreen.png")));
+        buttonStage  = new Stage(viewport, gameGraphics);
+        checkStage   = new Stage(viewport, gameGraphics);
+        crossStage   = new Stage(viewport, gameGraphics);
 
-        playButton = new ButtonActor(ButtonCodex.PLAY, this, worldWidth - 160f, 32f, 128, false, true);
-        homeButton = new ButtonActor(ButtonCodex.HOME, this, 32f, 32f, 128, false, true);
-        checkButton = new ButtonActor(ButtonCodex.CHECK, this, 950, 200, 128, false, true);
-        crossButton = new ButtonActor(ButtonCodex.CROSS, this, 950, 200, 128, false, true);
-        bookButton = new ButtonActor(ButtonCodex.BOOK, this, 160f, 32f, 128, false, true);
+        lowerHud         = new Sprite(new Texture(Gdx.files.internal("misc/lowerHud.png")));
+        plantScreenBG    = new Sprite(new Texture(Gdx.files.internal("bgScreen/plantScreen.png")));
+
+        playButton   = new ButtonActor(ButtonCodex.PLAY, this, worldWidth - 160f, 32f, 128, false, true);
+        homeButton   = new ButtonActor(ButtonCodex.HOME, this, 32f, 32f, 128, false, true);
+        checkButton  = new ButtonActor(ButtonCodex.CHECK, this, 950, 200, 128, false, true);
+        crossButton  = new ButtonActor(ButtonCodex.CROSS, this, 950, 200, 128, false, true);
+        bookButton   = new ButtonActor(ButtonCodex.BOOK, this, 160f, 32f, 128, false, true);
 
         playButton.setDrawable(true);
         homeButton.setDrawable(true);
@@ -187,16 +194,16 @@ public class PlantScreen extends AbsoluteScreen {
 
         Label tempLabel, spaceFiller;
         Table tempTable = new Table(), infoTable = new Table(), descTable = new Table();
-        tempTable.setBounds(797, 300, 111, 390);
+        tempTable.setBounds(815, 300, 111, 390);
         infoTable.setBounds(908, 300, 320, 390);
-        descTable.setBounds(793, 300, 431, 225);
+        descTable.setBounds(793, 350, 431, 250);
 
         Color border = Color.BLACK;
         Color fontColor = Color.WHITE;
         BitmapFont tempFont = font;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/arcon.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 18;
+        parameter.size = 24;
         parameter.borderColor = border;
         parameter.borderWidth = 0;
         font = generator.generateFont(parameter);
@@ -228,7 +235,7 @@ public class PlantScreen extends AbsoluteScreen {
         tempTable.row();
         infoTable.row();
 
-        float startY = worldHeight - 102, startX = 938, decrement = 21f;
+        float startY = worldHeight - 120, startX = 938, decrement = 28f;
 
         tempLabel = new Label("HP:", new Label.LabelStyle(font, fontColor));
         spaceFiller = new Label(" ", new Label.LabelStyle(font, fontColor));
@@ -285,44 +292,44 @@ public class PlantScreen extends AbsoluteScreen {
         infoTable.row();
 
         tempLabel = new Label("--", new Label.LabelStyle(font, fontColor));
-        plantDescription = new Label[5];
-
         tempTable.add(tempLabel);
-        for(int i = 0; i < plantDescription.length; i++) {
-            plantDescription[i] = new Label("--", new Label.LabelStyle(font, fontColor));
-            descTable.add(plantDescription[i]);
+        tempLabel = new Label("Tap for more details.", new Label.LabelStyle(font, fontColor));
+        infoTable.add(tempLabel);
+
+        descriptionLabel = new Label[7];
+        for(int i = 0; i < descriptionLabel.length; i++) {
+            descriptionLabel[i] = new Label("--", new Label.LabelStyle(font, fontColor));
+            descTable.add(descriptionLabel[i]);
             descTable.row();
         }
 
-        stage.addActor(tempTable);
-        stage.addActor(infoTable);
-        stage.addActor(descTable);
+        plantInfoStage.addActor(tempTable);
+        plantInfoStage.addActor(infoTable);
+        descriptionStage.addActor(descTable);
         generator.dispose();
         font = tempFont;
 
-        setData(0);
+        blankActorStage.addActor(new BlankActor(this, 793, 350, 431, 225));
     }
 
     private void initializeEnemyStage() {
         Viewport viewport = new FitViewport(worldWidth, worldHeight, new OrthographicCamera());
         enemyStage = new Stage(viewport, gameGraphics);
+        enemyInfoStage = new Stage(viewport, gameGraphics);
         enemyScreenBG = new Sprite(new Texture(Gdx.files.internal("bgScreen/enemyScreen.png")));
         enemyScreenBG.setBounds(0, 0, worldWidth, worldHeight);
 
-
-
         Label tempLabel, spaceFiller;
-        Table tempTable = new Table(), infoTable = new Table(), descTable = new Table();
-        tempTable.setBounds(797, 300, 111, 390);
+        Table tempTable = new Table(), infoTable = new Table();
+        tempTable.setBounds(815, 300, 111, 390);
         infoTable.setBounds(908, 300, 320, 390);
-        descTable.setBounds(793, 300, 431, 250);
 
         Color border = Color.BLACK;
         Color fontColor = Color.WHITE;
         BitmapFont tempFont = font;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/arcon.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 18;
+        parameter.size = 24;
         parameter.borderColor = border;
         parameter.borderWidth = 0;
         font = generator.generateFont(parameter);
@@ -338,7 +345,7 @@ public class PlantScreen extends AbsoluteScreen {
         tempTable.row();
         infoTable.row();
 
-        float startY = worldHeight - 60, startX = 938, decrement = 21f;
+        float startY = worldHeight - 62, startX = 938, decrement = 28f;
 
         tempLabel = new Label("HP:", new Label.LabelStyle(font, fontColor));
         spaceFiller = new Label(" ", new Label.LabelStyle(font, fontColor));
@@ -377,8 +384,13 @@ public class PlantScreen extends AbsoluteScreen {
         tempTable.row();
         infoTable.row();
 
-        enemyStage.addActor(tempTable);
-        enemyStage.addActor(infoTable);
+        tempLabel = new Label("--", new Label.LabelStyle(font, fontColor));
+        tempTable.add(tempLabel);
+        tempLabel = new Label("Tap for more details.", new Label.LabelStyle(font, fontColor));
+        infoTable.add(tempLabel);
+
+        enemyInfoStage.addActor(tempTable);
+        enemyInfoStage.addActor(infoTable);
 
         font = tempFont;
         enemies = new Texture(Gdx.files.internal("enemies/baddies0.png"));
@@ -437,22 +449,12 @@ public class PlantScreen extends AbsoluteScreen {
                 }
             }
             rectangleSprite.draw(gameGraphics);
-    //        temppSprite.draw(gameGraphics);
-            plantHP.draw(gameGraphics);
-            plantAS.draw(gameGraphics);
-            plantDmg.draw(gameGraphics);
-            plantRange.draw(gameGraphics);
-            plantSeedRate.draw(gameGraphics);
             if(!selected[index]) {
-                checkButton.setDrawable(true);
-                checkButton.setCanPress(true);
-                crossButton.setDrawable(false);
-                crossButton.setCanPress(false);
+                checkButton.setDrawable(true); checkButton.setCanPress(true);
+                crossButton.setDrawable(false); crossButton.setCanPress(false);
             } else {
-                checkButton.setDrawable(false);
-                checkButton.setCanPress(false);
-                crossButton.setDrawable(true);
-                crossButton.setCanPress(true);
+                checkButton.setDrawable(false); checkButton.setCanPress(false);
+                crossButton.setDrawable(true); crossButton.setCanPress(true);
             }
 
             if(currentSelectionIndex == 0) {
@@ -469,12 +471,12 @@ public class PlantScreen extends AbsoluteScreen {
 
             gameGraphics.end();
 
-            gameGraphics.setProjectionMatrix(stage.getCamera().combined);
             stage.act(Gdx.graphics.getDeltaTime());
             stage.draw();
 
             checkStage.draw();
             crossStage.draw();
+            gameGraphics.setProjectionMatrix(descriptionStage.getCamera().combined);
         } else {
             checkButton.setCanPress(false);
             crossButton.setCanPress(false);
@@ -483,13 +485,37 @@ public class PlantScreen extends AbsoluteScreen {
             }
             gameGraphics.begin();
             enemyScreenBG.draw(gameGraphics);
-            enemyDmg.draw(gameGraphics);
-            enemyAS.draw(gameGraphics);
-            enemyHP.draw(gameGraphics);
-            enemyMS.draw(gameGraphics);
+            rectangleSprite.draw(gameGraphics);
             gameGraphics.end();
             gameGraphics.setProjectionMatrix(enemyStage.getCamera().combined);
             enemyStage.draw();
+        }
+
+        if(renderingDescStage) {
+            gameGraphics.setProjectionMatrix(stage.getCamera().combined);
+            descriptionStage.draw();
+        } else {
+            if(renderingPlantScreen) {
+                gameGraphics.begin();
+                plantHP.draw(gameGraphics);
+                plantAS.draw(gameGraphics);
+                plantDmg.draw(gameGraphics);
+                plantRange.draw(gameGraphics);
+                plantSeedRate.draw(gameGraphics);
+                gameGraphics.end();
+
+                gameGraphics.setProjectionMatrix(plantInfoStage.getCamera().combined);
+                plantInfoStage.draw();
+            } else {
+                gameGraphics.begin();
+                enemyDmg.draw(gameGraphics);
+                enemyAS.draw(gameGraphics);
+                enemyHP.draw(gameGraphics);
+                enemyMS.draw(gameGraphics);
+                gameGraphics.end();
+                gameGraphics.setProjectionMatrix(enemyInfoStage.getCamera().combined);
+                enemyInfoStage.draw();
+            }
         }
 
         gameGraphics.begin();
@@ -583,8 +609,8 @@ public class PlantScreen extends AbsoluteScreen {
         plantRange.setBounds(plantRange.getX(), plantRange.getY(), barSize * (AnimalCodex.RANGE[AnimalCodex.rangeStats[index]] / AnimalCodex.RANGE[AnimalCodex.HIGHEST]), plantRange.getHeight());
         plantSeedRate.setBounds(plantSeedRate.getX(), plantSeedRate.getY(), plantSeedRate.getWidth() * 0, plantSeedRate.getHeight());
         plantGrowthTime.setText("--");
-        for(i = 0; i < plantDescription.length; i++) {
-            plantDescription[i].setText(AnimalCodex.description[index][i]);
+        for(i = 0; i < descriptionLabel.length && i < AnimalCodex.description[index].length; i++) {
+            descriptionLabel[i].setText(AnimalCodex.description[index][i]);
         }
     }
 
@@ -631,30 +657,30 @@ public class PlantScreen extends AbsoluteScreen {
             plantRange.setBounds(plantRange.getX(), plantRange.getY(), barSize * (PlantCodex.rangeStats[PlantCodex.range[index]] / PlantCodex.rangeStats[PlantCodex.ABS_HIGHEST]), plantRange.getHeight());
             plantSeedRate.setBounds(plantSeedRate.getX(), plantSeedRate.getY(), barSize * (PlantCodex.seedRateStats[PlantCodex.seedProduction[index]] / PlantCodex.seedRateStats[PlantCodex.ABS_HIGHEST]), plantSeedRate.getHeight());
             plantGrowthTime.setText("" + (int)(PlantCodex.growthTime[index]) + " seconds");
-            for(i = 0; i < plantDescription.length && i < PlantCodex.description[index].length; i++) {
-                plantDescription[i].setText(PlantCodex.description[index][i]);
+            for(i = 0; i < descriptionLabel.length && i < PlantCodex.description[index].length; i++) {
+                descriptionLabel[i].setText(PlantCodex.description[index][i]);
             }
         }
     }
 
     public void setEnemyData(int enemyIndex) {
+        this.enemyIndex = enemyIndex;
+        int i = enemyIndex / 4 + 1, j = enemyIndex % 4 + 1;
         this.enemyName.setText(EnemyCodex.name[enemyIndex]);
+        rectangleSprite.setBounds(rectangles[i][j].getX(), rectangles[i][j].getY(), rectangles[i][j].getWidth(), rectangles[i][j].getHeight());
         float barSize = 260;
         this.enemyHP.setBounds(enemyHP.getX(), enemyHP.getY(), barSize * (EnemyCodex.HP[enemyIndex] / EnemyCodex.baseHP), enemyHP.getHeight());
         this.enemyAS.setBounds(enemyAS.getX(), enemyAS.getY(), barSize * ((float)EnemyCodex.baseAS / (float)(EnemyCodex.attackSpeed[enemyIndex] * 2f)), enemyAS.getHeight());
         this.enemyDmg.setBounds(enemyDmg.getX(), enemyDmg.getY(), barSize * (EnemyCodex.damage[enemyIndex] / EnemyCodex.baseDmg), enemyDmg.getHeight());
         this.enemyMS.setBounds(enemyMS.getX(), enemyMS.getY(), barSize * (EnemyCodex.speed[enemyIndex] / EnemyCodex.baseMS), enemyMS.getHeight());
+        for(i = 0; i < descriptionLabel.length && i < EnemyCodex.description[enemyIndex].length; i++) {
+            descriptionLabel[i].setText(EnemyCodex.description[enemyIndex][i]);
+        }
     }
 
     @Override
     public void show() {
-        InputMultiplexer input = new InputMultiplexer();
-        input.addProcessor(buttonStage);
-        input.addProcessor(enemyStage);
-        input.addProcessor(checkStage);
-        input.addProcessor(crossStage);
-        input.addProcessor(stage);
-        Gdx.input.setInputProcessor(input);
+        bindInput();
     }
 
     @Override
@@ -705,6 +731,24 @@ public class PlantScreen extends AbsoluteScreen {
         enemyStage.dispose();
 
         buttonStage.dispose();
+        descriptionStage.dispose();
+        plantInfoStage.dispose();
+        enemyInfoStage.dispose();
+        blankActorStage.dispose();
+    }
+
+    private void bindInput() {
+        InputMultiplexer input = new InputMultiplexer();
+        input.addProcessor(buttonStage);
+        if(renderingPlantScreen) {
+            input.addProcessor(checkStage);
+            input.addProcessor(crossStage);
+            input.addProcessor(stage);
+        } else {
+            input.addProcessor(enemyStage);
+        }
+        input.addProcessor(blankActorStage);
+        Gdx.input.setInputProcessor(input);
     }
 
     public MapScreen getMapScreen() {
@@ -727,5 +771,16 @@ public class PlantScreen extends AbsoluteScreen {
             enemyButtons[i].setDrawable(renderingPlantScreen);
         }
         this.renderingPlantScreen = !renderingPlantScreen;
+        if(renderingPlantScreen) {
+            if(index < 15) setData(index);
+            else setAnimalData(index);
+        }
+        else setEnemyData(enemyIndex);
+        this.renderingDescStage = false;
+        bindInput();
+    }
+
+    public void toggleDescStage() {
+        renderingDescStage = !renderingDescStage;
     }
 }

@@ -52,23 +52,29 @@ public class AnimalCodex {
 
     public static final String description[][] = {
             {
-                    "A giant forest predator that can only be",
-                    "found in the Philippines. Grows three feet",
-                    "in height and has a wingspan of seven",
-                    "feet. It is solitary and territorial. It",
-                    "adapts in places with high forest density.",
+                    "A giant forest predator that can",
+                    "only be found in the Philippines.",
+                    "Grows three feet in height and",
+                    "has a wingspan of seven feet.",
+                    "It is solitary and territorial.",
+                    "It adapts in places with high",
+                    "forest density.",
             }, {
-                    "Found only in Philippines, specifically in",
-                    "Mindoro. It grows up to a little more than",
-                    "2 meters in length, and weighs 200-300",
-                    "kilos. Signals ferocity through the lowering",
-                    "of horns, becomes violent when cornered.",
+                    "Found only in Philippines,",
+                    "specifically in Mindoro. It grows",
+                    "up to a little more than 2 meters",
+                    "in length, and weighs 200-300",
+                    "kilos. Signals ferocity through",
+                    "the lowering of horns,",
+                    "becomes violent when cornered."
             }, {
-                    "Endemic in the Philippines, it grows up to",
-                    "14 centimeters in length, with a wingspan",
-                    "of 55 centimeters. It is, with the continued",
-                    "destruction of its habitat, endangered. It is",
-                    "not seen for over 10 years in some places.",
+                    "Endemic in the Philippines,",
+                    "it grows up to 14 centimeters",
+                    "in length, with a wingspan of 55",
+                    "centimeters. It is, with the",
+                    "continued destruction of its",
+                    "habitat, endangered. It is not seen",
+                    "for over 10 years in some places."
             }
     };
 }
