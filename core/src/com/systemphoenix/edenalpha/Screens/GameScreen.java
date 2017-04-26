@@ -560,7 +560,7 @@ public class GameScreen extends AbsoluteScreen {
                 if(win) {
                     if(mapScreen.getHighLevelBound() == region.getMapIndex()) {
                         if(mapScreen.getHighLevelBound() < 16) {
-                            game.setLevelBounds(mapScreen.getLowLevelBound(), mapScreen.getHighLevelBound() + 1);
+                            game.setLevelBounds(mapScreen.getLowLevelBound(), mapScreen.getHighLevelBound() + 2 < 16 ? mapScreen.getHighLevelBound() + 2 : 16);
                         }
 
                         boolean stringSet = false;

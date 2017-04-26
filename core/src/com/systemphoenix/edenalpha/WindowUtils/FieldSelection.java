@@ -87,7 +87,10 @@ public class FieldSelection {
     public void setIndex(int update) {
         if(!flinging) {
             int pastIndex = index;
-            index += update;
+            index += (update * 2);
+            if(lowLevelBound == 1 && highLevelBound == 16 && update < 0 && index % 2 == 0) {
+                index++;
+            }
             if (index < lowLevelBound) {
                 index = lowLevelBound;
             } else if (index > highLevelBound) {

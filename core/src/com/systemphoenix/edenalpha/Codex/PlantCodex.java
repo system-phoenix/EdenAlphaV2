@@ -98,16 +98,16 @@ public class PlantCodex {
     public static final int level[] = {
             0,              //pine
             0,              //mango
-            2,              //coconutE
+            2,              //coconut
             3,              //mushroom
-            4,              //rafflesia
-            6,              //acacia
-            7,              //anahaw
+            4,              //acacia
+            6,              //anahaw
+            7,              //rafflesia
             9,              //mangrove
             10,             //santol
             11,             //duhat
-            12,             //kapok
-            13,             //bamboo
+            12,             //bamboo
+            13,             //kapok
             14,             //narra
             15,             //balete
             16,             //pili
@@ -118,14 +118,14 @@ public class PlantCodex {
             "Mango",        //1
             "Coconut",      //2
             "Mushroom",     //3
-            "Rafflesia",    //4
-            "Acacia",       //5
-            "Anahaw",       //6
+            "Acacia",       //4
+            "Anahaw",       //5
+            "Rafflesia",    //6
             "Mangrove",     //7
             "Santol",       //8
             "Duhat",        //9
-            "Kapok",        //10
-            "Bamboo",       //11
+            "Bamboo",       //10
+            "Kapok",        //11
             "Narra",        //12
             "Balete",       //13
             "Pili"          //14
@@ -136,15 +136,15 @@ public class PlantCodex {
 			1,              //mango
 			1 | 2,          //coconut
 			1 | 4,          //mushroom
-			1,              //rafflesia
             1,              //acacia
             1,              //anahaw
+			1,              //rafflesia
 			2,              //mangrove
             1,              //santol
 			1,              //duhat
 			1,              //kapok
+            1,              //narra
 			1 | 4,          //bamboo
-			1,              //narra
 			1,              //balete
 			1               //pili
     };
@@ -154,14 +154,14 @@ public class PlantCodex {
 			25,             //mango
 			75,             //coconut
 			15,             //mushroom
-			100,            //rafflesia
             150,            //acacia
             100,            //ananhaw
+			100,            //rafflesia
 			75,             //mangrove
             200,            //santol
 			20,             //duhat
+            350,            //bamboo
 			350,            //kapok
-			350,            //bamboo
 			300,            //narra
 			150,            //balete
 			200             //pili
@@ -172,14 +172,14 @@ public class PlantCodex {
 			MOD,            //mango
 			LOWEST,         //coconut
 			VOID,           //mushroom
-			LOWER,          //rafflesia
             LOWER,          //acacia
             ABS_LOWEST,     //anahaw
+			LOWER,          //rafflesia
 			ABS_LOWEST,     //mangrove
             LOWER,          //santol
 			LOW,            //duhat
-			ABS_HIGHEST,    //kapok
             VOID,           //bamboo
+			ABS_HIGHEST,    //kapok
 			HIGHEST,        //narra
 			HIGH,           //balete
 			LOWER           //pili
@@ -190,14 +190,14 @@ public class PlantCodex {
 			LOW,            //mango
 			LOWER,          //coconut
 			HIGHER,         //mushroom
-			LOWER,          //rafflesia
             HIGH,           //acacia
             HIGH,           //anahaw
+			LOWER,          //rafflesia
 			MOD,            //mangrove
             MOD,            //santol
 			HIGHEST,        //duhat
+            ABS_LOWEST,     //bamboo
 			ABS_HIGHEST,    //kapok
-			ABS_LOWEST,     //bamboo
 			HIGHER,         //narra
 			VOID,           //balete
 			HIGHER,         //pili
@@ -208,14 +208,14 @@ public class PlantCodex {
 			LOWER,          //mango
 			LOWER,          //coconut
 			LOWEST,         //mushroom
-			ABS_LOWEST,     //rafflesia
             LOWER,          //acacia
             LOWER,          //anahaw
+			ABS_LOWEST,     //rafflesia
 			LOWEST,         //mangrove
             MOD,            //santol
 			LOW,            //duhat
+            MOD,            //bamboo
 			ABS_HIGHEST,    //kapok
-			MOD,            //bamboo
 			MOD,            //narra
 			ABS_LOWEST,     //balete
 			HIGH            //pili
@@ -226,14 +226,14 @@ public class PlantCodex {
 			1,              //mango
 			0,              //coconut
 			0,              //mushroom
-			2,              //rafflesia
             2,              //acacia
             0,              //anahaw
+			2,              //rafflesia
 			0,              //mangrove
             2.5f,           //santol
 			1,              //duhat
+            0,              //bamboo
 			3,              //kapok
-			0,              //bamboo
 			2,              //narra
 			1,              //balete
 			1               //pili
@@ -244,14 +244,14 @@ public class PlantCodex {
 			15,             //mango
 			30,             //coconut
 			5,              //mushroom
-			10,             //rafflesia
             15,             //acacia
             25,             //anahaw
+			10,             //rafflesia
 			20,             //mangrove
             20,             //santol
 			15,             //duhat
+            45,             //bamboo
 			60,             //kapok
-			45,             //bamboo
 			30,             //narra
 			15,             //balete
 			45              //pili
@@ -262,14 +262,14 @@ public class PlantCodex {
 			HIGHER,         //mango
 			HIGH,           //coconut
 			ABS_LOWEST,     //mushroom
-			VOID,           //rafflesia
             LOW,            //acacia
             VOID,           //anahaw
+			VOID,           //rafflesia
 			VOID,           //mangrove
             LOWER,          //santol
 			HIGHEST,        //duhat
+            VOID,           //bamboo
 			ABS_HIGHEST,    //kapok
-			VOID,           //bamboo
 			HIGH,           //narra
 			VOID,           //balete
 			MOD             //pili
@@ -280,14 +280,14 @@ public class PlantCodex {
 			16,         //mango
 			32,         //coconut
 			8,          //mushroom
-			0,          //rafflesia
             16,         //acacia
             32,         //anahaw
+			0,          //rafflesia
 			0,          //mangrove
             16,         //santol
 			8,          //duhat
+            0,          //bamboo
 			16,         //kapok
-			0,          //bamboo
 			8,          //narra
 			0,          //balete
 			16          //pili
@@ -297,15 +297,15 @@ public class PlantCodex {
             LOW,        //pine
             LOWER,      //mango
             HIGHER,     //coconut
-            ABS_LOWEST,     //mushroom
-            LOWEST,     //rafflesia
+            ABS_LOWEST, //mushroom
             LOW,        //acacia
             MOD,        //anahaw
+            LOWEST,     //rafflesia
             LOWEST,     //mangrove
             HIGH,       //santol
             ABS_LOWEST, //duhat
-            ABS_LOWEST, //kapok
             ABS_HIGHEST,//bamboo
+            ABS_LOWEST, //kapok
             LOWEST,     //narra
             VOID,       //balete
             HIGH        //pili
@@ -316,14 +316,14 @@ public class PlantCodex {
 			"yellow",   //mango
 			"brown",    //coconut
 			"blue",     //mushroom
-			"--",       //rafflesia
             "brown",    //acacia
             "green",    //anahaw
+			"--",       //rafflesia
 			"--",       //mangrove
             "brown",    //santol
 			"purple",   //duhat
+            "--",       //bamboo
 			"blue",     //kapok
-			"--",       //bamboo
 			"green",    //narra
 			"--",       //balete
 			"purple"    //pili
@@ -366,14 +366,6 @@ public class PlantCodex {
                     "composed of 90% water. Releases",
                     "spores that can cause allergic",
                     "reactions.",
-            }, {//rafflesia
-                    "Known as Rafflesia Arnoldii or",
-                    "\"stinking corpse lily,\" it was",
-                    "named after Sir Stanford Raffles and",
-                    "Dr. James Arnold in 1988. It is a",
-                    "jungle parasite that weighs up to 11",
-                    "kilograms and blooms up to 107 cm, it",
-                    "is the largest flower in the world.",
             }, {//acacia
                     "A large umbraculifera tree",
                     "that reaches height up to 20",
@@ -390,6 +382,14 @@ public class PlantCodex {
                     "25 cm diameter. Has a smooth",
                     "trunk and obscure rings",
                     "that are leaf marks.",
+            }, {//rafflesia
+                    "Known as Rafflesia Arnoldii or",
+                    "\"stinking corpse lily,\" it was",
+                    "named after Sir Stanford Raffles and",
+                    "Dr. James Arnold in 1988. It is a",
+                    "jungle parasite that weighs up to 11",
+                    "kilograms and blooms up to 107 cm, it",
+                    "is the largest flower in the world.",
             }, {//mangrove
                     "\"Rainforest of the Sea.\" Grows",
                     "in tropical countries. Protects",
@@ -414,14 +414,6 @@ public class PlantCodex {
                     "arranged to form a cup. The fruit",
                     "is oval, 1-2 cm long, dark purple",
                     "to black",
-            }, {//kapok
-                    "Grows in tropical rainforests,",
-                    "it can conquer new or deforested",
-                    "lands. The tree can grow",
-                    "up to 70 meters. It has an",
-                    "umbrella-shaped crown made of",
-                    "numerous branches. The branches",
-                    "are covered with thorns.",
             }, {//bamboo
                     "Also called the \"Grass of hope,\"",
                     "it is a plant with high versatility,",
@@ -430,6 +422,14 @@ public class PlantCodex {
                     "ultraviolet rays and decreases the",
                     "light intensity.",
                     "Found in varying climates.",
+            }, {//kapok
+                    "Grows in tropical rainforests,",
+                    "it can conquer new or deforested",
+                    "lands. The tree can grow",
+                    "up to 70 meters. It has an",
+                    "umbrella-shaped crown made of",
+                    "numerous branches. The branches",
+                    "are covered with thorns.",
             }, {//narra
                     "The Philippine National Tree,",
                     "grows up to 30 meters with a",

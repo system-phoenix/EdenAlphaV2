@@ -17,7 +17,7 @@ public class Eden extends Game {
 
 	private com.systemphoenix.edenalpha.Screens.MapScreen mapScreen;
 	private com.systemphoenix.edenalpha.Screens.MainScreen mainScreen;
-	private int selectedMapIndex = 0, lowLevelBound = 0, highLevelBound = 0;
+	private int selectedMapIndex = 0, lowLevelBound = 0, highLevelBound = 0, module;
 
     private boolean firstTimePlaying = false;
     private float seedCount, waterCount;
@@ -77,8 +77,14 @@ public class Eden extends Game {
             firstTimePlaying = levelPrefs.getBoolean("FirstTimePlaying");
         }
 
+        if(!levelPrefs.contains("Module")) {
+            module = 0;
+            levelPrefs.putInteger("Module", module);
+        } else {
+            module = levelPrefs.getInteger("Module");
+        }
+
         levelPrefs.flush();
-        highLevelBound = 16;
 
 		this.mainScreen = new com.systemphoenix.edenalpha.Screens.MainScreen(this);
 		this.mapScreen = new com.systemphoenix.edenalpha.Screens.MapScreen(this);
@@ -125,6 +131,10 @@ public class Eden extends Game {
 
     public int getHighLevelBound() {
         return highLevelBound;
+    }
+
+    public int getModule() {
+        return module;
     }
 
     public float getSeedCount() {

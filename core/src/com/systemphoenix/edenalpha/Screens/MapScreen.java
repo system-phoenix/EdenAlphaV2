@@ -37,7 +37,7 @@ public class MapScreen extends AbsoluteScreen {
         this.inputMultiplexer = new InputMultiplexer();
         this.regionHud = new RegionHud(game, sizeWidth, sizeHeight);
         this.mapSelect = new com.systemphoenix.edenalpha.Scenes.MapSelect(game, this);
-        this.lowLevelBound = game.getLowLevelBound();
+        this.lowLevelBound = game.getModule();
         this.highLevelBound = game.getHighLevelBound();
         this.fieldSelection = new FieldSelection(this, game.getSelectedMapIndex(), lowLevelBound, highLevelBound);
 

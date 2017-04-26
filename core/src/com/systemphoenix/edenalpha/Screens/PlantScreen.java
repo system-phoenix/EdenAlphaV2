@@ -159,13 +159,13 @@ public class PlantScreen extends AbsoluteScreen {
             for(int j = 0; j < tempTrees[i].length; j++) {
                 if ((i == 3 && j == 0) || (i == 3 && j == 4)) {
                     continue;
-                } else if(i == 3 && (AnimalCodex.level[j - 1] <= mapScreen.getHighLevelBound() && AnimalCodex.level[j - 1] >= mapScreen.getLowLevelBound())) {
+                } else if(i == 3 && AnimalCodex.level[j - 1] % 2 == game.getModule() && (AnimalCodex.level[j - 1] <= mapScreen.getHighLevelBound() && AnimalCodex.level[j - 1] >= mapScreen.getLowLevelBound())) {
                     sprites[(i * tempTrees[i].length) + j] = new Sprite(tempAnimals[0][j - 1]);
                     sprites[i * tempTrees[i].length + j].setBounds(rectangles[i][j].getX(), rectangles[i][j].getY(), rectangles[i][j].getWidth(), rectangles[i][j].getHeight());
                     actorSprites[(i * tempTrees[i].length) + j] = new Sprite(tempAnimals[0][j - 1]);
                     stage.addActor(new AnimalButton(sprites[i * tempTrees[i].length + j], stage, this, i * tempTrees[i].length + j));
-                } else if((i * tempTrees[i].length + j >= mapScreen.getLowLevelBound() && i * tempTrees[i].length + j <= mapScreen.getHighLevelBound()) || (i * tempTrees[i].length + j < 15 && PlantCodex.level[i * tempTrees[i].length + j] <= mapScreen.getHighLevelBound())) {
-                    if((i == 0 && (j == 3 || j == 4)) || (i == 1 && j == 1)) {
+                } else if((i * tempTrees[i].length + j == 0 || i * tempTrees[i].length + j == 1) || i * tempTrees[i].length + j < 15 && PlantCodex.level[i * tempTrees[i].length + j] % 2 == game.getModule() && (i * tempTrees[i].length + j <= mapScreen.getHighLevelBound() || PlantCodex.level[i * tempTrees[i].length + j] <= mapScreen.getHighLevelBound()) || (mapScreen.getHighLevelBound() == 16 && i * tempTrees[i].length + j == 14)) {
+                    if((i == 0 && (j == 3) || (i == 1 && (j == 1 || j == 0)))) {
                         sprites[(i * tempTrees[i].length) + j] = new Sprite(tempPlants[i][j]);
                         actorSprites[(i * tempTrees[i].length) + j] = new Sprite(tempPlants[i][j]);
                     } else {
