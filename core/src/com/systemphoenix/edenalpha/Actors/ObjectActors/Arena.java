@@ -76,7 +76,7 @@ public class Arena implements Disposable {
                 targets.get(i).slow(1);
             }
 
-            if(gameScreen.getCentralTimer() - effectTimer - 100 >= effectLimit  && !attackConsumed) {
+            if(!attackConsumed) {
                 for(int i = 0; i < targets.size; i++) {
                     targets.get(i).receiveDamage((int)damage);
                 }

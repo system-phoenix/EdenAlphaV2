@@ -53,8 +53,8 @@ public class Plant extends Actor implements Disposable {
     private Vector2 damage;
     private long attackSpeed, lastAttackTime, growthTimer, lastHitTime, lastAcquisition, refundTimer;
     private int plantIndex, upgradeIndex = 0, downGradeIndex = 0;
-    private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1, seedRate, effectiveRange, upgradeCostSunlight, upgradeCostWater, actualRange, sunlightAccumulation, sunlight, seeds = 0, fastestSpeed = 0;
-    private boolean hasTarget = false, upgradable = false;
+    private float size = 32f, hp = 0f, targetHp = 50f, growthRate = 1, seedRate, effectiveRange, upgradeCostSunlight, upgradeCostWater, actualRange, sunlightAccumulation, sunlight, seeds = 0;
+    private boolean hasTarget = false, upgradable = false, decaying = false, mature = false;
 
     private Random rand = new Random();
 
@@ -202,6 +202,11 @@ public class Plant extends Actor implements Disposable {
 
     public void upgrade() {
         if(upgradeIndex < 3) {
+            if(decaying) {
+                damaged = true;
+                growthRate = -growthRate;
+            }
+            mature = decaying = false;
             upgradeIndex++;
             sunlight -= upgradeCostSunlight;
             upgradeCostSunlight *= 2;
@@ -310,8 +315,8 @@ public class Plant extends Actor implements Disposable {
 
     public void update() {
         if(!growing) {
-            if(targets.size > 0 && gameScreen.getCentralTimer() - lastAttackTime >= attackSpeed) {
-                targets.sort(new PositionComparator());
+            targets.sort(new PositionComparator());
+            if(targets.size > 0 && gameScreen.getCentralTimer() - lastAttackTime >= attackSpeed && !hasTarget) {
                 sound.play();
                 try{
                     int dmgRange = (int)(damage.y - damage.x);
@@ -369,12 +374,9 @@ public class Plant extends Actor implements Disposable {
                 }
             }
 
-            if(targets.size == 0) {
-                fastestSpeed = 0;
-            }
-
             upgradable = (gameScreen.getWater() - upgradeCostWater >= 0 && sunlight - upgradeCostSunlight >= 0);
-        } else {
+        }
+        if(growing || decaying){
             if(gameScreen.getCentralTimer() - growthTimer >= 200) {
                 hp += growthRate;
                 float multiplier = hp / targetHp;
@@ -394,9 +396,18 @@ public class Plant extends Actor implements Disposable {
         }
         if(gameScreen.getCentralTimer() - lastAcquisition > 1000) {
             lastAcquisition = gameScreen.getCentralTimer();
-            sunlight += sunlightAccumulation;
-            if(sunlight > upgradeCostSunlight) {
-                sunlight = upgradeCostSunlight;
+            if(!mature && !decaying) {
+                sunlight += sunlightAccumulation;
+                if(sunlight > upgradeCostSunlight) {
+                    sunlight = upgradeCostSunlight;
+                    if(!growing) {
+                        mature = true;
+                        growthTimer = gameScreen.getCentralTimer();
+                    }
+                }
+            } else if(gameScreen.getCentralTimer() - growthTimer >= 300000 / (downGradeIndex + 1) && !decaying) {
+                decaying = true;
+                growthRate = -growthRate;
             }
             if(!growing) {
                 seeds += seedRate;
@@ -609,7 +620,9 @@ public class Plant extends Actor implements Disposable {
     }
 
     public void setHasTarget(boolean hasTarget) {
+        Gdx.app.log("Verbose", "root done");
         this.hasTarget = hasTarget;
+        lastAttackTime = 0;
     }
 
     public void receiveDamage(float damage) {

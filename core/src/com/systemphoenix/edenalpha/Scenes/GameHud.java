@@ -373,6 +373,8 @@ public class GameHud extends AbsoluteHud implements Disposable {
         this.index = animalActor.getAnimalIndex();
         float barSize = 200;
         plantName.setText(AnimalCodex.name[index]);
+        plantType.setText("");
+        plantCost.setText("" + (int) (50) + " seeds, " + 100 + " water");
         plantHP.setBounds(plantHP.getX(), plantHP.getY(), 0, plantHP.getHeight());
         plantAS.setBounds(plantAS.getX(), plantAS.getY(), 0, plantAS.getHeight());
         plantDmg.setBounds(plantDmg.getX(), plantDmg.getY(), barSize * (AnimalCodex.DMG[AnimalCodex.dmgStats[index]] / AnimalCodex.DMG[AnimalCodex.HIGHEST]), plantDmg.getHeight());

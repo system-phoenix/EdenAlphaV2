@@ -108,8 +108,8 @@ public class GameScreen extends AbsoluteScreen {
         this.forestLife = region.getLifePercentage();
         this.seeds = RegionCodex.startingResource[region.getMapIndex()] / 2;
         this.water = RegionCodex.startingResource[region.getMapIndex()];
-//        this.waveLimit = region.getWaveLimit();
-        this.waveLimit = 0;
+        this.waveLimit = region.getWaveLimit();
+//        this.waveLimit = 0;
         this.sunlight = region.getSunlight();
 
         worldHeight = region.getWorldHeight();
@@ -559,20 +559,28 @@ public class GameScreen extends AbsoluteScreen {
             if(win || lose) {
                 if(win) {
                     if(mapScreen.getHighLevelBound() == region.getMapIndex()) {
+                        int increment = 2;
                         if(mapScreen.getHighLevelBound() < 16) {
-                            game.setLevelBounds(mapScreen.getLowLevelBound(), mapScreen.getHighLevelBound() + 2 < 16 ? mapScreen.getHighLevelBound() + 2 : 16);
+                            game.setLevelBounds(mapScreen.getLowLevelBound(), mapScreen.getHighLevelBound() + increment < 16 ? mapScreen.getHighLevelBound() + increment : 16);
                         }
 
                         boolean stringSet = false;
                         for(int i = 0; i < PlantCodex.level.length; i++) {
                             if(PlantCodex.level[i] == game.getHighLevelBound()) {
-                                pauseStageLabel.setText("You unlocked " + RegionCodex.names[region.getMapIndex() + 1] + " and " + PlantCodex.plantName[i] + "!");
+                                pauseStageLabel.setText("You unlocked " + RegionCodex.names[region.getMapIndex() + increment] + " and " + PlantCodex.plantName[i] + "!");
+                                stringSet = true;
+                                break;
+                            }
+                        }
+                        for(int i = 0; i < AnimalCodex.level.length; i++) {
+                            if(AnimalCodex.level[i] == game.getHighLevelBound()) {
+                                pauseStageLabel.setText("You unlocked " + RegionCodex.names[region.getMapIndex() + increment] + " and " + AnimalCodex.name[i] + "!");
                                 stringSet = true;
                                 break;
                             }
                         }
                         if(!stringSet) {
-                            pauseStageLabel.setText("You unlocked " + RegionCodex.names[region.getMapIndex() + 1] + "!");
+                            pauseStageLabel.setText("You unlocked " + RegionCodex.names[region.getMapIndex() + increment] + "!");
                         }
                     }
                     winEndGame.draw(gameGraphics);
@@ -632,9 +640,13 @@ public class GameScreen extends AbsoluteScreen {
     }
 
     public void createAnimal(Sprite sprite, Sprite arenaSprite, float damage, int animalIndex) {
-        if(animal != null) nullAnimal();
-        this.animal = new Animal(this, sprite, arenaSprite, damage, animalIndex);
-        this.gameStage.addActor(animal);
+        if(seeds > 50 && water > 100) {
+            if(animal != null) nullAnimal();
+            this.animal = new Animal(this, sprite, arenaSprite, damage, animalIndex);
+            this.gameStage.addActor(animal);
+            seeds -= 50;
+            water -= 100;
+        }
     }
 
     public void nullAnimal() {

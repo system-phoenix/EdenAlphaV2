@@ -139,4 +139,8 @@ public class AbsoluteScreen implements Screen, GestureDetector.GestureListener {
     public void setWillDispose(boolean willDispose) {
         this.willDispose = willDispose;
     }
+
+    public Eden getGame() {
+        return game;
+    }
 }

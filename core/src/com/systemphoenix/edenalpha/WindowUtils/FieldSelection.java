@@ -87,17 +87,19 @@ public class FieldSelection {
     public void setIndex(int update) {
         if(!flinging) {
             int pastIndex = index;
-            index += (update * 2);
-            if(lowLevelBound == 1 && highLevelBound == 16 && update < 0 && index % 2 == 0) {
-                index++;
+            if(!mapScreen.getGame().isDevMode()) {
+                index += (update * 2);
+                if(lowLevelBound == 1 && update < 0 && index % 2 == 0) {
+                    index++;
+                }
+            } else {
+                index += update;
             }
             if (index < lowLevelBound) {
                 index = lowLevelBound;
-            } else if (index > highLevelBound) {
-                index = highLevelBound;
+            } else if (index > 16) {
+                index = 16 ;
             }
-
-            Gdx.app.log("Verbose", "Index: " + index);
 
             this.velX = (regions[index].getX() - regions[pastIndex].getX()) / 10;
             this.velY = (regions[index].getY() - regions[pastIndex].getY()) / 10;

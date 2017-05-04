@@ -24,6 +24,10 @@ public class MapSelect extends AbsoluteHud implements Disposable {
         playButton.setDrawable(true);
     }
 
+    public void setPlayButtonPressable(boolean pressable) {
+        playButton.setCanPress(pressable);
+    }
+
     public void setDrawable(boolean left, boolean right) {
         this.left.setDrawable(left);
         this.right.setDrawable(right);

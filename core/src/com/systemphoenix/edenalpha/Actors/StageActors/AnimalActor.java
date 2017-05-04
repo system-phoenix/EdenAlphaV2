@@ -14,8 +14,8 @@ public class AnimalActor extends PlantActor implements Disposable {
 
     private Sprite arenaSprite;
 
-    private float damage, range, upgradeCostWater, upgradeCostSeeds, size;
-    private int upgradeIndex = 0, animalIndex;
+    private float damage, range, size;
+    private int animalIndex;
 
     private long cooldownTimer;
     private boolean usable = true;
@@ -33,9 +33,6 @@ public class AnimalActor extends PlantActor implements Disposable {
 
         float cost = 100;
         setPlantCost(cost);
-
-        upgradeCostSeeds = cost / 2;
-        upgradeCostSeeds = cost;
 
         this.clearListeners();
 
@@ -55,7 +52,7 @@ public class AnimalActor extends PlantActor implements Disposable {
 
     @Override
     public boolean triggerAction() {
-        if(drawable) {
+        if(drawable && usable) {
             setRectangleSpriteBounds();
             if(recentlySelectedActor != null) recentlySelectedActor.setDrawRectangle(false);
             drawRectangle = true;
@@ -105,19 +102,6 @@ public class AnimalActor extends PlantActor implements Disposable {
 
         if(dragging && recentlySelectedActor.equals(this)) {
             dragSprite.draw(batch);
-        }
-    }
-
-    public void upgrade() {
-        if(gameScreen.getSeeds() - upgradeCostSeeds >= 0 && gameScreen.getWater() - upgradeCostWater >= 0) {
-            upgradeIndex++;
-            upgradeCostSeeds *= 2; upgradeCostWater *= 2;
-            if(AnimalCodex.dmgStats[getPlantIndex()] + upgradeIndex < AnimalCodex.HIGHEST) {
-                damage = AnimalCodex.DMG[AnimalCodex.dmgStats[this.animalIndex] + upgradeIndex];
-            }
-            if(AnimalCodex.rangeStats[getPlantIndex()] + upgradeIndex < AnimalCodex.HIGHEST) {
-                range = AnimalCodex.RANGE[AnimalCodex.rangeStats[this.animalIndex] + upgradeIndex];
-            }
         }
     }
 

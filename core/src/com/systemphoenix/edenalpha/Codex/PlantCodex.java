@@ -6,7 +6,7 @@ public class PlantCodex {
 
     public static final float baseHP = 500, baseRange = 5, baseSeedRate = 1;
     public static final long baseAS = 1000;
-    public static final Vector2 baseDmg = new Vector2(90, 95);
+    public static final Vector2 baseDmg = new Vector2(45, 50);
 
     public static final int VOID        = 0,
                             ABS_LOWEST  = 1,
@@ -150,16 +150,16 @@ public class PlantCodex {
     };
 
     public static final float cost[] = {
-            50,             //pine
-			25,             //mango
+            40,             //pine
+			35,             //mango
 			75,             //coconut
-			15,             //mushroom
+			25,             //mushroom
             150,            //acacia
             100,            //ananhaw
-			100,            //rafflesia
+			150,            //rafflesia
 			75,             //mangrove
             200,            //santol
-			20,             //duhat
+			50,             //duhat
             350,            //bamboo
 			350,            //kapok
 			300,            //narra
@@ -241,7 +241,7 @@ public class PlantCodex {
 
     public static final float growthTime[] = {
             35,             //pine
-			15,             //mango
+			25,             //mango
 			30,             //coconut
 			5,              //mushroom
             15,             //acacia
@@ -295,7 +295,7 @@ public class PlantCodex {
 
     public static final int[] DMG = {
             LOW,        //pine
-            LOWER,      //mango
+            ABS_LOWEST,      //mango
             HIGHER,     //coconut
             ABS_LOWEST, //mushroom
             LOW,        //acacia
@@ -342,6 +342,9 @@ public class PlantCodex {
                     "the nickname \"City of Pines\".",
                     "Grows upto 30 - 40 meters",
                     "with 140 cm diameter.",
+                    "",
+                    "",
+                    "Tap for more details",
             }, {//mango
                     "The tree can reach 15",
                     "to 18 meters in height,",
@@ -350,6 +353,9 @@ public class PlantCodex {
                     "flowers that may cause",
                     "respiratory and allergic",
                     "reactions.",
+                    "",
+                    "",
+                    "Tap for more details",
             }, {//coconut
                     "Typically grows in tropical and",
                     "subtropical countries. Belongs",
@@ -358,6 +364,9 @@ public class PlantCodex {
                     "and the leaves have a length",
                     "of 4 - 6 meters. The fruit",
                     "weighs up to 1.44 kilograms.",
+                    "",
+                    "",
+                    "Tap for more details",
             }, {//mushroom
                     "Also known as \"toad stools.\"",
                     "Fungal plants that can grow",
@@ -366,6 +375,9 @@ public class PlantCodex {
                     "composed of 90% water. Releases",
                     "spores that can cause allergic",
                     "reactions.",
+                    "",
+                    "",
+                    "Tap for more details",
             }, {//acacia
                     "A large umbraculifera tree",
                     "that reaches height up to 20",
@@ -374,6 +386,9 @@ public class PlantCodex {
                     "soils. Commonly used as shade",
                     "trees, but sometimes,",
                     "grows spontaneously.",
+                    "",
+                    "",
+                    "Tap for more details",
             }, {//anahaw
                     "Known as the Philippine national",
                     "leaf, it has many uses and can",
@@ -382,6 +397,9 @@ public class PlantCodex {
                     "25 cm diameter. Has a smooth",
                     "trunk and obscure rings",
                     "that are leaf marks.",
+                    "",
+                    "",
+                    "Tap for more details",
             }, {//rafflesia
                     "Known as Rafflesia Arnoldii or",
                     "\"stinking corpse lily,\" it was",
@@ -390,6 +408,9 @@ public class PlantCodex {
                     "jungle parasite that weighs up to 11",
                     "kilograms and blooms up to 107 cm, it",
                     "is the largest flower in the world.",
+                    "",
+                    "",
+                    "Tap for more details",
             }, {//mangrove
                     "\"Rainforest of the Sea.\" Grows",
                     "in tropical countries. Protects",
@@ -398,6 +419,9 @@ public class PlantCodex {
                     "through corrosion reduction. Vital",
                     "part of marine ecosystem that",
                     "involves seagrass and coral reefs.",
+                    "",
+                    "",
+                    "Tap for more details",
             }, {//santol
                     "Fast-growing tree that is up to",
                     "15-45 meters tall. It has compound",
@@ -406,6 +430,9 @@ public class PlantCodex {
                     "on the young branches.",
                     "The fruit is oblate with wrinkles",
                     "from the base.",
+                    "",
+                    "",
+                    "Tap for more details",
             }, {//duhat
                     "A Duhat tree is about 8-14 meters",
                     "tall, with white branches and",
@@ -414,6 +441,9 @@ public class PlantCodex {
                     "arranged to form a cup. The fruit",
                     "is oval, 1-2 cm long, dark purple",
                     "to black",
+                    "",
+                    "",
+                    "Tap for more details",
             }, {//bamboo
                     "Also called the \"Grass of hope,\"",
                     "it is a plant with high versatility,",
@@ -422,6 +452,9 @@ public class PlantCodex {
                     "ultraviolet rays and decreases the",
                     "light intensity.",
                     "Found in varying climates.",
+                    "",
+                    "",
+                    "Tap for more details",
             }, {//kapok
                     "Grows in tropical rainforests,",
                     "it can conquer new or deforested",
@@ -430,6 +463,9 @@ public class PlantCodex {
                     "umbrella-shaped crown made of",
                     "numerous branches. The branches",
                     "are covered with thorns.",
+                    "",
+                    "",
+                    "Tap for more details",
             }, {//narra
                     "The Philippine National Tree,",
                     "grows up to 30 meters with a",
@@ -437,7 +473,10 @@ public class PlantCodex {
                     "sturdy tree that produces disc-",
                     "shaped pods that contains two,",
                     "three occaionally, seeds that are",
-                    "dispersed through wind and air."
+                    "dispersed through wind and air.",
+                    "",
+                    "",
+                    "Tap for more details",
             }, {//balete
                     "Grows from a host tree",
                     "that it crushes to death,",
@@ -445,7 +484,10 @@ public class PlantCodex {
                     "There have been instances where",
                     "it is related to ghost stories",
                     "and folklores, like the infamous",
-                    "story about the Balete Drive."
+                    "story about the Balete Drive.",
+                    "",
+                    "",
+                    "Tap for more details",
             }, {//pili
                     "\"The next tree of life.\"",
                     "Its fruit has a thin skin. But the",
@@ -453,7 +495,10 @@ public class PlantCodex {
                     "crack, and it protects the kernel.",
                     "The trunk is used for furniture,",
                     "the shell of the fruit is used",
-                    "for charcoal and handicrafts."
+                    "for charcoal and handicrafts.",
+                    "",
+                    "",
+                    "Tap for more details",
             },
     };
 

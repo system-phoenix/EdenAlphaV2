@@ -190,17 +190,18 @@ public class Enemy extends Sprite implements Disposable {
             velX = velY = 0;
         }
 
-        if(receivingDamage) {
-            if(gameScreen.getCentralTimer() - receiveDamageTick > 5) {
-                receiveDamageTick = gameScreen.getCentralTimer();
-                damagePart = damageCounter / 2f;
-                damageCounter -= damagePart;
-                receiveDamage();
-                if(damageCounter <= 0) {
-                    receivingDamage = false;
-                }
-            }
-        }
+//        if(receivingDamage) {
+//            if(gameScreen.getCentralTimer() - receiveDamageTick > 5) {
+//                receiveDamageTick = gameScreen.getCentralTimer();
+//                damagePart = damageCounter / 2f;
+//                damageCounter -= damagePart;
+//                receiveDamage();
+//                if(damageCounter <= 0.49) {
+//                    damageCounter = 0;
+//                    receivingDamage = false;
+//                }
+//            }
+//        }
     }
 
     protected TextureRegion getFrame() {
@@ -250,12 +251,10 @@ public class Enemy extends Sprite implements Disposable {
                 damageCounter = 0;
             }
             damageCounter += damage;
-            receivingDamage = true;
-            receiveDamageTick = gameScreen.getCentralTimer();
-    //        life -= damage;
+            life -= damage;
             drawHpBar = true;
             damageTimer = gameScreen.getCentralTimer();
-            if(life <= 0) {
+            if(life <= 0.49) {
                 dead = true;
                 deathTimer = gameScreen.getCentralTimer();
             }
@@ -374,6 +373,10 @@ public class Enemy extends Sprite implements Disposable {
 
     public boolean isSpirit() {
         return spirit;
+    }
+
+    public boolean isDead() {
+        return dead;
     }
 
     public float getLife() {

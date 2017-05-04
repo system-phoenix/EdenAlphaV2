@@ -61,7 +61,8 @@ public class Root implements Disposable {
                         if(gameScreen.getCentralTimer() - lastAttackTime >= 1000) {
                             target.receiveDamage(target.maxLife / 10);
                             lastAttackTime = gameScreen.getCentralTimer();
-                            if(target.getLife() <= 0) {
+                            if(target.getLife() <= 0 || target.isDead()) {
+                                Gdx.app.log("Verbose", "Target dead!");
                                 damageDealt = true;
 //                                limit = gameScreen.getCentralTimer();
                                 plant.setHasTarget(false);

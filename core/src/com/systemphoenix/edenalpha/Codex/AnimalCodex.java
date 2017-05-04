@@ -59,6 +59,9 @@ public class AnimalCodex {
                     "It is solitary and territorial.",
                     "It adapts in places with high",
                     "forest density.",
+                    "",
+                    "",
+                    "Tap for more details",
             }, {
                     "Found only in Philippines,",
                     "specifically in Mindoro. It grows",
@@ -66,7 +69,10 @@ public class AnimalCodex {
                     "in length, and weighs 200-300",
                     "kilos. Signals ferocity through",
                     "the lowering of horns,",
-                    "becomes violent when cornered."
+                    "becomes violent when cornered.",
+                    "",
+                    "",
+                    "Tap for more details",
             }, {
                     "Endemic in the Philippines,",
                     "it grows up to 14 centimeters",
@@ -74,7 +80,10 @@ public class AnimalCodex {
                     "centimeters. It is, with the",
                     "continued destruction of its",
                     "habitat, endangered. It is not seen",
-                    "for over 10 years in some places."
+                    "for over 10 years in some places.",
+                    "",
+                    "",
+                    "Tap for more details",
             }
     };
 }

@@ -37,9 +37,9 @@ public class MapScreen extends AbsoluteScreen {
         this.inputMultiplexer = new InputMultiplexer();
         this.regionHud = new RegionHud(game, sizeWidth, sizeHeight);
         this.mapSelect = new com.systemphoenix.edenalpha.Scenes.MapSelect(game, this);
-        this.lowLevelBound = game.getModule();
+        this.lowLevelBound = game.getLowLevelBound();
         this.highLevelBound = game.getHighLevelBound();
-        this.fieldSelection = new FieldSelection(this, game.getSelectedMapIndex(), lowLevelBound, highLevelBound);
+        this.fieldSelection = new FieldSelection(this, game.getSelectedMapIndex(), lowLevelBound, 16);
 
         worldHeight = worldWidth = 1403;
         try {
@@ -89,11 +89,17 @@ public class MapScreen extends AbsoluteScreen {
             mapSelect.setLeftCanDraw(false);
             regionHud.setLeftRegionCode("            ");
         }
-        if(fieldSelection.getIndex() + 1 <= highLevelBound) {
+        if(fieldSelection.getIndex() + 1 <= 16) {
             regionHud.setRightRegionCode(fieldSelection.getRegionByIndex(fieldSelection.getIndex() + 1).getCode());
         } else {
             mapSelect.setRightCanDraw(false);
             regionHud.setRightRegionCode("            ");
+        }
+
+        if(fieldSelection.getIndex() <= highLevelBound) {
+            mapSelect.setPlayButtonPressable(true);
+        } else {
+            mapSelect.setPlayButtonPressable(false);
         }
         regionHud.setRegionCode(currentRegion.getCode());
         regionHud.setRegionName(currentRegion.getName());

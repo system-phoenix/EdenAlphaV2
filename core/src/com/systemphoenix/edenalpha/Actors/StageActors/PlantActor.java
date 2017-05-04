@@ -52,6 +52,10 @@ public class PlantActor extends Actor {
                 action();
             }
         });
+
+        if(index == 0) {
+            triggerAction();
+        }
     }
 
     public PlantActor(Sprite textureRegion, Sprite rectangleSprite, int plantIndex, float size) {

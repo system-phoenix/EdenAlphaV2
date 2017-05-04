@@ -19,11 +19,12 @@ public class Eden extends Game {
 	private com.systemphoenix.edenalpha.Screens.MainScreen mainScreen;
 	private int selectedMapIndex = 0, lowLevelBound = 0, highLevelBound = 0, module;
 
-    private boolean firstTimePlaying = false;
+    private boolean firstTimePlaying = false, devMode = false;
     private float seedCount, waterCount;
 	
 	@Override
 	public void create () {
+        devMode = true;
         this.gameGraphics = new SpriteBatch();
         generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/arcon.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -35,25 +36,21 @@ public class Eden extends Game {
 
 		this.levelPrefs = Gdx.app.getPreferences("Level");
 
+        module = 0;
         if(!levelPrefs.contains("SelectedMapIndex")) {
-            this.selectedMapIndex = 0;
+            this.selectedMapIndex = module;
             levelPrefs.putInteger("SelectedMapIndex", selectedMapIndex);
         } else {
             this.selectedMapIndex = levelPrefs.getInteger("SelectedMapIndex");
         }
 
-        if(!levelPrefs.contains("LowLevelBound")) {
-            this.lowLevelBound = 0;
+        if(!levelPrefs.contains("HighLevelBound")) {
+            this.lowLevelBound = this.highLevelBound = module;
+            levelPrefs.putInteger("HighLevelBound", highLevelBound);
             levelPrefs.putInteger("LowLevelBound", lowLevelBound);
         } else {
-            this.lowLevelBound = levelPrefs.getInteger("LowLevelBound");
-        }
-
-        if(!levelPrefs.contains("HighLevelBound")) {
-            this.highLevelBound = 0;
-            levelPrefs.putInteger("HighLevelBound", highLevelBound);
-        } else {
             this.highLevelBound = levelPrefs.getInteger("HighLevelBound");
+            this.lowLevelBound = module;
         }
 
         if(!levelPrefs.contains("SeedCount")) {
@@ -77,11 +74,9 @@ public class Eden extends Game {
             firstTimePlaying = levelPrefs.getBoolean("FirstTimePlaying");
         }
 
-        if(!levelPrefs.contains("Module")) {
-            module = 0;
-            levelPrefs.putInteger("Module", module);
-        } else {
-            module = levelPrefs.getInteger("Module");
+        if(devMode) {
+            lowLevelBound = 0;
+            highLevelBound = 16;
         }
 
         levelPrefs.flush();
@@ -143,6 +138,10 @@ public class Eden extends Game {
 
     public float getWaterCount() {
         return waterCount;
+    }
+
+    public boolean isDevMode() {
+        return devMode;
     }
 
     public boolean isFirstTimePlaying() {
